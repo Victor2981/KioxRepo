@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="">
+    
+        <title>SB Admin 2 - Dashboard</title>
+    
+        <!-- Custom fonts for this template-->
+        <link href="../../../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+        <link
+            href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+            rel="stylesheet">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+        <!-- Custom styles for this template-->
+        <link href="../../../css/sb-admin-2.min.css" rel="stylesheet">
+        <link href="../../../css/custom.css" rel="stylesheet">
+        <link href="../../../vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <style>
+      
+    </style>
+    </head>
+<body id="page-top">    
+    <div class="dvLoader">
+        <div class="dvLoaderContenido">
+            <div class="spinner-border d-flex" role="status">
+            </div>
+            <p>Cargando</p>
+        </div>
+    </div>
+    <!-- Page Heading -->
+    <div class="d-sm-flex mb-4">        
+        <div class="row">
+            <div class="col-md-auto"><h1 class="h3 mb-0 text-gray-800">Lista de egresos</h1></div>
+            <div class="col-md-auto">
+                Fecha inicio: <input type="date" class="txtFechaIncEgresos" width="100px"/>  
+                Fecha fin: <input type="date" class="txtFechaFinEgresos" width="100px"/>
+                <button type="button" class="btn btn-primary btnBuscarEgresos">Buscar</button>
+            </div>
+            <div class="col-md-auto">                
+                <button type="button" class="btn btn-info btnAgregarEgreso float-right">Agregar egreso</button>
+                <button type="button" class="btn btn-warning btnRegresarEgreso float-right">Regresar</button>
+            </div>
+        </div>
+    </div>    
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    Total <strong class="pTotalEgresos">$0</strong>
+                </div>
+            </div>
+            <div class="col">
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    Efectivo <strong class="pEfectivoEgresos">$0</strong>
+                </div>
+            </div><div class="col">
+                <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                    Banco <strong class="pBancoEgresos">$0</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary"></h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">                                
+                <table class="table table-bordered tblEgresosDetalle" id="dataTable" width="100%" cellspacing="0">
+                </table>
+                <table class="table table-bordered tblEgresos" id="dataTable" width="100%" cellspacing="0">
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-analytics.js"></script>
+    <script src="../../../methods/conexiones.js"></script>
+    <script src="../../../methods/Globals.js"></script>
+    <script src="../../../methods/qr.js"></script>
+    <script src="../../../methods/utilidades.js"></script>
+    <script src="../../../methods/dbManager.js"></script>
+    <script>
+        $(document).ready(function(){     
+            var FechaI = new Date(new Date().getFullYear(),new Date().getMonth(),new Date().getDate(),0,0,0);
+            var FechaF = new Date(new Date().getFullYear(),new Date().getMonth(),new Date().getDate(),23,59,59);
+            $(".txtFechaIncEgresos").val(FechaI.getFullYear().toString() + "-" + (FechaI.getMonth()+1).toString().padStart(2,"0") + "-" + (FechaI.getDate()).toString().padStart(2,"0"));
+            $(".txtFechaFinEgresos").val(FechaF.getFullYear().toString() + "-" + (FechaF.getMonth()+1).toString().padStart(2,"0") + "-" + (FechaF.getDate()).toString().padStart(2,"0"));      
+            SeleccionarDatosEgresos("tabla",FechaI,FechaF);            
+        });
+    </script>
+</body>    
+                   

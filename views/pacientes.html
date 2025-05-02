@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="">
+    
+        <title>SB Admin 2 - Dashboard</title>
+    
+        <!-- Custom fonts for this template-->
+        <link href="../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+        <link
+            href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+            rel="stylesheet">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+        <!-- Custom styles for this template-->
+        <link href="../css/sb-admin-2.min.css" rel="stylesheet">
+        <link href="../css/custom.css" rel="stylesheet">
+        <link href="../vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <style>
+      
+    </style>
+    </head>
+<body id="page-top">    
+    <div class="dvLoader">
+        <div class="dvLoaderContenido">
+            <div class="spinner-border d-flex" role="status">
+            </div>
+            <p>Cargando</p>
+        </div>
+    </div>
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Lista de pacientes</h1>
+    </div>
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary"></h6>
+            <div class="containter">
+                <div class="row">
+                    <div class="col-auto">Paciente</div>
+                    <div class="col-4"><input type="text" id="txtPacienteFiltro" class="form-control txtPacienteFiltro inputCapture" style="width: 500px;" autocomplete="one-time-code"/></div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">                                
+                <table class="table table-bordered tblPacientes" id="dataTable" width="100%" cellspacing="0">
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-analytics.js"></script>
+    <script src="../methods/conexiones.js?v=2"></script>
+    <script src="../methods/Pacientes.js?v=2"></script>
+    <script src="../methods/utilidades.js?v=2"></script>
+    <script src="../methods/dbManager.js?v=2"></script>
+    <script>
+        $(document).ready(function(){        
+            SeleccionarDatosPacientes();
+        });
+    </script>
+</body>    
+                   

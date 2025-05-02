@@ -1,0 +1,48 @@
+<html>
+    <script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-analytics.js"></script>
+    <script>
+        const firebaseConfig = {
+    apiKey: "AIzaSyDFlvXXq0Kdu1CAyjslc2gChlLu0SILn7s",
+    authDomain: "fior-a4273.firebaseapp.com",
+    projectId: "fior-a4273",
+    storageBucket: "fior-a4273.appspot.com",
+    messagingSenderId: "735779644274",
+    appId: "1:735779644274:web:79fa30cc8ce9bbb7db33eb",
+    measurementId: "G-L6BS8GTYS4"
+    };
+    const actionURLGlobal = 'https://fior-a4273.firebaseapp.com/__/auth/action';
+    const apiKeyGlobal = firebaseConfig.apiKey;
+    const authDomainGlobal = firebaseConfig.authDomain;
+    const databaseURLGlobal = firebaseConfig.databaseURL;
+    const projectIdGlobal = firebaseConfig.projectId;
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+    const db = firebase.firestore();
+    const dbCompleto = firebase;
+
+    $(document).ready(function(){
+        const urlQueryString = new URLSearchParams(window.location.search);
+        const idUrl = urlQueryString.get('pipqr');    
+    if (idUrl != "" && idUrl != null) {
+        return new Promise(resolve => {setTimeout(async function(){
+            var obj={
+                Id:idUrl,
+                Date: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            db.collection("/QrViews").add(obj).then((e)=>{
+                window.location.href = "https://wa.me/525578708669?text=Hola%20me%20gustaría%20agendar%20una%20cita%20para%20fisioterapia";
+            }).catch(error=>{
+                resolve(false);
+                alert("error");
+            });
+        })});
+    }
+    });
+    </script>
+</html>

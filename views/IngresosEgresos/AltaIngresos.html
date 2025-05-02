@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="">
+    
+        <title>SB Admin 2 - Dashboard</title>
+    
+        <!-- Custom fonts for this template-->
+        <link href="../../../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+        <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+        <!-- Custom styles for this template-->
+        <link href="../../../css/sb-admin-2.min.css" rel="stylesheet">
+        <link href="../../../css/custom.css" rel="stylesheet">
+        <link href="../../../vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker.css">
+        <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">             -->
+    </head>
+    <style>
+        .fade{
+            opacity: 1;
+        }
+    </style>
+<body id="page-top">
+    <div class="dvLoader">
+        <div class="dvLoaderContenido">
+            <div class="spinner-border d-flex" role="status">
+            </div>
+            <p>Cargando</p>
+        </div>
+    </div>
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Alta ingreso</h1>
+    </div>
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h4 class="m-0 font-weight-bold text-primary">Agregar ingreso</h4>
+            <div class="row">
+                <div class="col">
+                    <!-- <button type="button" class="btn btn-primary btnGuardarIngresos float-right" data-bs-toggle="modal" data-bs-target="#modalCheckOut">Ir al pago</button> -->
+                    <button type="button" class="btn btn-primary btnPago float-right">Ir al pago</button>
+                    <button type="button" class="btn btn-success btnAgregarIngresos float-right">Agregar</button>
+                </div>
+            </div>
+        </div>        
+        <div class="bd-example">
+            <nav>
+              <div class="nav nav-tabs mb-3" id="nav-tab" role="tablist">
+                <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="false">Servicios</button>
+                <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Productos</button>
+              </div>
+            </nav>
+            <div class="tab-content" id="nav-tabContent">
+              <div class="tab-pane fade active show" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+                    <div class="card-body">
+                    <div class="row">                          
+                        <div class="col">
+                            <label>Categoría:</label>
+                            <select class="form-control ddlCategoria inputCapture" id="ddlCategoria"></select>
+                        </div>
+                        <div class="col">
+                            <label>Servicio:</label>
+                            <select class="form-control ddlServicio inputCapture" id="ddlServicio"></select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label>Paciente:</label>
+                            <input type="text" id="txtPacienteIngresos" class="form-control txtPacienteIngresos inputCapture" style="width: 500px;" autocomplete="one-time-code"/>
+                        </div>
+                        <div class="col">
+                            <label>Importe total:</label>
+                            <input type="text" class="form-control txtImporteTotal" id="txtImporteTotal" maxlength="30">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label>Fecha:</label>
+                            <input type="date" class="form-control txtFechaPago inputCapture" id="txtFechaPago" maxlength="10" style="width: 150px;">
+                        </div>
+                        <div class="col">
+                            <label>¿Es un paquete?:</label>
+                            <div class="form-check">
+                                <select class="form-control ddlPaquete inputCapture" id="ddlPaquete">
+                                    <option value="0">No</option>
+                                    <option value="1">Sí</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <div class="row rowPaquete">
+                        <div class="col-auto">
+                            <label>Número de sesiones:</label>
+                            <input type="text" class="form-control txtNumeroSesiones" id="txtNumeroSesiones" maxlength="30">
+                        </div>
+                    </div>
+                </div>
+              </div>
+              <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+                <p></p>
+              </div>
+            </div>
+          </div>      
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div class="table-responsive">                                
+                <table class="table table-bordered tblIngresos" id="dataTable" width="100%" cellspacing="0">
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalCheckOut" class="modal modalCheckOut fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Confirmación de pago</h4>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="card-body">
+                    <div class="table-responsive">                                
+                        <table class="table table-bordered tblIngresosCheckOut" id="dataTable" width="100%" cellspacing="0">
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col">
+                        <label>Pago:</label>
+                        <input type="number" class="form-control txtPago inputCapture" id="txtPago" maxlength="10" style="width: 150px;">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label>Forma de pago:</label>
+                        <select class="form-control ddlFormaPago inputCapture" id="ddlFormaPago"></select>
+                    </div>
+                    <div class="col">
+                        <label>Mensualidades:</label>
+                        <select class="form-control ddlMensualidades inputCapture" id="ddlMensualidades"></select>
+                    </div>
+                </div>
+            </div>            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary btnAcceptCheckout">Aceptar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    
+    
+    <script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-analytics.js"></script>
+    <script src="../../../methods/conexiones.js?kvs=2.3"></script>
+    <script src="../../../methods/Pacientes.js?kvs=2.3"></script>
+    <script src="../../../methods/categorias.js?kvs=2.3"></script>
+    <script src="../../../methods/servicios.js?kvs=2.3"></script>
+    <script src="../../../methods/IngresosEgresos/ingresos.js?kvs=2.3"></script>
+    <script src="../../../methods/utilidades.js?kvs=2.3"></script>
+    <script src="../../../methods/dbManager.js?kvs=2.3"></script>
+    <script>
+        $(document).ready(async function(){        
+            await llenarDropDownCategory(parent.lstCategoriesGlobal);            
+        });
+    </script>
+    
+</body>    
+                   

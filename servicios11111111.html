@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="">
+    
+        <!-- Custom fonts for this template-->
+        <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+        <link
+            href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+            rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+        <script src='js/calendar/dist/moment/index.global.min.js'></script>
+        <script src='js/calendar/dist/index.global.js'></script>
+        <script src='js/calendar/dist/es.global.js'></script>
+        <!-- Custom styles for this template-->
+        <link href="css/sb-admin-2.min.css" rel="stylesheet">
+        <link href="css/custom.css" rel="stylesheet">
+        <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">        
+    
+        <style>
+
+            html, body {
+              overflow: hidden; /* don't do scrollbars */
+              font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+              font-size: 14px;
+            }
+          
+            #calendar-container {
+              position: fixed;
+              top: 45px;
+              left: 0;
+              right: 0;
+              bottom: 0;
+            }
+          
+            .fc-header-toolbar {
+              /*
+              the calendar will be butting up against the edges,
+              but let's scoot in the header's buttons
+              */
+              padding-top: 1em;
+              padding-left: 1em;
+              padding-right: 1em;
+            }
+            .autocomplete {
+        /*the container must be positioned relative:*/
+        position: relative;
+        display: inline-block;
+        }
+
+        .autocomplete-items {
+        position: absolute;
+        border: 1px solid #d4d4d4;
+        border-bottom: none;
+        border-top: none;
+        z-index: 99;
+        /*position the autocomplete items to be the same width as the container:*/
+        top: 100%;
+        left: 0;
+        right: 0;
+        }
+        .autocomplete-items div {
+        padding: 10px;
+        cursor: pointer;
+        background-color: #fff;
+        border-bottom: 1px solid #d4d4d4;
+        }
+        .autocomplete-items div:hover {
+        /*when hovering an item:*/
+        background-color: #e9e9e9;
+        }
+        .autocomplete-active {
+        /*when navigating through the items using the arrow keys:*/
+        background-color: DodgerBlue !important;
+        color: #ffffff;
+        }
+        .dvDatosCita{
+            display: none;
+        }
+        .colData{
+            font-weight: bold;
+            text-align: left;
+        }
+
+        .fc .fc-timegrid-slot {
+            height: 3.8em;
+        }
+          </style>
+        
+    </head>
+ 
+<body id="page-top">    
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Citas</h1>
+    </div>
+    <div class="card shadow mb-4">
+        <div id='calendar-container'>
+            <div id='calendar' class="calendar"></div>
+          </div>
+    </div>
+  
+    <div id="modalNewDate" class="modal modalNewDate fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Cita</h4>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div style="height: 250px;">
+                    <div class="row">
+                        <div class="col">
+                            <label>Paciente:</label>
+                            <input type="text" id="txtEmpleadoGeneral" class="form-control txtEmpleadoGeneral inputCapture" style="width: 500px;" autocomplete="one-time-code"/>
+                            <p id="pEmpleadoGeneral" class="form-control pEmpleadoGeneral inputDetail" style="width: 500px;" autocomplete="one-time-code"></p>
+                        </div>
+                    </div>
+                    <div class="dvDatosCita1">
+                        <div class="row">
+                            <div class="col">
+                                <label>Teléfono:</label>
+                                <p class="pTelefono colData form-control" style="width: 150px;"></p>    
+                            </div>
+                            <div class="col">
+                                <label>Correo:</label>
+                                <p class="pCorreo colData form-control" style="width: 300px;"></p>    
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <label>Fecha:</label>
+                                <input type="date" class="form-control txtFechaCita inputCapture" id="txtFechaCita" maxlength="10" style="width: 150px;">
+                                <p id="pFechaCita" class="form-control pFechaCita inputDetail" style="width: 150px;" autocomplete="one-time-code"></p>
+                            </div>
+                            <div class="col">
+                                <label>Hora:</label>
+                                <div class="row">
+                                    <div class="col">
+                                        <input type="time" class="form-control txtHoraInicioCita inputCapture" id="txtHoraInicioCita" maxlength="10" step="3600" style="width: 150px;">
+                                        <p id="pHoraInicioCita" class="form-control pHoraInicioCita inputDetail" style="width: 150px;" autocomplete="one-time-code"></p>
+                                    </div>
+                                    <div class="col">
+                                        <input type="time" class="form-control txtHoraFinCita inputCapture" id="txtHoraFinCita" maxlength="10" step="3600" style="width: 150px;">
+                                        <p id="pHoraFinCita" class="form-control pHoraFinCita inputDetail" style="width: 150px;" autocomplete="one-time-code"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary btnAcceptAppointment">Aceptar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-app.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-firestore.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-storage.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-database.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-auth.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-analytics.js"></script>
+      <script src="conexiones.js"></script>
+      <script src="Pacientes.js"></script>
+      <script src="citas.js"></script>
+      <script src="servicios.js"></script>      
+      <script src="utilidades.js"></script>
+      <script src="dbManager.js"></script>
+        <script>
+             $(document).ready(function(){        
+                SeleccionarDatosCategorias("tabla");
+                SeleccionarDatosServicios();
+            });                           
+        </script>
+</body>    
+                   
