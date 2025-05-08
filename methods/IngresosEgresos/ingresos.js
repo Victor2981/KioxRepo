@@ -278,9 +278,17 @@ $(document).ready(function(){
             Total: 0
         }
 
+        
+
         for (const datoIngreso in parent.lstConceptosPago) {
             const ingreso = parent.lstConceptosPago[datoIngreso];
             var importeTotal = parseFloat(ingreso.Price);
+            await db.collection("/SpecialPrice").where("IdPatient","==",selIdPatientEarning).where("IdService","==",ingreso.IdService).get().then(async (obj)=>{
+                if (obj.docs.length > 0) {
+                    var datosPrecio = obj.docs[0].data();
+                    importeTotal = parseFloat(datosPrecio.Price);
+                }
+            }); 
             const servicios = JSON.parse(JSON.stringify(ingreso.Service));
             var dato={
                 Price: importeTotal,

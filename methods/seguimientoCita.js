@@ -100,10 +100,18 @@ $(document).ready(function(){
     
 });
 
-function agregarConceptosCobro(conceptoCobro){
+async function agregarConceptosCobro(conceptoCobro){
+    parent.lstConceptosPago = {};
     var Servicio = conceptoCobro.Service;
+    var precio = parseFloat(Servicio.Price);
+    await db.collection("/SpecialPrice").where("IdPatient","==",selIdPatientGlobal).where("IdService","==",Servicio.IdService).get().then(async (obj)=>{
+        if (obj.docs.length > 0) {
+            var datosPrecio = obj.docs[0].data();
+            precio = parseFloat(datosPrecio.Price);
+        }
+    }); 
     var dato={
-        Price: Servicio.Price,
+        Price: precio,
         IsPack: false,
         isPackCompleted: false,
         IdService: Servicio.IdService,

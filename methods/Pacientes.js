@@ -34,7 +34,8 @@ $(document).ready(function(){
                     SecondLastName : segundoApellido,
                     GeneralInformation: {},
                     MedicalHistory: {},
-                    NewPatient: true
+                    NewPatient: true,
+                    RegistrationDate: new Date()
                 }
                 // var operacion = 0;
                 // if (selPacienteGlobal != "") {
@@ -42,7 +43,7 @@ $(document).ready(function(){
                 // }
 
 
-                db.collection(urlPacientesGlobal).where("Phone","==",celular).onSnapshot(function(datoValidacion) {
+                await db.collection(urlPacientesGlobal).where("Phone","==",celular).get().then(datoValidacion =>{
                     if (datoValidacion.docs.length == 0) {
                         GuardarDatosPacientes(dato,operationPatient,selPacienteGlobal);        
                     }

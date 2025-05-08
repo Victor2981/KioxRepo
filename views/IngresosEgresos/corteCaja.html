@@ -35,15 +35,15 @@
     <!-- Page Heading -->
     <div class="d-sm-flex mb-4">        
         <div class="row">
-            <div class="col-md-auto"><h1 class="h3 mb-0 text-gray-800">Lista de egresos</h1></div>
+            <div class="col-md-auto"><h1 class="h3 mb-0 text-gray-800">Corte de caja</h1></div>
             <div class="col-md-auto">
-                Fecha inicio: <input type="date" class="txtFechaIncEgresos" width="100px"/>  
-                Fecha fin: <input type="date" class="txtFechaFinEgresos" width="100px"/>
-                <button type="button" class="btn btn-primary btnBuscarEgresos">Buscar</button>
+                Fecha inicio: <input type="date" class="txtFechaIncIngresos" width="100px"/>  
+                Fecha fin: <input type="date" class="txtFechaFinIngresos" width="100px"/>
+                <button type="button" class="btn btn-primary btnBuscarIngresos">Buscar</button>
             </div>
             <div class="col-md-auto">                
-                <button type="button" class="btn btn-info btnAgregarEgreso float-right">Agregar egreso</button>
-                <button type="button" class="btn btn-warning btnRegresarEgreso float-right">Regresar</button>
+                <button type="button" class="btn btn-info btnAgregarIngreso float-right">Agregar ingreso</button>
+                <button type="button" class="btn btn-warning btnRegresarIngreso float-right">Regresar</button>
             </div>
         </div>
     </div>    
@@ -51,16 +51,22 @@
         <div class="row">
             <div class="col">
                 <div class="alert alert-info alert-dismissible fade show" role="alert">
-                    Total <strong class="pTotalEgresos">$0</strong>
+                    Total <strong class="pTotalingresos">$0</strong>
                 </div>
             </div>
             <div class="col">
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    Efectivo <strong class="pEfectivoEgresos">$0</strong>
+                    Efectivo <strong class="pEfectivoIngresos">$0</strong>
                 </div>
-            </div><div class="col">
+            </div>
+            <div class="col-auto">
                 <div class="alert alert-primary alert-dismissible fade show" role="alert">
-                    Banco <strong class="pBancoEgresos">$0</strong>
+                    Transferencia <strong class="pBancoIngresos">$0</strong>
+                </div>
+            </div>
+            <div class="col">
+                <div class="alert bg-dark alert-dismissible fade show" role="alert" style="color: white;">
+                    Tarjeta <strong class="pTarjetaIngresos">$0</strong>
                 </div>
             </div>
         </div>
@@ -71,9 +77,9 @@
         </div>
         <div class="card-body">
             <div class="table-responsive">                                
-                <table class="table table-bordered tblEgresosDetalle" id="dataTable" width="100%" cellspacing="0">
+                <table class="table table-bordered tblIngresosDetalle" id="dataTable" width="100%" cellspacing="0">
                 </table>
-                <table class="table table-bordered tblEgresos" id="dataTable" width="100%" cellspacing="0">
+                <table class="table table-bordered tblIngresos" id="dataTable" width="100%" cellspacing="0">
                 </table>
             </div>
         </div>
@@ -87,16 +93,18 @@
     <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-analytics.js"></script>
     <script src="../../../methods/conexiones.js?kvs=2.5"></script>
     <script src="../../../methods/Globals.js?kvs=2.5"></script>
+    <script src="../../../methods/IngresosEgresos/ingresos.js?kvs=2.5"></script>
     <script src="../../../methods/IngresosEgresos/egresos.js?kvs=2.5"></script>
+    <script src="../../../methods/IngresosEgresos/corteCaja.js?kvs=2.5"></script>
     <script src="../../../methods/utilidades.js?kvs=2.5"></script>
     <script src="../../../methods/dbManager.js?kvs=2.5"></script>
     <script>
         $(document).ready(function(){     
             var FechaI = new Date(new Date().getFullYear(),new Date().getMonth(),new Date().getDate(),0,0,0);
             var FechaF = new Date(new Date().getFullYear(),new Date().getMonth(),new Date().getDate(),23,59,59);
-            $(".txtFechaIncEgresos").val(FechaI.getFullYear().toString() + "-" + (FechaI.getMonth()+1).toString().padStart(2,"0") + "-" + (FechaI.getDate()).toString().padStart(2,"0"));
-            $(".txtFechaFinEgresos").val(FechaF.getFullYear().toString() + "-" + (FechaF.getMonth()+1).toString().padStart(2,"0") + "-" + (FechaF.getDate()).toString().padStart(2,"0"));      
-            SeleccionarDatosEgresos("tabla",FechaI,FechaF);            
+            $(".txtFechaIncIngresos").val(FechaI.getFullYear().toString() + "-" + (FechaI.getMonth()+1).toString().padStart(2,"0") + "-" + (FechaI.getDate()).toString().padStart(2,"0"));
+            $(".txtFechaFinIngresos").val(FechaF.getFullYear().toString() + "-" + (FechaF.getMonth()+1).toString().padStart(2,"0") + "-" + (FechaF.getDate()).toString().padStart(2,"0"));      
+            SeleccionarDatosIngresos("tabla",FechaI,FechaF);
         });
     </script>
 </body>    
