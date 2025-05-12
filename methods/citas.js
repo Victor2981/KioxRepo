@@ -87,7 +87,8 @@ $(document).ready(function(){
                         IdPatient: idPatientSelected,
                         IdEmployee: datosEmpleados.uId,
                         EmployeeName: datosEmpleados.Name + ' ' + datosEmpleados.LastName + ' ' + datosEmpleados.SecondLastName,
-                        Status:StatusAppointment.Registrado
+                        Status:StatusAppointment.Registrado,
+                        Note:$(".txtNotaCita").val()
                     };
                     Appointment.Service.IdService = $(".ddlServicio").val();        
                     Appointment.Category.idCategory = $(".ddlCategoria").val();
@@ -259,6 +260,18 @@ function llenarEventos(){
                     ClassAppointment = "AppoitmentConfirmed";
                     Editable = false;    
                 break;
+                case StatusAppointment.Atendido:
+                    ClassAppointment = "AppoitmentAttended";
+                    Editable = false;    
+                break;
+                case StatusAppointment.Pagado:
+                    ClassAppointment = "AppoitmentPayed";
+                    Editable = false;    
+                break;
+                case StatusAppointment.Finalizado:
+                    ClassAppointment = "AppoitmentFinished";
+                    Editable = false;    
+                break;
                 default:
                     break;
             }
@@ -341,7 +354,7 @@ function generarCalendario() {
         selIdAppointmen = "";        
         $('.txtFechaCita').val(info.start.getFullYear().toString().padStart(4, "0")  + "-" + (info.start.getMonth() + 1).toString().padStart(2, "0")  + "-" + info.start.getDate().toString().padStart(2, "0"));
         $('.txtHoraInicioCita').val(info.start.getHours().toString().padStart(2, "0") + ":" + info.start.getMinutes().toString().padStart(2, "0"));
-        $('.txtHoraFinCita').val(info.end.getHours().toString().padStart(2, "0") + ":" + info.end.getMinutes().toString().padStart(2, "0"));
+        $('.txtHoraFinCita').val(info.end.getHours().toString().padStart(2, "0") + ":" + info.end.getMinutes().toString().padStart(2, "0"));        
         hideShowFields(false);
         $('.modalNewDate').modal('toggle');
     },
@@ -390,13 +403,16 @@ function generarCalendario() {
                 default:
                     break;
             }
+            if (datosCuentaUsusario.Position == 1) {
+                $(".btnAcceptAppointment").show();
+            }
             // $(".btnStartAppointment").show();
             // $(".btnPaidAppointment").show();
             // $(".btnFinishAppointment").show();
             // $(".btnCancelAppointment").show();
             // $(".btnAcceptAppointment").show();
             idPatientSelected = datos.IdPatient;
-            if (info.event._def.ui.startEditable && new Date() < DateI) {
+            if (info.event._def.ui.startEditable && new Date() < DateI || datosCuentaUsusario.Position == 1) {
                 $(".pEmpleadoGeneral").text(patient.NameComplete);
                 $(".pTelefono").text(patient.Phone);
                 $(".pCorreo").text(patient.Email);   
@@ -406,7 +422,10 @@ function generarCalendario() {
                 $('.ddlCategoria').val(datos.Category.idCategory);    
                 $('.ddlCategoria').change();
                 $('.ddlServicio').val(datos.Service.IdService);      
-                $('.ddlEmpleados').val(datos.IdEmployee);      
+                $('.ddlEmpleados').val(datos.IdEmployee); 
+                if (datos.Note != undefined) {
+                    $(".txtNotaCita").val(datos.Note);    
+                }            
                 TitleAppointment = datos.Title
                 hideShowFields(false);
                 $(".txtEmpleadoGeneral").hide();
@@ -422,7 +441,10 @@ function generarCalendario() {
                 $('.pCategoria').text(datos.Category.Name);   
                 $('.pEmpleado').text(datos.EmployeeName);   
                 $('.pServicio').text(datos.Service.Name);    
-                $('.ddlEmpleados').val(datos.IdEmployee);      
+                $('.ddlEmpleados').val(datos.IdEmployee);  
+                if (datos.Note != undefined) {
+                    $(".pNotaCita").text(datos.Note);
+                }                             
                 hideShowFields(true);
             }
             
@@ -486,6 +508,7 @@ function clearFields(){
     $('.txtHoraFinCita').val('');
     $(".ddlServicio").val('');
     $(".ddlCategoria").val('');
+    $(".txtNotaCita").val('');  
 }
 
 function llenarTablaCitasPorConfirmar(){

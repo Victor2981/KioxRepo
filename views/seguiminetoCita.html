@@ -30,6 +30,10 @@
                 font-weight: bold;
                 font-size: 15pt;
             }
+            .accordion-button:not(.collapsed) {
+                color: white;
+                background-color: wheat;
+            }
         </style>
     </head>
 <body id="page-top">
@@ -53,11 +57,28 @@
             <div class="row">
                 <div class="col">
                   <label>Nombre:</label>
-                  <p id="pNombre" class="form-control pNombre"></p><label class="lblSesionesPaquete"></label>
+                  <p id="pNombre" class="pNombre"></p><label class="lblSesionesPaquete"></label>
                 </div>
             </div>
             <div class="card-header py-3">
                 <h4 class="m-0 font-weight-bold text-primary">Datos de atención</h4>
+
+                <div class="accordion accordionNote" id="accordionPanelsStayOpenExample">
+                    <div class="accordion-item">
+                      <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseOne" aria-expanded="true" aria-controls="panelsStayOpen-collapseOne">
+                          Nota
+                        </button>
+                      </h2>
+                      <div id="panelsStayOpen-collapseOne" class="accordion-collapse collapse show">
+                        <div class="accordion-body">         
+                            <div style="max-height: 200px; overflow: auto;">
+                                <p id="pNotaCita" class="pNotaCita"></p>
+                            </div>                            
+                        </div>
+                      </div>
+                    </div>                    
+                  </div>          
             </div>
             <div class="row">
                 <div class="col">

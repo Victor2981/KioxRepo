@@ -98,6 +98,39 @@
     width:20px;
     height:20px;
     right: 0px;
+    filter: invert(99%) sepia(0%) saturate(91%) hue-rotate(156deg) brightness(126%) contrast(100%);
+  }
+
+  .AppoitmentAttended:before{
+    content: '';
+    background:url('/img/accept.svg');
+    background-size: 20px 20px;
+    position:absolute;
+    width:20px;
+    height:20px;
+    right: 0px;
+    filter: invert(47%) sepia(100%) saturate(2796%) hue-rotate(199deg) brightness(104%) contrast(104%);
+  }
+
+  .AppoitmentPayed:before{
+    content: '';
+    background:url('/img/accept.svg');
+    background-size: 20px 20px;
+    position:absolute;
+    width:20px;
+    height:20px;
+    right: 0px;
+    filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(86deg) brightness(80%) contrast(119%);
+  }
+
+  .AppoitmentFinished:before{
+    content: '';
+    background:url('/img/accept.svg');
+    background-size: 20px 20px;
+    position:absolute;
+    width:20px;
+    height:20px;
+    right: 0px;
     filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(86deg) brightness(80%) contrast(119%);
   }
 

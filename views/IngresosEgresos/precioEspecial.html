@@ -35,20 +35,20 @@
     <!-- Page Heading -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Lista de paquetes</h1>
-        <div class="containter">
-            <div class="row">
-                <div class="col-auto">Paciente</div>
-                <div class="col-4"><input type="text" id="txtPacienteFiltro" class="form-control txtPacienteFiltro inputCapture" style="width: 500px;" autocomplete="one-time-code"/></div>
-            </div>
-        </div>
     </div>
     <div class="card shadow mb-4">
         <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-primary"></h6>
+            <div class="containter">
+                <div class="row">
+                    <div class="col-auto">Paciente</div>
+                    <div class="col-4"><input type="text" id="txtPacienteFiltro" class="form-control txtPacienteFiltro inputCapture" style="width: 500px;" autocomplete="one-time-code"/></div>
+                </div>
+            </div>
         </div>
         <div class="card-body">
             <div class="table-responsive">                                
-                <table class="table table-bordered tblPaquetes" id="dataTable" width="100%" cellspacing="0">
+                <table class="table table-bordered tblPrecioEspecial" id="dataTable" width="100%" cellspacing="0">
                 </table>
             </div>
         </div>
@@ -62,7 +62,7 @@
     <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-analytics.js"></script>
     <script src="../../../methods/conexiones.js?kvs=2.5"></script>
     <script src="../../../methods/Globals.js?kvs=2.5"></script>
-    <script src="../../../methods/IngresosEgresos/paquetes.js?kvs=2.5"></script>
+    <script src="../../../methods/IngresosEgresos/precioEspecial.js?kvs=2.5"></script>
     <script src="../../../methods/utilidades.js?kvs=2.5"></script>
     <script src="../../../methods/dbManager.js?kvs=2.5"></script>
     <script>

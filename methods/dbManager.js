@@ -32,9 +32,9 @@ function updateDb(url,id,obj){
     })});
 }
 
-function deleteDb(url,obj){
+function deleteDb(url,id){
     return new Promise(resolve => {setTimeout(async function(){
-        db.collection(url).doc(uidGrupo).delete(objGrupo).then(()=>{
+        db.collection(url).doc(id).delete().then(()=>{
             resolve(true);
         }).catch(error=>{
             resolve(false);

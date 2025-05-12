@@ -6,6 +6,7 @@ var lstEmployeesGlobal = {};
 var lstServicesGlobal = {};
 var lstServicesFiltroGlobal = [];
 var lstPacksGlobal = {};
+var lstSpecialPriceGlobal = {};
 var lstAppointmentsGlobal = {};
 var lstEgresosGlobal = {};
 var lstQrGlobal = {};

@@ -1,4 +1,20 @@
 var urlPackagesGlobal = "/Packages";
+
+$(document).ready(function () {
+    $(".txtPacienteFiltro").keyup(function name() {
+        for (let index = 0; index < $(".trDatoGlobal").length; index++) {
+            const $tr = $(".trDatoGlobal")[index];
+            var texto = $tr.textContent.toUpperCase();
+            var filtro = $(".txtPacienteFiltro").val().toUpperCase().trim();
+            if (texto.indexOf(filtro) > -1) {
+                $tr.style.display = "";
+              } else {
+                $tr.style.display = "none";
+              }
+        }
+    });
+});
+
 const GuardarDatosPaquete = async function(objPaquete, operacion, idPack){
     return new Promise(resolve => {setTimeout(async function(){
         QuitarMensaje();
@@ -73,7 +89,7 @@ const SeleccionarDatosPaquetes = async function(tipoControl,estatusPaquete){
 
 function llenarTablaPaquetes(datosPaquetes){
     $(".tblPaquetes").empty();
-    var titulos = ["Paciente","Tratamiento","Sesiones","Fecha pago","Completado",""];        
+    var titulos = ["Paciente","Tratamiento","Sesiones","Fecha pago","Completado"];        
     var TitulosDatos = ["Patient.NameComplete","Service.Name","TakenNumbreSesions","Date","IsPackCompleted"];    
     for (const ap in datosPaquetes) {         
         var idCategory = ap;   
@@ -101,7 +117,7 @@ function llenarTablaPaquetes(datosPaquetes){
             btnDetalle.on('click',()=>{
                 window.location.href ="ingresos.html?idPaquete=" + idPackage + "&arrayIngreso=" + datos.IdEarn;
             });
-            Buttons.push(btnDetalle);
+            //Buttons.push(btnDetalle);
             //Object.assign(Buttons,btnEditar);
             var evento = {[idPackage]:Buttons};
             Object.assign(lstButtons,evento);

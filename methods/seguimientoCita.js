@@ -83,19 +83,19 @@ $(document).ready(function(){
                 else{
                     agregarConceptosCobro(datos);
                 }
+                if (banPago) {            
+                    MostrarMensajePrincipal("La cíta finalizó, serás enviado a el cobro","success");
+                    parent.tipoConceptoCobro = 1;
+                    setTimeout(function(){Redireccionar("/views/IngresosEgresos/validacionPago.html?idPacientePago=" + selIdPatientGlobal + "&idCita=" + selIdAppointmentGlobal);},3000);
+                }
+                else{
+                    await UpdateAppointmentMonitoring(selIdAppointmentGlobal,observations,recommendations,StatusAppointment.Pagado);   
+                    MostrarMensajePrincipal("La cíta finalizó, serás enviado a el calendario de citas","success");
+                    setTimeout(function(){Redireccionar("citas.html");},3000);
+                }
             });
-            
         }
-        $(".dvLoader").hide();
-        if (banPago) {            
-            MostrarMensajePrincipal("La cíta finalizó, serás enviado a el cobro","success");
-            parent.tipoConceptoCobro = 1;
-            setTimeout(function(){Redireccionar("/views/IngresosEgresos/validacionPago.html?idPacientePago=" + selIdPatientGlobal + "&idCita=" + selIdAppointmentGlobal);},3000);
-        }
-        else{
-            MostrarMensajePrincipal("La cíta finalizó, serás enviado a el calendario de citas","success");
-            setTimeout(function(){Redireccionar("citas.html");},3000);
-        }
+        $(".dvLoader").hide();      
     });
     
 });
@@ -148,6 +148,12 @@ async function populateAppointmentData(idAppointment) {
         });  
       
         $(".pNombre").text(datosPaciente.NameComplete);
+        $(".accordionNote").hide();
+        if (datos.Note != undefined) {
+            $(".pNotaCita").text(datos.Note);
+            $(".accordionNote").show();
+        }
+        
         // var lstText = [$(".txtPadecimientos"),$(".txtAlergias"),$(".txtOperaciones"),$(".txtAntecedentesFamiliares"),$(".txtObservaciones"),$(".txtRecomendaciones")];
         var lstText = [$(".txtObservaciones"),$(".txtRecomendaciones")];
         $(".txtObservaciones").text(datos.Observation);
