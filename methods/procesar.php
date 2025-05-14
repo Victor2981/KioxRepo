@@ -7,12 +7,12 @@ require 'fpdf/fpdf.php';
 
 $nombre = $_POST['nombre'];
 $email = $_POST['email'];
-$mensaje = $_POST['mensaje'];
+$mensaje = $_POST['mensaje '];
 
 $pdf = new FPDF();
 $pdf->AddPage();
 $pdf->SetFont('Arial', 'B', 16);
-$pdf->Cell(40,10, 'Formulario de Contacto');
+$pdf->Cell(40,10, 'Receta');
 $pdf->Ln(10);
 $pdf->SetFont('Arial', '', 12);
 $pdf->MultiCell(0, 10, "Nombre: $nombre\nEmail: $email\nMensaje: $mensaje");
@@ -27,7 +27,7 @@ try {
   $mail->Host = 'mail.kiox.mx';
   $mail->SMTPAuth = true;
   $mail->Username = 'hola@kiox.mx';
-  $mail->Password = 'io2y!$9oTT&N';
+  $mail->Password = 'FoNZ(YPct9rU';
   $mail->SMTPSecure = 'ssl';
   $mail->Port = 465;
 
