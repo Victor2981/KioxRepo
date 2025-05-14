@@ -35,6 +35,9 @@ function generarTabla(obj,titulos,TitulosDatos,datos,lstButtons){
   generarDatosTabla(obj,TitulosDatos,datos,lstButtons);
 }
 
+function quitarAcentos(cadena) {
+	return cadena.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
 
 function generarTitulosTabla(obj,titulos){
   var tblTitulo = "<thead>";

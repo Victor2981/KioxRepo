@@ -71,8 +71,8 @@ $(document).ready(function(){
     $(".txtPacienteFiltro").keyup(function name() {
         for (let index = 0; index < $(".trDatoGlobal").length; index++) {
             const $tr = $(".trDatoGlobal")[index];
-            var texto = $tr.textContent.toUpperCase();
-            var filtro = $(".txtPacienteFiltro").val().toUpperCase().trim();
+            var texto = quitarAcentos($tr.textContent.toUpperCase());
+            var filtro = quitarAcentos($(".txtPacienteFiltro").val().toUpperCase().trim());
             if (texto.indexOf(filtro) > -1) {
                 $tr.style.display = "";
               } else {
@@ -133,11 +133,13 @@ function filterPatients(query) {
         var dato = el[Object.keys(el)[0]].datos;
         var accent_map = {'á':'a', 'é':'e', 'è':'e', 'í':'i','ó':'o','ú':'u','Á':'a', 'É':'e', 'è':'e', 'Í':'i','Ó':'o','Ú':'u'};
         var cadena = dato.Name.trim().toLowerCase() + " " + dato.LastName.trim().toLowerCase() + " " + dato.SecondLastName.trim().toLowerCase();
+        cadena = quitarAcentos(cadena);
          var ret = '';
          for (var i = 0; i < query.length; i++) {
              ret += accent_map[query.charAt(i)] || query.charAt(i);
          }
          query = ret;
+         query = quitarAcentos(query);
         return cadena.indexOf(query.trim().toLowerCase()) > -1;
     });
 }
