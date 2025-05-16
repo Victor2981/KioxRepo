@@ -38,7 +38,7 @@ class PDF extends FPDF {
 }
 
 // Crear PDF
-$pdf = new FPDF();
+$pdf = new PDF();
 $pdf->AddPage();
 $pdf->SetFont('Arial', '', 12);
 $pdf->MultiCell(0, 10, $mensaje);
@@ -61,7 +61,7 @@ try {
   $mail->addAddress('vhunava@gmail.com');
 
   $mail->Subject = 'Nuevo formulario recibido';
-  $mail->Body    = 'Adjunto encontrarás el formulario en PDF.';
+  $mail->Body    = 'Adjunto encontrarás tu receta.';
 
   $mail->addAttachment($nombreArchivo);
 
