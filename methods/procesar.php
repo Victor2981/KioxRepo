@@ -17,7 +17,7 @@ $pdf->Ln(10);
 $pdf->SetFont('Arial', '', 12);
 $pdf->MultiCell(0, 10, "Nombre: $nombre\nEmail: $email\nMensaje: $mensaje");
 
-$nombreArchivo = 'formulario.pdf';
+$nombreArchivo = 'Receta.pdf';
 $pdf->Output('F', $nombreArchivo);
 
 $mail = new PHPMailer(true);
@@ -27,11 +27,11 @@ try {
   $mail->Host = 'mail.kiox.mx';
   $mail->SMTPAuth = true;
   $mail->Username = 'hola@kiox.mx';
-  $mail->Password = 'FoNZ(YPct9rU';
+  $mail->Password = 'KA1]fXKS=jBT';
   $mail->SMTPSecure = 'ssl';
   $mail->Port = 465;
 
-  $mail->setFrom('hola@kiox.mx', 'Formulario Web');
+  $mail->setFrom('hola@kiox.mx', 'Receta');
   $mail->addAddress('vhunava@gmail.com');
 
   $mail->Subject = 'Nuevo formulario recibido';
