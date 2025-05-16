@@ -38,7 +38,7 @@ class PDF extends FPDF {
 }
 
 // Crear PDF
-$pdf = new PDF();
+$pdf = new FPDF();
 $pdf->AddPage();
 $pdf->SetFont('Arial', '', 12);
 $pdf->MultiCell(0, 10, $mensaje);
