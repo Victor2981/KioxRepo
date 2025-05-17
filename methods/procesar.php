@@ -7,7 +7,7 @@ require 'fpdf/fpdf.php';
 
 $nombre = $_POST['nombre'];
 $email = $_POST['email'];
-$mensaje = $_POST['mensaje '];
+$mensaje = $_POST['mensaje'];
 public $fisioterapeuta;
 public $cedula = "12345678";
 
@@ -26,7 +26,7 @@ class PDF extends FPDF {
         // Datos centrados
         $this->SetXY(0, 15);
         $this->SetFont('Arial', 'B', 12);
-        $this->Cell(0, 10, utf8_decode($this->fisioterapeuta), 0, 1, 'C');
+        //$this->Cell(0, 10, utf8_decode($this->fisioterapeuta), 0, 1, 'C');
         $this->SetFont('Arial', '', 11);
         //$this->Cell(0, 6, utf8_decode("Cédula Profesional: $cedula"), 0, 1, 'C');
         $this->Cell(0, 6, utf8_decode('Dirección: Patricio Sanz 442,\nCol. Del Valle Norte C.P.03103'), 0, 1, 'C');
