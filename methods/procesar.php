@@ -38,7 +38,7 @@ class PDF extends FPDF {
 
 // Crear PDF
 $pdf = new PDF();
-$pdf->fisioterapeuta = "José Pérez";
+$pdf->fisioterapeuta = "José Pérez1";
 $pdf->cedula = "1212312321";
 $pdf->AddPage();
 $pdf->SetFont('Arial', '', 12);
