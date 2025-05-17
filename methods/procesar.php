@@ -8,11 +8,10 @@ require 'fpdf/fpdf.php';
 $nombre = $_POST['nombre'];
 $email = $_POST['email'];
 $mensaje = $_POST['mensaje '];
-
+$fisioterapeuta = "Janetzy Soto Rosales";
+$cedula = "12345678";
 
 class PDF extends FPDF {
-  $fisioterapeuta = "Janetzy Soto Rosales";
-  $cedula = "12345678";
     function Header() {
         // Logo a la izquierda
         $this->Image('../img/logoKiox.png', 10, 10, 30); // x, y, width
