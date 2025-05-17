@@ -8,7 +8,7 @@ require 'fpdf/fpdf.php';
 $nombre = $_POST['nombre'];
 $email = $_POST['email'];
 $mensaje = $_POST['mensaje '];
-public $fisioterapeuta = "Janetzy Soto Rosales";
+public $fisioterapeuta;
 public $cedula = "12345678";
 
 class PDF extends FPDF {
@@ -38,6 +38,7 @@ class PDF extends FPDF {
 
 // Crear PDF
 $pdf = new PDF();
+$pdf->fisioterapeuta = "José Pérez";
 $pdf->AddPage();
 $pdf->SetFont('Arial', '', 12);
 $pdf->MultiCell(0, 10, $mensaje);
