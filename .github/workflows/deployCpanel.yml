@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main  # Cambia a la rama que quieras usar para desplegar
+    paths-ignore:    
+        - "PHPMailer/*" # Exclude everything in dist folder
+        - "fpdf/*" # Exclude everything in dist folder
 
 jobs:
   ftp-deploy:
