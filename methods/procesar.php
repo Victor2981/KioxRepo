@@ -32,7 +32,7 @@ class PDF extends FPDF {
         $this->Cell(0, 6, utf8_decode('Dirección: Patricio Sanz 442,' . "\n" . 'Col. Del Valle Norte C.P.03103'), 0, 1, 'C');
 
         // Espacio después del encabezado
-        $this->Ln(30);
+        $this->Ln(20);
     }
 }
 
