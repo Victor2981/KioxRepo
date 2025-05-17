@@ -15,7 +15,7 @@ $mensaje = $_POST['mensaje '];
 class PDF extends FPDF {
     function Header() {
         // Logo a la izquierda
-        $this->Image('../img/logoKiox.png', 10, 10, 30); // x, y, width
+        //$this->Image('../img/logoKiox.png', 10, 10, 30); // x, y, width
 
         // Fuente para encabezado
         $this->SetFont('Arial', '', 12);
