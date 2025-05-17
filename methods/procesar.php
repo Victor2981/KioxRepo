@@ -8,8 +8,8 @@ require 'fpdf/fpdf.php';
 $nombre = $_POST['nombre'];
 $email = $_POST['email'];
 $mensaje = $_POST['mensaje'];
-public $fisioterapeuta;
-public $cedula = "12345678";
+//public $fisioterapeuta;
+//public $cedula = "12345678";
 
 class PDF extends FPDF {
     function Header() {
