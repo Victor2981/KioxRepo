@@ -15,7 +15,7 @@ $mensaje = $_POST['mensaje '];
 class PDF extends FPDF {
     function Header() {
         // Logo a la izquierda
-        //$this->Image('../img/logoKiox.png', 10, 10, 30); // x, y, width
+        $this->Image('../img/logoKiox.png', 10, 10, 30); // x, y, width
 
         // Fuente para encabezado
         $this->SetFont('Arial', '', 12);
@@ -27,10 +27,11 @@ class PDF extends FPDF {
         // Datos centrados
         $this->SetXY(0, 15);
         $this->SetFont('Arial', 'B', 12);
-        $this->Cell(0, 10, utf8_decode($fisioterapeuta), 0, 1, 'C');
+        //$this->Cell(0, 10, utf8_decode($fisioterapeuta), 0, 1, 'C');
         $this->SetFont('Arial', '', 11);
-        $this->Cell(0, 6, utf8_decode('Cédula Profesional: ' + $cedula), 0, 1, 'C');
-        $this->Cell(0, 6, utf8_decode('Dirección: Patricio Sanz 442, \r\n Col. Del Valle Norte C.P.03103'), 0, 1, 'C');
+        //$this->Cell(0, 6, utf8_decode('Cédula Profesional: ' + $cedula), 0, 1, 'C');
+        //$this->Cell(0, 6, utf8_decode('Dirección: Patricio Sanz 442, \r\n Col. Del Valle Norte C.P.03103'), 0, 1, 'C');
+        $this->Cell(0, 6, 'Hola', 0, 1, 'C');
 
         // Espacio después del encabezado
         $this->Ln(10);
