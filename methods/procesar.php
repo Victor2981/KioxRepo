@@ -30,7 +30,7 @@ class PDF extends FPDF {
         //$this->Cell(0, 10, utf8_decode($fisioterapeuta), 0, 1, 'C');
         $this->SetFont('Arial', '', 11);
         //$this->Cell(0, 6, utf8_decode('Cédula Profesional: ' + $cedula), 0, 1, 'C');
-        //$this->Cell(0, 6, utf8_decode('Dirección: Patricio Sanz 442, \r\n Col. Del Valle Norte C.P.03103'), 0, 1, 'C');
+        $this->Cell(0, 6, utf8_decode('Dirección: Patricio Sanz 442, \r\n Col. Del Valle Norte C.P.03103'), 0, 1, 'C');
         $this->Cell(0, 6, 'Hola', 0, 1, 'C');
 
         // Espacio después del encabezado
