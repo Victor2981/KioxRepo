@@ -40,7 +40,7 @@ $(document).ready(function(){
                     $(".autocomplete-items").remove();
                     idPatientSelected = idPatient;
                   //inp.value = idPatient;
-                  //closeAllLists();
+                  //closeAllLists();                  
                   TitleAppointment = dato.Name + " " + dato.LastName + " " + dato.SecondLastName;
                   $(".txtEmpleadoGeneral").val(dato.Name + " " + dato.LastName + " " + dato.SecondLastName);
                   $(".pTelefono").text(dato.Phone);
@@ -57,7 +57,9 @@ $(document).ready(function(){
     $(".btnAcceptAppointment").click(async function(){
         var banValidacion = true;
         var fecha = $('.txtFechaCita').val().substr(8,2) + "/" + $('.txtFechaCita').val().substr(5,2) + "/" + $('.txtFechaCita').val().substr(0,4);
-        banValidacion = Validador($(".txtEmpleadoGeneral"),"paciente",idPatientSelected,1,'',$('.modalNewDate'));
+        if (parent.lstCategoriesGlobal[$(".ddlCategoria").val()].Name != "Bloqueo") {
+            banValidacion = Validador($(".txtEmpleadoGeneral"),"paciente",idPatientSelected,1,'',$('.modalNewDate'));    
+        }
         if(banValidacion == true){banValidacion = Validador($(".ddlEmpleados"),"empleado",$(".ddlEmpleados").val(),1,'',$('.modalNewDate'))};
         if(banValidacion == true){banValidacion = Validador($(".ddlCategoria"),"categoría",$(".ddlCategoria").val(),1,'',$('.modalNewDate'))};
         if(banValidacion == true){banValidacion = Validador($(".ddlServicio"),"servicio",$(".ddlServicio").val(),1,'',$('.modalNewDate'))};
@@ -78,6 +80,9 @@ $(document).ready(function(){
                         datosEmpleados = Object.values(parent.lstEmployeesGlobal).filter(x => x.uId == datosCuentaUsusario.uId)[0];
                     }
 
+                    if (parent.lstCategoriesGlobal[$(".ddlCategoria").val()].Name == "Bloqueo") {
+                        TitleAppointment = parent.lstServicesGlobal[$(".ddlServicio").val()].Name;
+                    }
                     var Appointment={
                         AppointmentDateStart: AppointmentStart,
                         AppointmentDateEnd: AppointmentEnd,
@@ -413,9 +418,11 @@ function generarCalendario() {
             // $(".btnAcceptAppointment").show();
             idPatientSelected = datos.IdPatient;
             if (info.event._def.ui.startEditable && new Date() < DateI || datosCuentaUsusario.Position == 1) {
-                $(".pEmpleadoGeneral").text(patient.NameComplete);
-                $(".pTelefono").text(patient.Phone);
-                $(".pCorreo").text(patient.Email);   
+                if (patient != undefined) {
+                    $(".pEmpleadoGeneral").text(patient.NameComplete);
+                    $(".pTelefono").text(patient.Phone);
+                    $(".pCorreo").text(patient.Email);       
+                }
                 $('.txtFechaCita').val(DateI.getFullYear().toString().padStart(4, "0")  + "-" + (DateI.getMonth() + 1).toString().padStart(2, "0")  + "-" + DateI.getDate().toString().padStart(2, "0"));
                 $('.txtHoraInicioCita').val(DateI.getHours().toString().padStart(2, "0") + ":" + DateI.getMinutes().toString().padStart(2, "0"));
                 $('.txtHoraFinCita').val(DateF.getHours().toString().padStart(2, "0") + ":" + DateF.getMinutes().toString().padStart(2, "0"));    
@@ -432,9 +439,11 @@ function generarCalendario() {
                 $(".pEmpleadoGeneral").show();
             }
             else{
-                $(".pEmpleadoGeneral").text(patient.NameComplete);
-                $(".pTelefono").text(patient.Phone);
-                $(".pCorreo").text(patient.Email);   
+                if (patient != undefined) {
+                    $(".pEmpleadoGeneral").text(patient.NameComplete);
+                    $(".pTelefono").text(patient.Phone);
+                    $(".pCorreo").text(patient.Email);   
+                }
                 $('.pFechaCita').text(DateI.getFullYear().toString().padStart(4, "0")  + "-" + (DateI.getMonth() + 1).toString().padStart(2, "0")  + "-" + DateI.getDate().toString().padStart(2, "0"));
                 $('.pHoraInicioCita').text(DateI.getHours().toString().padStart(2, "0") + ":" + DateI.getMinutes().toString().padStart(2, "0"));
                 $('.pHoraFinCita').text(DateF.getHours().toString().padStart(2, "0") + ":" + DateF.getMinutes().toString().padStart(2, "0"));    
