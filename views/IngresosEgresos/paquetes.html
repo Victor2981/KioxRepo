@@ -37,8 +37,24 @@
         <h1 class="h3 mb-0 text-gray-800">Lista de paquetes</h1>
         <div class="containter">
             <div class="row">
-                <div class="col-auto">Paciente</div>
-                <div class="col-4"><input type="text" id="txtPacienteFiltro" class="form-control txtPacienteFiltro inputCapture" style="width: 500px;" autocomplete="one-time-code"/></div>
+                <div class="col">Paciente</div>
+                <div class="col"><input type="text" id="txtPacienteFiltro" class="form-control txtPacienteFiltro inputCapture" style="width: 500px;" autocomplete="one-time-code"/></div>
+                <div class="col">Pagado</div>
+                <div class="col">
+                    <select id="ddlPagado" class="ddlPagado form-control inputCapture" style="width: 80px;">
+                        <option value=""></option>
+                        <option value="Sí">Sí</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+                <div class="col">Terminado</div>
+                <div class="col">
+                    <select id="ddlTerminado" class="ddlTerminado form-control inputCapture" style="width: 80px;">
+                        <option value=""></option>
+                        <option value="Sí">Sí</option>
+                        <option value="No" selected>No</option>
+                    </select>
+                </div>
             </div>
         </div>
     </div>
@@ -60,11 +76,11 @@
     <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-analytics.js"></script>
-    <script src="../../../methods/conexiones.js?kvs=2.7"></script>
-    <script src="../../../methods/Globals.js?kvs=2.7"></script>
-    <script src="../../../methods/IngresosEgresos/paquetes.js?kvs=2.7"></script>
-    <script src="../../../methods/utilidades.js?kvs=2.7"></script>
-    <script src="../../../methods/dbManager.js?kvs=2.7"></script>
+    <script src="../../../methods/conexiones.js?kvs=2.8"></script>
+    <script src="../../../methods/Globals.js?kvs=2.8"></script>
+    <script src="../../../methods/IngresosEgresos/paquetes.js?kvs=2.8"></script>
+    <script src="../../../methods/utilidades.js?kvs=2.8"></script>
+    <script src="../../../methods/dbManager.js?kvs=2.8"></script>
     <script>
         $(document).ready(function(){    
             SeleccionarDatosPaquetes("tabla");

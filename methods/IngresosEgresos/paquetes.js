@@ -13,6 +13,34 @@ $(document).ready(function () {
               }
         }
     });
+
+    $(".ddlPagado").change(function() {
+        for (let index = 0; index < $(".trDatoGlobal").length; index++) {
+            const $tr = $(".trDatoGlobal")[index];
+            var texto = $tr.textContent.toUpperCase();
+            texto = texto.substr(texto.length-4,2);
+            var filtro = $(".ddlPagado").val().toUpperCase().trim();
+            if (texto.indexOf(filtro) > -1) {
+                $tr.style.display = "";
+              } else {
+                $tr.style.display = "none";
+              }
+        }
+    });
+
+    $(".ddlTerminado").change(function() {
+         for (let index = 0; index < $(".trDatoGlobal").length; index++) {
+            const $tr = $(".trDatoGlobal")[index];
+            var texto = $tr.textContent.toUpperCase();
+            texto = texto.substr(texto.length-2,2);
+            var filtro = $(".ddlTerminado").val().toUpperCase().trim();
+            if (texto.indexOf(filtro) > -1) {
+                $tr.style.display = "";
+              } else {
+                $tr.style.display = "none";
+              }
+        }
+    });
 });
 
 const GuardarDatosPaquete = async function(objPaquete, operacion, idPack){
@@ -77,6 +105,7 @@ const SeleccionarDatosPaquetes = async function(tipoControl,estatusPaquete){
         switch (tipoControl) {
             case "tabla":
                 llenarTablaPaquetes(parent.lstPacksGlobal);
+                $(".ddlTerminado").change();
                 break;
             case "dropdown":
             break;
@@ -89,18 +118,24 @@ const SeleccionarDatosPaquetes = async function(tipoControl,estatusPaquete){
 
 function llenarTablaPaquetes(datosPaquetes){
     $(".tblPaquetes").empty();
-    var titulos = ["Paciente","Tratamiento","Sesiones","Fecha pago","Completado"];        
-    var TitulosDatos = ["Patient.NameComplete","Service.Name","TakenNumbreSesions","Date","IsPackCompleted"];    
+    var titulos = ["Paciente","Tratamiento","Sesiones","Fecha pago","Pagado","Completado"];        
+    var TitulosDatos = ["Patient.NameComplete","Service.Name","TakenNumbreSesions","Date","Pagado","Completo"];    
     for (const ap in datosPaquetes) {         
-        var idCategory = ap;   
-        var datos = datosPaquetes[idCategory];
-        var sesiones = datos.TakenNumbreSesions + "/" + datos.NumbreSesions;
+        const idCategory = ap;   
+        const datos = datosPaquetes[idCategory];
+        const sesiones = datos.TakenNumbreSesions + "/" + datos.NumbreSesions;
         datos.TakenNumbreSesions = sesiones;
-        if (datosPaquetes.IsPayed) {
-            datos.IsPackCompleted = "Sí"    
+        if (datos.IsPayed) {
+            datos.Pagado = "Sí"    
         }
         else{
-            datos.IsPackCompleted = "No"    
+            datos.Pagado = "No"    
+        }
+        if (datos.IsPackCompleted) {
+            datos.Completo = "Sí"    
+        }
+        else{
+            datos.Completo = "No"    
         }     
         datos.Patient.NameComplete = datos.Patient.Name + " " + datos.Patient.LastName + " " + datos.Patient.SecondLastName;
     }
