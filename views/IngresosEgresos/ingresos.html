@@ -36,12 +36,24 @@
     <div class="d-sm-flex mb-4">        
         <div class="row">
             <div class="col-md-auto"><h1 class="h3 mb-0 text-gray-800">Lista de ingresos</h1></div>
-            <div class="col-md-auto">
-                Fecha inicio: <input type="date" class="txtFechaIncIngresos" width="100px"/>  
-                Fecha fin: <input type="date" class="txtFechaFinIngresos" width="100px"/>
-                <button type="button" class="btn btn-primary btnBuscarIngresos">Buscar</button>
+            <div class="col-8">
+                <div class="container">
+                    <div class="row">
+                        <div class="col">
+                            Fecha inicio: <input type="date" class="txtFechaIncIngresos" width="100px"/>  
+                            Fecha fin: <input type="date" class="txtFechaFinIngresos" width="100px"/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            Paciente: <input type="text" id="txtPacienteIngresos" class="txtPacienteIngresos" style="width: 400px;" autocomplete="one-time-code"/>
+                            Forma de pago: <select class="ddlFormaPago" id="ddlFormaPago" style="width: 200px;" ></select>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-auto">                
+            <div class="col">                
+                <button type="button" class="btn btn-primary btnBuscarIngresos">Buscar</button>
                 <button type="button" class="btn btn-info btnAgregarIngreso float-right">Agregar ingreso</button>
                 <button type="button" class="btn btn-warning btnRegresarIngreso float-right">Regresar</button>
             </div>
@@ -91,13 +103,15 @@
     <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-analytics.js"></script>
-    <script src="../../../methods/conexiones.js?kvs=3.1.1"></script>
-    <script src="../../../methods/Globals.js?kvs=3.1.1"></script>
-    <script src="../../../methods/IngresosEgresos/ingresos.js?kvs=3.1.1"></script>
-    <script src="../../../methods/utilidades.js?kvs=3.1.1"></script>
-    <script src="../../../methods/dbManager.js?kvs=3.1.1"></script>
+    <script src="../../../methods/conexiones.js?kvs=3.1.2"></script>
+    <script src="../../../methods/Globals.js?kvs=3.1.2"></script>
+    <script src="../../../methods/IngresosEgresos/ingresos.js?kvs=3.1.2"></script>
+    <script src="../../../methods/Pacientes.js?kvs=3.1.2"></script>
+    <script src="../../../methods/utilidades.js?kvs=3.1.2"></script>
+    <script src="../../../methods/dbManager.js?kvs=3.1.2"></script>
     <script>
-        $(document).ready(function(){     
+        $(document).ready(async function(){     
+            await llenarControles();  
             var FechaI = new Date(new Date().getFullYear(),new Date().getMonth(),new Date().getDate(),0,0,0);
             var FechaF = new Date(new Date().getFullYear(),new Date().getMonth(),new Date().getDate(),23,59,59);
             $(".txtFechaIncIngresos").val(FechaI.getFullYear().toString() + "-" + (FechaI.getMonth()+1).toString().padStart(2,"0") + "-" + (FechaI.getDate()).toString().padStart(2,"0"));
