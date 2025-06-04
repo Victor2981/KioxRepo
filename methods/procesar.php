@@ -8,10 +8,11 @@ require 'fpdf/fpdf.php';
 $nombre = $_POST['nombre'];
 $email = $_POST['email'];
 $mensaje = $_POST['mensaje'];
+$TipoArchivo = $_POST['tipoDocumento'];
 
 class PDF extends FPDF {
   public $fisioterapeuta;
-  public $cedula = "12345678";
+  public $cedula;
     function Header() {
         // Logo a la izquierda
         $this->Image('../img/logoKiox.png', 10, 10, 30); // x, y, width
@@ -44,7 +45,7 @@ $pdf->AddPage();
 $pdf->SetFont('Arial', '', 12);
 $pdf->MultiCell(0, 10, $mensaje);
 
-$nombreArchivo = 'Receta.pdf';
+$nombreArchivo = $TipoArchivo .'.pdf';
 $pdf->Output('F', $nombreArchivo);
 
 $mail = new PHPMailer(true);
@@ -58,8 +59,8 @@ try {
   $mail->SMTPSecure = 'ssl';
   $mail->Port = 465;
 
-  $mail->setFrom('hola@kiox.mx', 'Receta');
-  $mail->addAddress('vhunava@gmail.com');
+  $mail->setFrom('hola@kiox.mx', $TipoArchivo);
+  $mail->addAddress($email);
 
   $mail->Subject = 'Nuevo formulario recibido';
   $mail->Body    = 'Adjunto encontrarás tu receta.';
