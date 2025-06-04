@@ -27,7 +27,7 @@ $(document).ready(function(){
                     MostrarMensajePrincipal("El mensaje se registró correctamente", "success");
                     console.log("Respuesta PHP:", respuesta);
                     },
-                    error: function () {
+                    error: function (msj) {
                     MostrarMensajePrincipal("Ocurrió un error al enviar el formulario", "error");
                     }
                 });                                
