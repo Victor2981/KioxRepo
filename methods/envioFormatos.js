@@ -1,6 +1,5 @@
 $(document).ready(function(){
     var idPacienteSeleccionado = "";
-    var datosPaciente;
     $(".txtMensaje").cleditor({ width: "100%", height: "100%" });
 
     $(".formulario").on('submit', async function(e) {
@@ -14,9 +13,10 @@ $(document).ready(function(){
         if (banValidacion) {
             return new Promise(resolve => {setTimeout(async function(){
                 var correo = $(".txtCorreo").val().trim();
-                datosPaciente.Email = correo;
-                resolve(await updateDb("/Patients",idPacienteSeleccionado,datosPaciente));
-                this.submit();
+                var patient = await selectDb(urlPacientesGlobal,idPacienteSeleccionado);
+                patient.Email = correo;
+                resolve(await updateDb("/Patients",idPacienteSeleccionado,patient));
+                $(".formulario").submit();
                 MostrarMensajePrincipal("El mensaje se registró correctamente","success");    
             }, 250);});
         }
@@ -41,10 +41,10 @@ $(document).ready(function(){
               b = document.createElement("DIV");
                 const idPatient = Object.keys(lstPatients[i])[0];
                 const dato = lstPatients[i][Object.keys(lstPatients[i])[0]].datos;
-                datosPaciente = dato;
+                
                 b.innerHTML = "<strong>" + dato.Name + " " + dato.LastName + " " + dato.SecondLastName + "</strong>";
                 b.innerHTML += "<input type='hidden' value='" + idPatient + "'>";
-                  b.addEventListener("click", function(e) {
+                b.addEventListener("click", function(e) {
                     $(".autocomplete-items").empty();
                     $(".autocomplete-items").remove();
                     idPacienteSeleccionado = idPatient;
