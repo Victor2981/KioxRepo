@@ -26,7 +26,7 @@ $(document).ready(function(){
 
                 const formData = $form.serialize(); 
                 $.ajax({
-                    url: "../methods/procesar.php?kvs=3.4",
+                    url: "../methods/procesar.php?kvs=3.5",
                     type: "POST",
                     data: formData,
                     success: function (respuesta) {
