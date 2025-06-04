@@ -23,10 +23,21 @@ $(document).ready(function(){
                 datosEmpleados = Object.values(parent.lstEmployeesGlobal).filter(x => x.uId == datosCuentaUsusario.uId)[0];
                 $(".txtFisio").val(datosEmpleados.Name + ' ' + datosEmpleados.LastName + ' ' + datosEmpleados.SecondLastName);
                 $(".txtFisioCedula").val(datosEmpleados.professionalID);
+                switch ($(".ddlTipoDocumento").val()) {
+                    case "1":
+                        $(".txtTipoDocumento").val("Receta");
+                        break;
+                    case "2":
+                        $(".txtTipoDocumento").val("Informe médico");
+                        break;
+                    default:
+                        break;
+                }
+                
 
                 const formData = $form.serialize(); 
                 $.ajax({
-                    url: "../methods/procesar.php?kvs=3.6",
+                    url: "../methods/procesar.php?kvs=3.7",
                     type: "POST",
                     data: formData,
                     success: function (respuesta) {
