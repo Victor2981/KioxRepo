@@ -5,6 +5,7 @@ $(document).ready(function(){
     $(".formulario").on('submit', async function(e) {
         e.preventDefault();
         var banValidacion = true;
+         const $form = $(this);
         if(banValidacion == true){banValidacion = Validador($(".txtEmpleadoGeneral"),"nombre",$(".txtEmpleadoGeneral").val(),1,'',false)};
         if(banValidacion == true){banValidacion = Validador($(".txtCorreo"),"correo",$(".txtCorreo").val(),4,'',false)};
         if(banValidacion == true){banValidacion = Validador($(".ddlTipoDocumento"),"tipo documento",$(".ddlTipoDocumento").val(),1,'',false)};
@@ -16,7 +17,20 @@ $(document).ready(function(){
                 var patient = await selectDb(urlPacientesGlobal,idPacienteSeleccionado);
                 patient.Email = correo;
                 resolve(await updateDb("/Patients",idPacienteSeleccionado,patient));
-                $(".formulario").submit();
+                
+                const formData = $form.serialize(); 
+                $.ajax({
+                    url: "procesar.php",
+                    type: "POST",
+                    data: formData,
+                    success: function (respuesta) {
+                    MostrarMensajePrincipal("El mensaje se registró correctamente", "success");
+                    console.log("Respuesta PHP:", respuesta);
+                    },
+                    error: function () {
+                    MostrarMensajePrincipal("Ocurrió un error al enviar el formulario", "error");
+                    }
+                });                                
                 MostrarMensajePrincipal("El mensaje se registró correctamente","success");    
             }, 250);});
         }
