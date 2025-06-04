@@ -18,6 +18,12 @@ $(document).ready(function(){
                 patient.Email = correo;
                 resolve(await updateDb("/Patients",idPacienteSeleccionado,patient));
                 
+                var datosEmpleados;
+                var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);
+                datosEmpleados = Object.values(parent.lstEmployeesGlobal).filter(x => x.uId == datosCuentaUsusario.uId)[0];
+                $(".txtFisio").val(datosEmpleados.Name + ' ' + datosEmpleados.LastName + ' ' + datosEmpleados.SecondLastName);
+                $(".txtFisioCedula").val(datosEmpleados.professionalID);
+
                 const formData = $form.serialize(); 
                 $.ajax({
                     url: "../methods/procesar.php?kvs=3.4",

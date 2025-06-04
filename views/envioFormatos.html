@@ -52,6 +52,8 @@
                     <div class="col">
                         <label>Paciente:</label>
                         <input type="text" name="nombre" class="form-control txtEmpleadoGeneral" id="txtEmpleadoGeneral" maxlength="30">
+                        <input type="hidden" name="nombreFisio" class="form-control txtFisio" id="txtFisio">
+                        <input type="hidden" name="cedulaFisio" class="form-control txtFisioCedula" id="txtFisioCedula">
                     </div>
                     <div class="col">
                         <label>Correo:</label>
@@ -88,6 +90,7 @@
     <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-analytics.js"></script>
     <script src="../js/cleditor/jquery.cleditor.js"></script>
     <script src="../methods/conexiones.js?kvs=3.4"></script>
+    <script src="../methods/empleados.js?kvs=3.4"></script>
     <script src="../methods/Globals.js?kvs=3.4"></script>
     <script src="../methods/Pacientes.js?kvs=3.4"></script>
     <script src="../methods/envioFormatos.js?kvs=3.4"></script>

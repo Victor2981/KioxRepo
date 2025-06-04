@@ -38,8 +38,8 @@ class PDF extends FPDF {
 
 // Crear PDF
 $pdf = new PDF();
-$pdf->fisioterapeuta = "José Pérez1";
-$pdf->cedula = "1212312321";
+$pdf->fisioterapeuta = $_POST['nombreFisio'];
+$pdf->cedula = $_POST['cedulaFisio'];
 $pdf->AddPage();
 $pdf->SetFont('Arial', '', 12);
 $pdf->MultiCell(0, 10, $mensaje);
