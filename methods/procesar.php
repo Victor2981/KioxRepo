@@ -8,7 +8,7 @@ require 'fpdf/fpdf.php';
 $nombre = $_POST['nombre'];
 $email = $_POST['email'];
 $mensaje = $_POST['mensaje'];
-$TipoArchivo = $_POST['tipoDocumento'];
+$TipoArchivo = utf8_decode($_POST['tipoDocumento']);
 
 class PDF extends FPDF {
   public $fisioterapeuta;
@@ -43,7 +43,7 @@ $pdf->fisioterapeuta = $_POST['nombreFisio'];
 $pdf->cedula = $_POST['cedulaFisio'];
 $pdf->AddPage();
 $pdf->SetFont('Arial', '', 12);
-$pdf->MultiCell(0, 10, $mensaje);
+$pdf->MultiCell(0, 10, strip_tags($mensaje));
 
 $nombreArchivo = $TipoArchivo .'.pdf';
 $pdf->Output('F', $nombreArchivo);
