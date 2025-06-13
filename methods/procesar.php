@@ -3,7 +3,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 require 'PHPMailer/src/PHPMailer.php';
 require 'PHPMailer/src/SMTP.php';
 require 'PHPMailer/src/Exception.php';
-require_once('tcpdf/src/tcpdf.php'); // Asegúrate de que esta ruta sea correcta
+require_once('tcpdf/src/Tcpdf.php'); // Asegúrate de que esta ruta sea correcta
 
 $nombre = $_POST['nombre'];
 $email = $_POST['email'];
