@@ -3,77 +3,81 @@ use PHPMailer\PHPMailer\PHPMailer;
 require 'PHPMailer/src/PHPMailer.php';
 require 'PHPMailer/src/SMTP.php';
 require 'PHPMailer/src/Exception.php';
-require 'fpdf/fpdf.php';
+require_once('tcpdf/tcpdf.php'); // Asegúrate de que esta ruta sea correcta
 
 $nombre = $_POST['nombre'];
 $email = $_POST['email'];
 $mensaje = $_POST['mensaje'];
-$TipoArchivo = utf8_decode($_POST['tipoDocumento']);
+$TipoArchivo = $_POST['tipoDocumento'];
+$nombreFisio = $_POST['nombreFisio'];
+$cedulaFisio = $_POST['cedulaFisio'];
 
-class PDF extends FPDF {
-  public $fisioterapeuta;
-  public $cedula;
-    function Header() {
-        // Logo a la izquierda
-        $this->Image('../img/logoKiox.png', 10, 10, 30); // x, y, width
+// Crear una subclase de TCPDF para personalizar encabezado
+class MYPDF extends TCPDF {
+    public $fisioterapeuta;
+    public $cedula;
 
-        // Fuente para encabezado
-        $this->SetFont('Arial', '', 12);
+    // Cabecera
+    public function Header() {
+        // Logo
+        $image_file = '../img/logoKiox.png';
+        $this->Image($image_file, 10, 10, 30, '', 'PNG', '', 'T', false, 300, '', false, false, 0, false, false, false);
 
-        // Fecha a la derecha
-        $this->SetXY(-60, 10); // Posición desde la derecha
+        // Fecha en esquina superior derecha
+        $this->SetFont('helvetica', '', 10);
+        $this->SetXY(-60, 10);
         $this->Cell(50, 10, date('d/m/Y'), 0, 0, 'R');
 
-        // Datos centrados
-        $this->SetXY(0, 15);
-        $this->SetFont('Arial', 'B', 12);
-        $this->Cell(0, 10, utf8_decode($this->fisioterapeuta), 0, 1, 'C');
-        $this->SetFont('Arial', '', 11);
-        $this->Cell(0, 6, utf8_decode("Cédula Profesional: $this->cedula"), 0, 1, 'C');
-        $this->MultiCell(0, 6, utf8_decode('Dirección: Patricio Sanz 442,' . "\n" . 'Col. Del Valle Norte C.P.03103'), 0, 1, 'C');
-
-        // Espacio después del encabezado
-        $this->Ln(20);
+        // Título centrado
+        $this->SetY(20);
+        $this->SetFont('helvetica', 'B', 12);
+        $this->Cell(0, 6, $this->fisioterapeuta, 0, 1, 'C');
+        $this->SetFont('helvetica', '', 11);
+        $this->Cell(0, 6, "Cédula Profesional: " . $this->cedula, 0, 1, 'C');
+        $this->MultiCell(0, 6, "Dirección: Patricio Sanz 442,\nCol. Del Valle Norte C.P.03103", 0, 'C');
+        $this->Ln(10);
     }
 }
 
 // Crear PDF
-$pdf = new PDF();
-$pdf->fisioterapeuta = $_POST['nombreFisio'];
-$pdf->cedula = $_POST['cedulaFisio'];
+$pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+$pdf->fisioterapeuta = $nombreFisio;
+$pdf->cedula = $cedulaFisio;
+$pdf->SetCreator(PDF_CREATOR);
+$pdf->SetAuthor($nombreFisio);
+$pdf->SetTitle($TipoArchivo);
+$pdf->SetMargins(15, 40, 15); // margen superior 40 para dejar espacio al header
 $pdf->AddPage();
-$pdf->SetFont('Arial', '', 12);
-$pdf->MultiCell(0, 10, strip_tags($mensaje));
+$pdf->SetFont('helvetica', '', 12);
+$pdf->writeHTML(nl2br(strip_tags($mensaje)), true, false, true, false, '');
 
-$nombreArchivo = $TipoArchivo .'.pdf';
-$pdf->Output('F', $nombreArchivo);
+$nombreArchivo = $TipoArchivo . '.pdf';
+$pdf->Output($nombreArchivo, 'F');
 
+// Enviar por correo
 $mail = new PHPMailer(true);
-
 try {
-  $mail->isSMTP();
-  $mail->Host = 'mail.kiox.mx';
-  $mail->SMTPAuth = true;
-  $mail->Username = 'hola@kiox.mx';
-  $mail->Password = 'KA1]fXKS=jBT';
-  $mail->SMTPSecure = 'ssl';
-  $mail->Port = 465;
+    $mail->isSMTP();
+    $mail->Host = 'mail.kiox.mx';
+    $mail->SMTPAuth = true;
+    $mail->Username = 'hola@kiox.mx';
+    $mail->Password = 'KA1]fXKS=jBT';
+    $mail->SMTPSecure = 'ssl';
+    $mail->Port = 465;
 
-  $mail->setFrom('hola@kiox.mx', $TipoArchivo);
-  $mail->addAddress($email);
+    $mail->setFrom('hola@kiox.mx', $TipoArchivo);
+    $mail->addAddress($email);
+    $mail->Subject = 'Nuevo formulario recibido';
+    $mail->Body    = 'Adjunto encontrarás tu receta.';
+    $mail->addAttachment($nombreArchivo);
 
-  $mail->Subject = 'Nuevo formulario recibido';
-  $mail->Body    = 'Adjunto encontrarás tu receta.';
-
-  $mail->addAttachment($nombreArchivo);
-
-  $mail->send();
-  echo 'Correo enviado con PDF adjunto.';
+    $mail->send();
+    echo 'Correo enviado con PDF adjunto.';
 } catch (Exception $e) {
-  echo "Error al enviar: {$mail->ErrorInfo}";
+    echo "Error al enviar: {$mail->ErrorInfo}";
 } finally {
-  if (file_exists($nombreArchivo)) {
-    unlink($nombreArchivo);
-  }
+    if (file_exists($nombreArchivo)) {
+        unlink($nombreArchivo);
+    }
 }
 ?>
