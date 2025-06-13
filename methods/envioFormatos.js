@@ -37,7 +37,7 @@ $(document).ready(function(){
 
                 const formData = $form.serialize(); 
                 $.ajax({
-                    url: "../methods/procesar.php?kvs=3.11",
+                    url: "../methods/procesar.php?kvs=3.12",
                     type: "POST",
                     data: formData,
                     success: function (respuesta) {
