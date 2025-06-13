@@ -1,6 +1,6 @@
 $(document).ready(function(){
     var idPacienteSeleccionado = "";
-    $(".txtMensaje").cleditor({ width: "100%", height: "100%" });
+    // $(".txtMensaje").cleditor({ width: "100%", height: "100%" });
 
     $(".formulario").on('submit', async function(e) {
         e.preventDefault();
@@ -37,7 +37,7 @@ $(document).ready(function(){
 
                 const formData = $form.serialize(); 
                 $.ajax({
-                    url: "../methods/procesar.php?kvs=3.10",
+                    url: "../methods/procesar.php?kvs=3.11",
                     type: "POST",
                     data: formData,
                     success: function (respuesta) {
