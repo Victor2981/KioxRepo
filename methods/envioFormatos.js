@@ -12,44 +12,38 @@ $(document).ready(function(){
         if(banValidacion == true){banValidacion = Validador($(".txtMensaje"),"mensaje",$(".txtMensaje").val(),1,'',false)};
 
         if (banValidacion) {
-            return new Promise(resolve => {setTimeout(async function(){
+            setTimeout(async () => {
                 var correo = $(".txtCorreo").val().trim();
-                var patient = await selectDb(urlPacientesGlobal,idPacienteSeleccionado);
+                var patient = await selectDb(urlPacientesGlobal, idPacienteSeleccionado);
                 patient.Email = correo;
-                resolve(await updateDb("/Patients",idPacienteSeleccionado,patient));
-                
-                var datosEmpleados;
-                var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);
-                datosEmpleados = Object.values(parent.lstEmployeesGlobal).filter(x => x.uId == datosCuentaUsusario.uId)[0];
-                $(".txtFisio").val(datosEmpleados.Name + ' ' + datosEmpleados.LastName + ' ' + datosEmpleados.SecondLastName);
-                $(".txtFisioCedula").val(datosEmpleados.professionalID);
-                switch ($(".ddlTipoDocumento").val()) {
-                    case "1":
-                        $(".txtTipoDocumento").val("Receta");
-                        break;
-                    case "2":
-                        $(".txtTipoDocumento").val("Informe médico");
-                        break;
-                    default:
-                        break;
-                }
-                
+                await updateDb("/Patients", idPacienteSeleccionado, patient);
 
-                const formData = $form.serialize(); 
+                var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);
+                var datosEmpleados = Object.values(parent.lstEmployeesGlobal).find(x => x.uId == datosCuentaUsusario.uId);
+
+                $(".txtFisio").val(`${datosEmpleados.Name} ${datosEmpleados.LastName} ${datosEmpleados.SecondLastName}`);
+                $(".txtFisioCedula").val(datosEmpleados.professionalID);
+
+                const tipo = $(".ddlTipoDocumento").val();
+                $(".txtTipoDocumento").val(tipo == "1" ? "Receta" : tipo == "2" ? "Informe médico" : "");
+
+                const formData = $form.serialize();
                 $.ajax({
-                    url: "../methods/procesar.php?kvs=3.13",
+                    url: "../methods/procesar.php?kvs=3.12",
                     type: "POST",
                     data: formData,
                     success: function (respuesta) {
-                    MostrarMensajePrincipal("El mensaje se registró correctamente", "success");
-                    console.log("Respuesta PHP:", respuesta);
+                        MostrarMensajePrincipal("El mensaje se registró correctamente", "success");
+                        console.log("Respuesta PHP:", respuesta);
                     },
-                    error: function (msj) {
-                    MostrarMensajePrincipal("Ocurrió un error al enviar el formulario", "error");
+                    error: function () {
+                        MostrarMensajePrincipal("Ocurrió un error al enviar el formulario", "error");
                     }
-                });                                
-                MostrarMensajePrincipal("El mensaje se registró correctamente","success");    
-            }, 250);});
+                });
+
+                MostrarMensajePrincipal("El mensaje se registró correctamente", "success");
+            }, 250);
+
         }
     });
 
