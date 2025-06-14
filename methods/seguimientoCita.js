@@ -158,10 +158,10 @@ async function populateAppointmentData(idAppointment) {
         var lstText = [$(".txtObservaciones"),$(".txtRecomendaciones")];
         $(".txtObservaciones").text(datos.Observation);
         $(".txtRecomendaciones").text(datos.Recommendations);
-        lstText.forEach(function(txt){
-            txt.cleditor({ width: "100%", height: "100%" });
-            txt.cleditor()[0].updateTextArea();
-        });
+        // lstText.forEach(function(txt){
+        //     txt.cleditor({ width: "100%", height: "100%" });
+        //     txt.cleditor()[0].updateTextArea();
+        // });
         await db.collection(urlPackagesGlobal).where("IdPatient","==",selIdPatientGlobal).where("IdService","==",selIdServiceGlobal).where("IsPack","==",true).where("IsPackCompleted","==",false).get().then(async (obj)=>{
             if (obj.docs.length > 0) {
                 var datosPaquete = obj.docs[0].data();
