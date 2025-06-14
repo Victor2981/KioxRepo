@@ -28,18 +28,16 @@ $(document).ready(function(){
                 $(".txtTipoDocumento").val(tipo == "1" ? "Receta" : tipo == "2" ? "Informe médico" : "");
 
                 const formData = $form.serialize();
-                $.ajax({
-                    url: "../methods/procesar.php?kvs=3.15",
-                    type: "POST",
-                    data: formData,
-                    success: function (respuesta) {
-                        MostrarMensajePrincipal("El mensaje se registró correctamente", "success");
-                        console.log("Respuesta PHP:", respuesta);
-                    },
-                    error: function () {
-                        MostrarMensajePrincipal("Ocurrió un error al enviar el formulario", "error");
-                    }
-                });
+                fetch('https://us-central1-fior-a4273.cloudfunctions.net/sendPdfEmail', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+                })
+                .then(res => res.text())
+                .then(msg => alert("Respuesta: " + msg))
+                .catch(err => console.error(err));
 
                 MostrarMensajePrincipal("El mensaje se registró correctamente", "success");
             }, 250);
