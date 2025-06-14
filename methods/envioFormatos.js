@@ -33,7 +33,7 @@ $(document).ready(function(){
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(formData)
+                body: formData
                 })
                 .then(res => res.text())
                 .then(msg => alert("Respuesta: " + msg))
