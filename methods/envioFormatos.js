@@ -27,13 +27,20 @@ $(document).ready(function(){
                 const tipo = $(".ddlTipoDocumento").val();
                 $(".txtTipoDocumento").val(tipo == "1" ? "Receta" : tipo == "2" ? "Informe médico" : "");
 
-                const formData = $form.serialize();
+                const formData = {
+                    nombre: $(".txtEmpleadoGeneral").val(),
+                    email: $(".txtCorreo").val(),
+                    mensaje: $(".txtMensaje").val(),
+                    TipoArchivo: $(".ddlTipoDocumento").val(),
+                    nombreFisio: $(".txtFisio").val(),
+                    cedulaFisio: $(".txtFisioCedula").val()
+                }
                 fetch('https://us-central1-fior-a4273.cloudfunctions.net/sendPdfEmail', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: formData
+                body: JSON.stringify(formData)
                 })
                 .then(res => res.text())
                 .then(msg => alert("Respuesta: " + msg))
