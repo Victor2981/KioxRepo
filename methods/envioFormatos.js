@@ -31,7 +31,7 @@ $(document).ready(function(){
                     nombre: $(".txtEmpleadoGeneral").val(),
                     email: $(".txtCorreo").val(),
                     mensaje: $(".txtMensaje").val(),
-                    TipoArchivo: $(".ddlTipoDocumento").val(),
+                    tipoDocumento: $(".ddlTipoDocumento").val(),
                     nombreFisio: $(".txtFisio").val(),
                     cedulaFisio: $(".txtFisioCedula").val()
                 }
