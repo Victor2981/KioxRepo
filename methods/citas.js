@@ -198,6 +198,7 @@ function enviarMensaje(element) {
      var as ="";
         var lstParametrosMensaje =[];
         var nombrePaciente = parent.lstPatientsGlobal[element.IdPatient].Name;
+        var celular = parent.lstPatientsGlobal[element.IdPatient].Phone;
         var saludo = "";
         var cita = "nos comunicamos para confirmar tu cita ";
         var diaMañana = new Date(new Date().setDate(new Date().getDate()+1))            
@@ -225,7 +226,14 @@ function enviarMensaje(element) {
         lstParametrosMensaje.push(saludo);
         lstParametrosMensaje.push(cita);
         var mensaje = saludo.replace(" ","%20") + " " + cita.replace(" ","%20");
-        var url = "https://wa.me/525578708669?text="+mensaje;
+        var url = "";
+        if (celular.length>10) {
+            url = "https://wa.me/" + celular + "?text="+mensaje;
+        }
+        else{
+            url = "https://wa.me/52" + celular + "?text="+mensaje;
+        }
+
         window.open(url, "_blank");
         //EnviarWhatsApp(TipoMensajeWhatsApp.Confirmacion,lstParametrosMensaje);   
 }
