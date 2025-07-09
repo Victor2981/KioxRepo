@@ -188,12 +188,47 @@ $(document).ready(function(){
             //cita = "mañana 10 pm"
             lstParametrosMensaje.push(saludo);
             lstParametrosMensaje.push(cita);
-            EnviarWhatsApp(TipoMensajeWhatsApp.Confirmacion,lstParametrosMensaje);     
+            //EnviarWhatsApp(TipoMensajeWhatsApp.Confirmacion,lstParametrosMensaje);     
         });
     });
 
 });
 
+function enviarMensaje(element) {
+     var as ="";
+        var lstParametrosMensaje =[];
+        var nombrePaciente = parent.lstPatientsGlobal[element.IdPatient].Name;
+        var saludo = "";
+        var cita = "nos comunicamos para confirmar tu cita ";
+        var diaMañana = new Date(new Date().setDate(new Date().getDate()+1))            
+        if (new Date().toLocaleDateString() == element.AppointmentDateStart.toDate().toLocaleDateString()) {
+            cita += "hoy a las " + element.AppointmentDateStart.toDate().getHours().toString().padStart(2,"0") + ":"+ element.AppointmentDateStart.toDate().getMinutes().toString().padStart(2,"0")                
+        } 
+        else if(diaMañana.toLocaleDateString() == element.AppointmentDateStart.toDate().toLocaleDateString()) {
+            cita += "para mañana " + element.AppointmentDateStart.toDate().getHours().toString().padStart(2,"0") + ":" + element.AppointmentDateStart.toDate().getMinutes().toString().padStart(2,"0")                
+        }
+        else{
+            cita += "para el " + new Date().toLocaleString().substring(0, 16);
+        }            
+
+        var horaActual = new Date().getHours();
+        if (horaActual > 4 && horaActual < 12) {
+            saludo = "Buenos días " + nombrePaciente;
+        }
+        else if (horaActual > 12 && horaActual < 18) {
+            saludo = "Buenas tardes " + nombrePaciente;
+        }
+        else{
+            saludo = "Buenas noches " + nombrePaciente;
+        }
+        //cita = "mañana 10 pm"
+        lstParametrosMensaje.push(saludo);
+        lstParametrosMensaje.push(cita);
+        var mensaje = saludo.replace(" ","%20") + " " + cita.replace(" ","%20");
+        var url = "https://wa.me/525578708669?text="+mensaje;
+        window.open(url, "_blank");
+        //EnviarWhatsApp(TipoMensajeWhatsApp.Confirmacion,lstParametrosMensaje);   
+}
 
 async function UpdateStatusAppointment(idAppoitment,Status) {
     var Appointment = await selectDb(urlCitasGlobal,idAppoitment);
@@ -321,7 +356,7 @@ function generarCalendario() {
         height:'90%',
         locale: 'es',
         slotMinTime: '08:00',
-        slotMaxTime: '20:00',
+        slotMaxTime: '21:00',
         allDaySlot: false,
         headerToolbar: header,
     views: {
@@ -524,12 +559,16 @@ function llenarTablaCitasPorConfirmar(){
     $(".tblCitasPorConfirmar").empty();
     var titulos = ["Nombre","Tratamiento","Fecha",""];    
     var TitulosDatos = ["Title","Service.Name","AppointmentDateStart"];    
-
-    const lstAppointments = JSON.parse(JSON.stringify(parent.lstAppointmentsGlobal));
+    var FechaI = new Date(new Date().getFullYear(),new Date().getMonth() ,new Date().getDate() + 1 ,0,0,0);
+    var FechaF = new Date(new Date().getFullYear(),new Date().getMonth() ,new Date().getDate() + 1,23,59,59,1000);
     let lstButtons = {};
-    if (Object.keys(lstAppointments).length >0) {
-        for (const ap in lstAppointments) {         
-            var idAppointment = ap;   
+    var lstDatos = {};
+    db.collection(urlCitasGlobal).where("Status","==",1).where('AppointmentDateStart', '>=', FechaI).where('AppointmentDateStart', '<=', FechaF).orderBy("AppointmentDateStart", "desc").get().then((obj)=>{
+        obj.docs.forEach(function(ap) {
+            var datos =  ap.data();
+            var evento = {[ap.id]:datos};
+            Object.assign(lstDatos,evento);
+            var idAppointment = ap.id;   
             var AppointmentData = parent.lstAppointmentsGlobal[idAppointment];
             var Buttons = [];            
             var lblActivo = $("<label class='switch'>");
@@ -543,12 +582,21 @@ function llenarTablaCitasPorConfirmar(){
             });
             //Object.assign(Buttons,tgActivo);
             lblActivo.append(tgActivo);
-            Buttons.push(lblActivo);
+            //Buttons.push(lblActivo);
+
             //Object.assign(Buttons,btnEditar);
+
+            let btnEliminar = $("<a class='btnTablaGlobal material-icons btnIcon' title='Enviar mensaje'>message</a>");
+            btnEliminar.on('click',()=>{
+                var AppointmentData = parent.lstAppointmentsGlobal[idAppointment];
+                enviarMensaje(AppointmentData);
+            });
+            Buttons.push(btnEliminar);
+
             var evento = {[idAppointment]:Buttons};
             Object.assign(lstButtons,evento);
-        }
-    }
-    generarTabla($(".tblCitasPorConfirmar"),titulos,TitulosDatos,parent.lstAppointmentsGlobal,lstButtons);
-    $(".dvLoader").hide();
+        });
+        generarTabla($(".tblCitasPorConfirmar"),titulos,TitulosDatos,lstDatos,lstButtons);
+        $(".dvLoader").hide();
+    });
 }
