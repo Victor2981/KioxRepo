@@ -364,7 +364,7 @@ function generarCalendario() {
         height:'90%',
         locale: 'es',
         slotMinTime: '08:00',
-        slotMaxTime: '21:00',
+        slotMaxTime: '20:00',
         allDaySlot: false,
         headerToolbar: header,
     views: {
