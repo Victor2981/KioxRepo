@@ -49,6 +49,7 @@
                 <div class="col">                    
                     <button type="button" class="btn btn-primary float-right btnAcceptCheckout">Aceptar</button>
                     <button type="button" class="btn btn-primary float-right btnAcceptCheckoutPaquete">Aceptar</button>
+                    <button type="button" class="btn btn-info float-right btnAddService">Agregar extra</button>
                 </div>
             </div>
         </div>        
@@ -86,6 +87,38 @@
         </div>
     </div>
     
+    <div id="modalAddExtra" class="modal modalAddExtra fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Agregar extra</h4>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="dvMensajePopUp" style="height: 100%;"></div>
+              <div class="modal-body">
+                <div>
+                    <div class="row">
+                        <div class="col">
+                            <label>Categoría:</label>
+                            <select class="form-control ddlCategoria inputCapture" id="ddlCategoria"></select>
+                        </div>
+                        <div class="col">
+                            <label>Servicio:</label>
+                            <select class="form-control ddlServicio inputCapture" id="ddlServicio"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary btnAcceptExtra">Aceptar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
     <script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-firestore.js"></script>
@@ -93,22 +126,37 @@
     <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-analytics.js"></script>
-    <script src="../../../methods/conexiones.js?kvs=3.26"></script>
-    <script src="../../../methods/Pacientes.js?kvs=3.26"></script>
-    <script src="../../../methods/categorias.js?kvs=3.26"></script>
-    <script src="../../../methods/servicios.js?kvs=3.26"></script>
-    <script src="../../../methods/citas.js?kvs=3.26"></script>
-    <script src="../../../methods/IngresosEgresos/ingresos.js?kvs=3.26"></script>
-    <script src="../../../methods/IngresosEgresos/paquetes.js?kvs=3.26"></script>
-    <script src="../../../methods/IngresosEgresos/adeudos.js?kvs=3.26"></script>
-    <script src="../../../methods/utilidades.js?kvs=3.26"></script>
-    <script src="../../../methods/dbManager.js?kvs=3.26"></script>
+    <script src="../../../methods/conexiones.js?kvs=3.27"></script>
+    <script src="../../../methods/Pacientes.js?kvs=3.27"></script>
+    <script src="../../../methods/categorias.js?kvs=3.27"></script>
+    <script src="../../../methods/servicios.js?kvs=3.27"></script>
+    <script src="../../../methods/citas.js?kvs=3.27"></script>
+    <script src="../../../methods/IngresosEgresos/ingresos.js?kvs=3.27"></script>
+    <script src="../../../methods/IngresosEgresos/paquetes.js?kvs=3.27"></script>
+    <script src="../../../methods/IngresosEgresos/adeudos.js?kvs=3.27"></script>
+    <script src="../../../methods/utilidades.js?kvs=3.27"></script>
+    <script src="../../../methods/dbManager.js?kvs=3.27"></script>
     <script>
         $(document).ready(async function(){   
             await llenarControles();  
             llenarTablaIngresosPago(parent.lstConceptosPago);
+            await SeleccionarDatosCategorias("dropdown");
         });
     </script>
     
+       <!-- <script>
+            
+             $(document).ready(async function(){        
+                var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);
+                await SeleccionarDatosPacientes();
+                //generarCalendario();
+                await SeleccionarDatosCitas();
+                await SeleccionarDatosCategorias("dropdown");
+                await SeleccionarDatosEmpleados("dropdown");
+                parent.lstServicesGlobal = {};
+                parent.lstServicesFiltroGlobal = [];
+                await SeleccionarDatosServicios();
+            });                           
+        </script> -->
 </body>    
                    

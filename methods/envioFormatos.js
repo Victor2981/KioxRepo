@@ -27,7 +27,7 @@ $(document).ready(function(){
                 const tipo = $(".ddlTipoDocumento").val();
                 $(".txtTipoDocumento").val(tipo == "1" ? "Receta" : tipo == "2" ? "Informe médico" : "");
 
-                const formData = {
+                const Data = {
                     nombre: $(".txtEmpleadoGeneral").val(),
                     email: $(".txtCorreo").val(),
                     mensaje: $(".txtMensaje").val(),
@@ -40,7 +40,7 @@ $(document).ready(function(){
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(Data)
                 })
                 .then(res => res.text())
                 .then(msg => alert("Respuesta: " + msg))

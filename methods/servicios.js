@@ -194,6 +194,7 @@ function llenarDropDownServices(idCategory){
         // var result = lstServicesFiltroGlobal.filter(function(obj) {
         //     return obj.datos.idCategory = idCategory
         // });
+        $(".ddlServicio").append("<option value=''></option>");
         lstServiceFiltered.forEach(function(ser){
             var idService = Object.keys(ser)[0];
             var datos = ser[Object.keys(ser)[0]]

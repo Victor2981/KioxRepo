@@ -59,9 +59,6 @@ $(document).ready(function(){
         $(".pBancoIngresos").text("$" + formatoMoneda(0));
         var fechaInicio = new Date(parseInt($(".txtFechaIncIngresos").val().substr(0,4)),parseInt($(".txtFechaIncIngresos").val().substr(5,2))-1,parseInt($(".txtFechaIncIngresos").val().substr(8,2)),0,0,0);
         var fechafin = new Date(parseInt($(".txtFechaFinIngresos").val().substr(0,4)),parseInt($(".txtFechaFinIngresos").val().substr(5,2))-1,parseInt($(".txtFechaFinIngresos").val().substr(8,2)),23,59,59);
-        if($(".txtPacienteIngresos").val() == ""){
-            selIdPatientEarning = "";
-        }
         $(".tblIngresosDetalle").empty();
         parent.lstIngresosGlobal = {};
         SeleccionarDatosIngresos("tabla",fechaInicio,fechafin);
@@ -135,24 +132,6 @@ $(document).ready(function(){
         var fechaHoy =  new Date();
         $(".txtFechaPago").val(fechaHoy.getFullYear() + "-" + fechaHoy.getMonth().toString().padStart(2,"0") + "-" + fechaHoy.getDate().toString().padStart(2,"0"));
     }
-
-    $(".btnAcceptExtra").click(async function (){
-        var banValidacion = true;
-        if(banValidacion == true){banValidacion = Validador($(".ddlCategoria"),"categoría",$(".ddlCategoria").val(),1,'',$('.modalAddExtra'))};
-        if(banValidacion == true){banValidacion = Validador($(".ddlServicio"),"servicio",$(".ddlServicio").val(),1,'',$('.modalAddExtra'))};
-        if(banValidacion){
-            var Servicio = parent.lstServicesGlobal[$(".ddlServicio").val()];
-            var Categoria = parent.lstCategoriesGlobal[$(".ddlCategoria").val()];
-            agregarConceptosCobroExtra($(".ddlServicio").val(), Servicio, Categoria, selIdPatientEarning);        
-            $('.modalAddExtra').modal('toggle');      
-        }
-        return false;
-    });
-
-    $(".btnAddService").click(async function (){
-        $('.modalAddExtra').modal('toggle');              
-        return false;
-    });
 
     $(".btnAcceptCheckoutPaquete").click(async function (){
         QuitarMensaje();
@@ -289,7 +268,7 @@ $(document).ready(function(){
         var invoice={
             IdEarn: "",
             Invoice: folio,
-            PaymentDate: new Date(),
+            PaymentDate: new Date(2025,5,31),
             Products: [],
             IdEmployeRegister: parent.idUsuarioSistema,
             idPatient: idPaciente,
@@ -618,17 +597,7 @@ const SeleccionarDatosIngresos = async function(tipoControl,fechaInicio,fechafin
     //var FechaI = new Date(new Date(fechaInicio).getFullYear(),new Date(fechaInicio).getMonth() - 1 ,new Date(fechaInicio).getDate(),0,0,0);
     //var FechaF = new Date(new Date(fechafin).getFullYear(),new Date(fechafin).getMonth() - 1 ,new Date(fechafin).getDate(),23,59,59);
     //db.collection(url).where("status","in",estatusComandas).where('createdDateTime', '>=', FechaI).where('createdDateTime', '<=', FechaF).orderBy("createdDateTime", "asc").get().then(data =>{
-
-
-    let consultadb =db.collection(urlEarningsGlobal).where('PaymentDate', '>=', fechaInicio).where('PaymentDate', '<=', fechafin);
-    if ($(".ddlFormaPago").val() != "") {
-        consultadb = consultadb.where("PaymentType", "==",parseInt($(".ddlFormaPago").val()));
-    }   
-    if (selIdPatientEarning != "") {
-        consultadb = consultadb.where("idPatient", "==",selIdPatientEarning);
-    }   
-
-    await consultadb.onSnapshot(function(snapshot) {
+    await db.collection(urlEarningsGlobal).where('PaymentDate', '>=', fechaInicio).where('PaymentDate', '<=', fechafin).onSnapshot(function(snapshot) {
         snapshot.docChanges().forEach(function(change) {
             
             if (change.type === "added") {
@@ -664,8 +633,8 @@ const SeleccionarDatosIngresos = async function(tipoControl,fechaInicio,fechafin
 function llenarTablaIngresosDetalle(datosIngresos){
     $(".tblIngresosDetalle").empty();
     $(".dvLoader").show();        
-    var titulos = ["Paciente","Servicio/Producto","Forma de pago","Total","Fecha registro",""];    
-    var TitulosDatos = ["NameComplete","Productos","PaymentTypeText","Total","PaymentDate"];    
+    var titulos = ["Folio","Paciente","Servicio/Producto","Forma de pago","Total","Fecha registro",""];    
+    var TitulosDatos = ["Invoice","NameComplete","Productos","PaymentTypeText","Total","PaymentDate"];    
     var totalIngresos = 0;
     var totalIngresosEfectivo = 0;
     var totalIngresosTarjeta = 0;
@@ -761,33 +730,4 @@ function llenarTablaIngresosDetalle(datosIngresos){
     }
     generarTabla($(".tblIngresosDetalle"),titulos,TitulosDatos,datosIngresos,lstButtons);
     $(".dvLoader").hide();
-}
-
-async function agregarConceptosCobroExtra(IdService, Servicio, Category, selIdPatientGlobal){
-    //parent.lstConceptosPago = {};
-    //var Servicio = conceptoCobro.Service;
-    var precio = parseFloat(Servicio.Price);
-    await db.collection("/SpecialPrice").where("IdPatient","==",selIdPatientGlobal).where("IdService","==",IdService).get().then(async (obj)=>{
-        if (obj.docs.length > 0) {
-            var datosPrecio = obj.docs[0].data();
-            precio = parseFloat(datosPrecio.Price);
-        }
-    }); 
-    var dato={
-        Price: precio,
-        IsPack: false,
-        isPackCompleted: false,
-        IdService: IdService,
-        Service: Servicio,
-        IdCategory: Servicio.idCategory,
-        Category: Category,
-        NumbreSesions: 1,
-        datePayOff:new Date()
-    }
-    //var datos = change.doc.data();
-    //var evento = {[id]:datos};
-    var idProducto = Date.now();
-    var datos = {[idProducto]:dato};
-    Object.assign(parent.lstConceptosPago,datos); 
-    llenarTablaIngresosPago(parent.lstConceptosPago);
 }
