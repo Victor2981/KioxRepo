@@ -20,6 +20,13 @@ var tipoConceptoCobro = 0;
 var DatosCuentaUsusario = {};
 var version = "1";
 
+const KioxPositions = {
+    Administrador: 1,
+	Fisioterapeuta: 2,
+    Recepcion: 3,
+	Practicantes: 4,
+}
+
 function addScript(src) {
     var s = document.createElement( 'script' );
     s.setAttribute( 'src', src );

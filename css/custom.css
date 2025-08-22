@@ -96,6 +96,43 @@
     border-radius: 10px !important;
   }
 
+  .AppoitmentArrived {
+    --border-width: 1px;
+    position: relative;
+    display: flex;
+    border-radius: 10px !important;
+
+    &::after {
+      position: absolute;
+      content: "";
+      top: calc(-1 * var(--border-width));
+      left: calc(-1 * var(--border-width));
+      z-index: 1;
+      width: calc(100% + var(--border-width) * 2);
+      height: calc(100% + var(--border-width) * 2);
+      background: linear-gradient(
+        60deg,
+        hsla(0, 0%, 100%, 0),
+        hsla(0, 0%, 100%, 0.2),
+        hsla(0, 0%, 100%, 0.3),
+        hsla(0, 0%, 100%, 0.7),
+        hsla(0, 0%, 100%, 0.3),
+        hsla(0, 0%, 100%, 0.2),
+        hsla(0, 0%, 100%, 0)
+      );
+      background-size: 300% 300%;
+      background-position: 0 50%;
+      border-radius: 10px;
+      animation: moveGradient 4s alternate infinite;
+    }
+  }
+
+  @keyframes moveGradient {
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
   .AppoitmentAttended{
     border-color: blue !important;
     border-left-width: 3px !important;

@@ -73,7 +73,7 @@ $(document).ready(function(){
                 if (Object.values(parent.lstEmployeesGlobal).filter(x => x.uId != $(".ddlEmpleados").val()).length > 0) {
                     var datosEmpleados;
                     var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);
-                    if (datosCuentaUsusario.Position == 1) {
+                    if (datosCuentaUsusario.Position == KioxPositions.Administrador) {
                         datosEmpleados = Object.values(parent.lstEmployeesGlobal).filter(x => x.uId == $(".ddlEmpleados").val())[0];
                     }   
                     else{
@@ -112,6 +112,13 @@ $(document).ready(function(){
         }        
     });       
     
+    $(".btnAcceptArrived").click(async function(){
+        await UpdateStatusAppointment(selIdAppointmen,StatusAppointment.ConfirmacionLlegada);       
+        $('.modalRecepcion').modal('toggle');
+        MostrarMensajePrincipal("La cita fue enviada para su atención","success");
+        setTimeout(function() {$(".alert-success").alert('close');}, 2000);
+    });
+
     $(".btnStartAppointment").click(async function(){
         await UpdateStatusAppointment(selIdAppointmen,StatusAppointment.Atendido);
         //$('.modalNewDate').modal('toggle');
@@ -247,11 +254,16 @@ async function UpdateStatusAppointment(idAppoitment,Status) {
 const SeleccionarDatosCitas = async function(){
     $(".dvLoader").show();
     var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);
-    
     let consultadb =db.collection(urlCitasGlobal).where("Status", ">",StatusAppointment.Cancelado);
-    if (datosCuentaUsusario.Position == 2) {
+    //datosCuentaUsusario.Position = parseInt(KioxPositions.Recepcion);
+    if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Fisioterapeuta)) {
         consultadb = db.collection(urlCitasGlobal).where("Status", ">",StatusAppointment.Cancelado).where("IdEmployee", "==", datosCuentaUsusario.uId);
     }   
+    else if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Recepcion)) {
+        var fechaInicio = new Date(new Date().getFullYear(),(new Date().getMonth()),new Date().getDate(),6,0,0);
+        consultadb = db.collection(urlCitasGlobal).where("Status", "==",StatusAppointment.Registrado).where('AppointmentDateStart', '>=', fechaInicio);
+    }
+
     await consultadb.onSnapshot(function(snapshot) {
         snapshot.docChanges().forEach(function(change) {
             
@@ -265,6 +277,15 @@ const SeleccionarDatosCitas = async function(){
                 var id = change.doc.id;
                 var datos = change.doc.data();
                 var evento = {[id]:datos};
+
+                if (datos.IdEmployee == parent.idUsuarioSistema && datos.Status == StatusAppointment.ConfirmacionLlegada ) {
+                    var img = "../img/logoKiox.png";
+                    var text = 'Tu paciente ' + datos.Title + " ha llegado y se encuentra en recepción";
+                    var notification = new Notification("Lista de tareas", {
+                        body: text,
+                        icon: img,
+                    });    
+                }
                 Object.assign(parent.lstAppointmentsGlobal,evento);
             }
             if (change.type === "removed") {
@@ -274,7 +295,7 @@ const SeleccionarDatosCitas = async function(){
         generarCalendario();
     });
     var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);
-    if (datosCuentaUsusario.Position == 2) {
+    if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Fisioterapeuta)) {
         $(".dvDatosContacto").empty();
         $(".btnNewPatient").hide();
         $(".btnConfirmAppointments").hide();
@@ -286,9 +307,10 @@ const StatusAppointment = {
     Cancelado: -1,
 	Registrado: 1,
     Confirmado: 2,
-	Atendido: 3,
-	Pagado: 4,
-    Finalizado: 5,
+    ConfirmacionLlegada: 3,
+	Atendido: 4,
+	Pagado: 5,
+    Finalizado: 6,
 }
 
 function llenarEventos(){
@@ -306,6 +328,10 @@ function llenarEventos(){
                     break;
                 case StatusAppointment.Confirmado:
                     ClassAppointment = "AppoitmentConfirmed";
+                    Editable = false;    
+                break;
+                case StatusAppointment.ConfirmacionLlegada:
+                    ClassAppointment = "AppoitmentArrived";
                     Editable = false;    
                 break;
                 case StatusAppointment.Atendido:
@@ -329,7 +355,7 @@ function llenarEventos(){
             //,
             appointments.push({
             id: idAppoitment,
-            title: AppoitmentData.Title,
+            title: AppoitmentData.Title + " (" + AppoitmentData.EmployeeName.substr(0, 2) + ")",
             start: AppoitmentData.AppointmentDateStart.toDate(),
             end: AppoitmentData.AppointmentDateEnd.toDate(),
             editable:Editable,
@@ -345,14 +371,32 @@ function llenarEventos(){
 function generarCalendario() {  
     var eventoEditable = true;
     var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);
-    if (datosCuentaUsusario.Position == 2) {
+    if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Fisioterapeuta)) {
         eventoEditable = false;
     }   
     var calendarEl = document.getElementById('calendar');    
     //FullCalendar.Calendar(calendarEl)
     var header = {};
     var vistainicial  = "";
-    if ($(window).width() < 760) {
+    var slotInicio = "08:00";
+    var slotFin = "22:00";
+    var editorCalendario = true;
+    //datosCuentaUsusario.Position = parseInt(KioxPositions.Recepcion);
+    if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Recepcion) || datosCuentaUsusario.Position ==  parseInt(KioxPositions.Practicantes)) {
+        header = {left: '',center: 'title',right: ''};
+        vistainicial = "timeGridDay";
+        $(".btnEdicion").remove();
+        $(".dvMenuAdmin").remove();
+        editorCalendario = false;
+        if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Recepcion)) {
+            if (new Date().getDay() == 6 || new Date().getDay() ==0) {
+                slotInicio = "08:00";
+                slotFin = "13:00";
+            }
+        }
+    }
+    else{
+     if ($(window).width() < 760) {
         header = {left: 'prev,next today',center: 'title',right: 'timeGridWeek,timeGridDay,listWeek'};
         vistainicial = "timeGridDay";
      }
@@ -360,11 +404,13 @@ function generarCalendario() {
         header = {left: 'prev,next today',center: 'title',right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'};
         vistainicial = "timeGridWeek";
      }
+    }
+  
     var calendar = new FullCalendar.Calendar(calendarEl, {
         height:'90%',
         locale: 'es',
-        slotMinTime: '08:00',
-        slotMaxTime: '22:00',
+        slotMinTime: slotInicio,
+        slotMaxTime: slotFin,
         allDaySlot: false,
         headerToolbar: header,
     views: {
@@ -383,17 +429,17 @@ function generarCalendario() {
     },
     initialView: vistainicial,
     initialDate: new Date(),
-    navLinks: true, // can click day/week names to navigate views
-    editable: true,
-    selectable: true,
+    navLinks: editorCalendario, // can click day/week names to navigate views
+    editable: editorCalendario,
+    selectable: editorCalendario,
     nowIndicator: true,
-    dayMaxEvents: true, // allow "more" link when too many events
+    dayMaxEvents: editorCalendario, // allow "more" link when too many events
     slotDuration:'01:00:00',
     events: llenarEventos(),
-    select: function(info) {             
+    select: function(info) {               
         clearFields();
         hideButtons();
-        if (datosCuentaUsusario.Position == 2) {
+        if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Fisioterapeuta)) {
             $(".rwFisioterapeuta").hide();
             $(".ddlEmpleados").val(datosCuentaUsusario.uId);
         }
@@ -404,106 +450,127 @@ function generarCalendario() {
         $('.txtHoraInicioCita').val(info.start.getHours().toString().padStart(2, "0") + ":" + info.start.getMinutes().toString().padStart(2, "0"));
         $('.txtHoraFinCita').val(info.end.getHours().toString().padStart(2, "0") + ":" + info.end.getMinutes().toString().padStart(2, "0"));        
         hideShowFields(false);
-        $('.modalNewDate').modal('toggle');
+        $('.modalNewDate').modal('toggle');            
     },
     eventClick: function(info) {
-        clearFields();
-        operacionCitas = 1;
-        return new Promise(resolve => {setTimeout(async function(){
-          var datos = await selectDb(urlCitasGlobal,info.el.fcSeg.eventRange.def.publicId);
-          if (datos != null) {
-            selIdAppointmen = info.el.fcSeg.eventRange.def.publicId;
-            var patient = parent.lstPatientsGlobal[datos.IdPatient];
-            var DateI = datos.AppointmentDateStart.toDate();
-            var DateF = datos.AppointmentDateEnd.toDate();            
-            hideButtons();
-            var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);            
-            switch (datos.Status) {
-                case StatusAppointment.Registrado:
-                    if (new Date() < DateI) {
-                        $(".btnAcceptAppointment").show();
-                    }
-                    else{                        
-                        $(".btnStartAppointment").show();
-                    }
-                    $(".btnCancelAppointment").show();
+        if (datosCuentaUsusario.Position !=  parseInt(KioxPositions.Recepcion) && datosCuentaUsusario.Position !=  parseInt(KioxPositions.Practicantes)) {
+            clearFields();
+            operacionCitas = 1;
+            return new Promise(resolve => {setTimeout(async function(){
+            var datos = await selectDb(urlCitasGlobal,info.el.fcSeg.eventRange.def.publicId);
+            if (datos != null) {
+                selIdAppointmen = info.el.fcSeg.eventRange.def.publicId;
+                var patient = parent.lstPatientsGlobal[datos.IdPatient];
+                var DateI = datos.AppointmentDateStart.toDate();
+                var DateF = datos.AppointmentDateEnd.toDate();            
+                hideButtons();
+                var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);            
+                switch (datos.Status) {
+                    case StatusAppointment.Registrado:
+                        if (new Date() < DateI) {
+                            $(".btnAcceptAppointment").show();
+                        }
+                        else{                        
+                            $(".btnStartAppointment").show();
+                        }
+                        $(".btnCancelAppointment").show();
+                        break;
+                    case StatusAppointment.Confirmado:
+                        if (new Date() < DateI) {
+                            $(".btnAcceptAppointment").show();
+                        }
+                        else{
+                            $(".btnStartAppointment").show();
+                        }
+                        $(".btnCancelAppointment").show();
                     break;
-                case StatusAppointment.Confirmado:
-                    if (new Date() < DateI) {
-                        $(".btnAcceptAppointment").show();
-                    }
-                    else{
-                        $(".btnStartAppointment").show();
-                    }
-                    $(".btnCancelAppointment").show();
-                break;
-                case StatusAppointment.Atendido:
-                    if (datosCuentaUsusario.Position == 2) {
-                        $(".btnStartAppointment").show();
-                    }   
-                    else{
+                    case StatusAppointment.Atendido:
+                        if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Fisioterapeuta)) {
+                            $(".btnStartAppointment").show();
+                        }   
+                        else{
+                            $(".btnPaidAppointment").show();
+                        }
+                    break;
+                    case StatusAppointment.Finalizado:
                         $(".btnPaidAppointment").show();
-                    }
-                break;
-                case StatusAppointment.Finalizado:
-                    $(".btnPaidAppointment").show();
-                break;
-                default:
                     break;
-            }
-            if (datosCuentaUsusario.Position == 1) {
-                $(".btnAcceptAppointment").show();
-            }
-            // $(".btnStartAppointment").show();
-            // $(".btnPaidAppointment").show();
-            // $(".btnFinishAppointment").show();
-            // $(".btnCancelAppointment").show();
-            // $(".btnAcceptAppointment").show();
-            idPatientSelected = datos.IdPatient;
-            if (info.event._def.ui.startEditable && new Date() < DateI || datosCuentaUsusario.Position == 1) {
-                if (patient != undefined) {
-                    $(".pEmpleadoGeneral").text(patient.NameComplete);
-                    $(".pTelefono").text(patient.Phone);
-                    $(".pCorreo").text(patient.Email);       
+                    default:
+                        break;
                 }
-                $('.txtFechaCita').val(DateI.getFullYear().toString().padStart(4, "0")  + "-" + (DateI.getMonth() + 1).toString().padStart(2, "0")  + "-" + DateI.getDate().toString().padStart(2, "0"));
-                $('.txtHoraInicioCita').val(DateI.getHours().toString().padStart(2, "0") + ":" + DateI.getMinutes().toString().padStart(2, "0"));
-                $('.txtHoraFinCita').val(DateF.getHours().toString().padStart(2, "0") + ":" + DateF.getMinutes().toString().padStart(2, "0"));    
-                $('.ddlCategoria').val(datos.Category.idCategory);    
-                $('.ddlCategoria').change();
-                $('.ddlServicio').val(datos.Service.IdService);      
-                $('.ddlEmpleados').val(datos.IdEmployee); 
-                if (datos.Note != undefined) {
-                    $(".txtNotaCita").val(datos.Note);    
-                }            
-                TitleAppointment = datos.Title
-                hideShowFields(false);
-                $(".txtEmpleadoGeneral").hide();
-                $(".pEmpleadoGeneral").show();
-            }
-            else{
-                if (patient != undefined) {
-                    $(".pEmpleadoGeneral").text(patient.NameComplete);
-                    $(".pTelefono").text(patient.Phone);
-                    $(".pCorreo").text(patient.Email);   
+                if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Administrador)) {
+                    $(".btnAcceptAppointment").show();
                 }
-                $('.pFechaCita').text(DateI.getFullYear().toString().padStart(4, "0")  + "-" + (DateI.getMonth() + 1).toString().padStart(2, "0")  + "-" + DateI.getDate().toString().padStart(2, "0"));
-                $('.pHoraInicioCita').text(DateI.getHours().toString().padStart(2, "0") + ":" + DateI.getMinutes().toString().padStart(2, "0"));
-                $('.pHoraFinCita').text(DateF.getHours().toString().padStart(2, "0") + ":" + DateF.getMinutes().toString().padStart(2, "0"));    
-                $('.pCategoria').text(datos.Category.Name);   
-                $('.pEmpleado').text(datos.EmployeeName);   
-                $('.pServicio').text(datos.Service.Name);    
-                $('.ddlEmpleados').val(datos.IdEmployee);  
-                if (datos.Note != undefined) {
-                    $(".pNotaCita").text(datos.Note);
-                }                             
-                hideShowFields(true);
+                // $(".btnStartAppointment").show();
+                // $(".btnPaidAppointment").show();
+                // $(".btnFinishAppointment").show();
+                // $(".btnCancelAppointment").show();
+                // $(".btnAcceptAppointment").show();
+                idPatientSelected = datos.IdPatient;
+                if (info.event._def.ui.startEditable && new Date() < DateI || datosCuentaUsusario.Position ==  parseInt(KioxPositions.Administrador)) {
+                    if (patient != undefined) {
+                        $(".pEmpleadoGeneral").text(patient.NameComplete);
+                        $(".pTelefono").text(patient.Phone);
+                        $(".pCorreo").text(patient.Email);       
+                    }
+                    $('.txtFechaCita').val(DateI.getFullYear().toString().padStart(4, "0")  + "-" + (DateI.getMonth() + 1).toString().padStart(2, "0")  + "-" + DateI.getDate().toString().padStart(2, "0"));
+                    $('.txtHoraInicioCita').val(DateI.getHours().toString().padStart(2, "0") + ":" + DateI.getMinutes().toString().padStart(2, "0"));
+                    $('.txtHoraFinCita').val(DateF.getHours().toString().padStart(2, "0") + ":" + DateF.getMinutes().toString().padStart(2, "0"));    
+                    $('.ddlCategoria').val(datos.Category.idCategory);    
+                    $('.ddlCategoria').change();
+                    $('.ddlServicio').val(datos.Service.IdService);      
+                    $('.ddlEmpleados').val(datos.IdEmployee); 
+                    if (datos.Note != undefined) {
+                        $(".txtNotaCita").val(datos.Note);    
+                    }            
+                    TitleAppointment = datos.Title
+                    hideShowFields(false);
+                    $(".txtEmpleadoGeneral").hide();
+                    $(".pEmpleadoGeneral").show();
+                }
+                else{
+                    if (patient != undefined) {
+                        $(".pEmpleadoGeneral").text(patient.NameComplete);
+                        $(".pTelefono").text(patient.Phone);
+                        $(".pCorreo").text(patient.Email);   
+                    }
+                    $('.pFechaCita').text(DateI.getFullYear().toString().padStart(4, "0")  + "-" + (DateI.getMonth() + 1).toString().padStart(2, "0")  + "-" + DateI.getDate().toString().padStart(2, "0"));
+                    $('.pHoraInicioCita').text(DateI.getHours().toString().padStart(2, "0") + ":" + DateI.getMinutes().toString().padStart(2, "0"));
+                    $('.pHoraFinCita').text(DateF.getHours().toString().padStart(2, "0") + ":" + DateF.getMinutes().toString().padStart(2, "0"));    
+                    $('.pCategoria').text(datos.Category.Name);   
+                    $('.pEmpleado').text(datos.EmployeeName);   
+                    $('.pServicio').text(datos.Service.Name);    
+                    $('.ddlEmpleados').val(datos.IdEmployee);  
+                    if (datos.Note != undefined) {
+                        $(".pNotaCita").text(datos.Note);
+                    }                             
+                    hideShowFields(true);
+                }
+                
+                $('.modalNewDate').modal('toggle');    
             }
-            
-            $('.modalNewDate').modal('toggle');    
-          }
-          resolve(true);
-        }, 250);});
+            resolve(true);
+            }, 250);});
+        }      
+        else if(datosCuentaUsusario.Position ==  parseInt(KioxPositions.Recepcion)){
+            return new Promise(resolve => {setTimeout(async function(){
+                var datos = await selectDb(urlCitasGlobal,info.el.fcSeg.eventRange.def.publicId);
+                if (datos != null && datos.Status == StatusAppointment.Registrado) {
+                    clearFields();
+                    operacionCitas = 1;
+                    return new Promise(resolve => {setTimeout(async function(){
+                    var datos = await selectDb(urlCitasGlobal,info.el.fcSeg.eventRange.def.publicId);
+                    if (datos != null) {
+                        selIdAppointmen = info.el.fcSeg.eventRange.def.publicId;
+                        var patient = parent.lstPatientsGlobal[datos.IdPatient];
+                        $(".pEmpleadoGeneral").text("La cita del paciente " + patient.NameComplete + " será notificada para su atención, ¿deseas continuar?");
+                        $('.modalRecepcion').modal('toggle');
+                    }
+                    resolve(true);
+                    }, 250);});
+                }
+            })});
+        }
         
     },
     eventResize: function (info) {

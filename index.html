@@ -47,7 +47,7 @@
                 <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
                     <img src="img/logoHorizontalBlanco.svg" style="height: 4vw;">
                 </a>
-                <p style="text-align: center;">kvs=3.27</p>                
+                <p style="text-align: center;">kvs=3.28</p>                
                 <button type="button" class="btn btn-primary btnClearCache">Actualzar</button>
                 <!-- Divider -->
                 <hr class="sidebar-divider my-0">
@@ -298,25 +298,51 @@
    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-database.js"></script>
    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-auth.js"></script>
    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-analytics.js"></script>
-   <script src="methods/conexiones.js?kvs=3.27"></script>
-   <script src="methods/Globals.js?kvs=3.27"></script>
-   <script src="methods/utilidades.js?kvs=3.27"></script>
-   <script src="methods/dbManager.js?kvs=3.27"></script>
-   <script src="methods/loging.js?kvs=3.27"></script>
+   <script src="methods/conexiones.js?kvs=3.28"></script>
+   <script src="methods/Globals.js?kvs=3.28"></script>
+   <script src="methods/utilidades.js?kvs=3.28"></script>
+   <script src="methods/dbManager.js?kvs=3.28"></script>
+   <script src="methods/loging.js?kvs=3.28"></script>
 
   <script>
    $(document).ready(function(){
     var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);
     parent.idUsuarioSistema = datosCuentaUsusario.uId;
     $(".spnUserName").text(datosCuentaUsusario.Name);
-    if (datosCuentaUsusario.Position == 2) {
+    if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Fisioterapeuta)) {
         $(".dvMenuAdministracion").empty();
     }
-    
+    if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Recepcion) || datosCuentaUsusario.Position ==  parseInt(KioxPositions.Practicantes)) {
+        $(".dvMenuAdmin").remove();
+    }
     $(".btnClearCache").click(function(){
         window.location.reload(true); 
     });
+    askNotificationPermission();
    });
+
+   function askNotificationPermission() {
+        if (!("Notification" in window)) {
+            console.log("Este navegador no admite notificaciones.");
+        } else {
+            if (checkNotificationPromise()) {
+            Notification.requestPermission().then((permission) => {
+            });
+            } else {
+            Notification.requestPermission(function (permission) {
+            });
+            }
+        }
+    }
+
+    function checkNotificationPromise() {
+    try {
+        Notification.requestPermission().then();
+    } catch (e) {
+        return false;
+    }
+    return true;
+    }
 </script>
 </body>
 
