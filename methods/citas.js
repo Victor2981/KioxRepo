@@ -223,7 +223,7 @@ function enviarMensaje(element) {
         if (horaActual > 4 && horaActual < 12) {
             saludo = "Buenos días " + nombrePaciente;
         }
-        else if (horaActual > 12 && horaActual < 18) {
+        else if (horaActual => 12 && horaActual < 19) {
             saludo = "Buenas tardes " + nombrePaciente;
         }
         else{
@@ -353,9 +353,13 @@ function llenarEventos(){
                 Editable = false;
             }
             //,
+            var tituloCita = AppoitmentData.Title;
+            if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Administrador)) {
+                tituloCita = AppoitmentData.Title + " (" + AppoitmentData.EmployeeName.substr(0, 2) + ")"
+            }
             appointments.push({
             id: idAppoitment,
-            title: AppoitmentData.Title + " (" + AppoitmentData.EmployeeName.substr(0, 2) + ")",
+            title: tituloCita,
             start: AppoitmentData.AppointmentDateStart.toDate(),
             end: AppoitmentData.AppointmentDateEnd.toDate(),
             editable:Editable,
