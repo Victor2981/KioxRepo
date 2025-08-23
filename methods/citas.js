@@ -354,6 +354,7 @@ function llenarEventos(){
             }
             //,
             var tituloCita = AppoitmentData.Title;
+            var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);
             if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Administrador)) {
                 tituloCita = AppoitmentData.Title + " (" + AppoitmentData.EmployeeName.substr(0, 2) + ")"
             }
