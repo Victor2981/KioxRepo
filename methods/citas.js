@@ -207,7 +207,7 @@ function enviarMensaje(element) {
         var nombrePaciente = parent.lstPatientsGlobal[element.IdPatient].Name;
         var celular = parent.lstPatientsGlobal[element.IdPatient].Phone;
         var saludo = "";
-        var cita = "Nos comunicamos de Clínica Kiox para confirmar tu cita ";
+        var cita = "nos comunicamos de Clínica Kiox para confirmar tu cita ";
         var diaMañana = new Date(new Date().setDate(new Date().getDate()+1))            
         if (new Date().toLocaleDateString() == element.AppointmentDateStart.toDate().toLocaleDateString()) {
             cita += "hoy a las " + element.AppointmentDateStart.toDate().getHours().toString().padStart(2,"0") + ":"+ element.AppointmentDateStart.toDate().getMinutes().toString().padStart(2,"0") + " horas"
