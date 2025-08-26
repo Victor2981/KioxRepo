@@ -207,13 +207,13 @@ function enviarMensaje(element) {
         var nombrePaciente = parent.lstPatientsGlobal[element.IdPatient].Name;
         var celular = parent.lstPatientsGlobal[element.IdPatient].Phone;
         var saludo = "";
-        var cita = "nos comunicamos para confirmar tu cita ";
+        var cita = "Nos comunicamos de Clínica Kiox para confirmar tu cita ";
         var diaMañana = new Date(new Date().setDate(new Date().getDate()+1))            
         if (new Date().toLocaleDateString() == element.AppointmentDateStart.toDate().toLocaleDateString()) {
-            cita += "hoy a las " + element.AppointmentDateStart.toDate().getHours().toString().padStart(2,"0") + ":"+ element.AppointmentDateStart.toDate().getMinutes().toString().padStart(2,"0")                
+            cita += "hoy a las " + element.AppointmentDateStart.toDate().getHours().toString().padStart(2,"0") + ":"+ element.AppointmentDateStart.toDate().getMinutes().toString().padStart(2,"0") + " horas"
         } 
         else if(diaMañana.toLocaleDateString() == element.AppointmentDateStart.toDate().toLocaleDateString()) {
-            cita += "para mañana " + element.AppointmentDateStart.toDate().getHours().toString().padStart(2,"0") + ":" + element.AppointmentDateStart.toDate().getMinutes().toString().padStart(2,"0")                
+            cita += "para mañana a las " + element.AppointmentDateStart.toDate().getHours().toString().padStart(2,"0") + ":" + element.AppointmentDateStart.toDate().getMinutes().toString().padStart(2,"0") + " horas"
         }
         else{
             cita += "para el " + new Date().toLocaleString().substring(0, 16);
@@ -353,10 +353,10 @@ function llenarEventos(){
                 Editable = false;
             }
             //,
-            var tituloCita = AppoitmentData.Title;
+            var tituloCita = AppoitmentData.Title + " (" + AppoitmentData.EmployeeName.substr(0, 2) + ")";
             var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);
             if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Administrador)) {
-                tituloCita = AppoitmentData.Title + " (" + AppoitmentData.EmployeeName.substr(0, 2) + ")"
+                horaCitaFin = AppoitmentData.AppointmentDateEnd.toDate() 
             }
             appointments.push({
             id: idAppoitment,
