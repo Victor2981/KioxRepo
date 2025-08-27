@@ -213,10 +213,10 @@ function enviarMensaje(element) {
             cita += "hoy a las " + element.AppointmentDateStart.toDate().getHours().toString().padStart(2,"0") + ":"+ element.AppointmentDateStart.toDate().getMinutes().toString().padStart(2,"0") + " horas"
         } 
         else if(diaMañana.toLocaleDateString() == element.AppointmentDateStart.toDate().toLocaleDateString()) {
-            cita += "para mañana a las " + element.AppointmentDateStart.toDate().getHours().toString().padStart(2,"0") + ":" + element.AppointmentDateStart.toDate().getMinutes().toString().padStart(2,"0") + " horas"
+            cita += "mañana a las " + element.AppointmentDateStart.toDate().getHours().toString().padStart(2,"0") + ":" + element.AppointmentDateStart.toDate().getMinutes().toString().padStart(2,"0") + " horas"
         }
         else{
-            cita += "para el " + new Date().toLocaleString().substring(0, 16);
+            cita += "el " + new Date().toLocaleString().substring(0, 16);
         }            
 
         var horaActual = new Date().getHours();
@@ -353,10 +353,10 @@ function llenarEventos(){
                 Editable = false;
             }
             //,
-            var tituloCita = AppoitmentData.Title + " (" + AppoitmentData.EmployeeName.substr(0, 2) + ")";
+            var tituloCita = AppoitmentData.Title;
             var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);
             if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Administrador)) {
-                horaCitaFin = AppoitmentData.AppointmentDateEnd.toDate() 
+                tituloCita = AppoitmentData.Title + "<br>(" + AppoitmentData.EmployeeName.substr(0, 2) + ")";
             }
             appointments.push({
             id: idAppoitment,
@@ -440,6 +440,11 @@ function generarCalendario() {
     nowIndicator: true,
     dayMaxEvents: editorCalendario, // allow "more" link when too many events
     slotDuration:'01:00:00',
+    eventContent: function(arg) {
+    return {
+        html: arg.event.title.replace(/\n/g, "<br>")
+    };
+    },
     events: llenarEventos(),
     select: function(info) {               
         clearFields();
