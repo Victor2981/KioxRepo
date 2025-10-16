@@ -146,7 +146,7 @@
   }
 
   .AppoitmentFinished{
-    border-color: green !important;
+    border-color: #80001F !important;
     border-left-width: 3px !important;
     border-radius: 10px !important;
   }

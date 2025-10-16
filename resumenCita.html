@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Demo HTML: Dictado + Resumen (fix)</title>
+  <style>
+    :root{--bg:#f6f7fb;--card:#fff;--ink:#0f172a;--muted:#6b7280;}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,'Helvetica Neue',Arial,'Noto Sans';}
+    .wrap{max-width:980px;margin:32px auto;padding:0 20px;}
+    .card{background:var(--card);border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 1px 2px rgba(0,0,0,.04);padding:20px;}
+    h1{font-size:22px;margin:0 0 4px}
+    p.sub{color:var(--muted);margin:0 0 16px;font-size:14px}
+    textarea{width:100%;min-height:180px;padding:12px;border:1px solid #e5e7eb;border-radius:12px;font-size:15px;background:#fff}
+    .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+    .row > *{margin-top:10px}
+    button{border:0;border-radius:999px;padding:10px 14px;font-weight:600;cursor:pointer}
+    .btn{background:#111827;color:#fff}
+    .btn.alt{background:#4f46e5}
+    .btn.stop{background:#dc2626}
+    select, .pill, input[type="checkbox"]{border:1px solid #e5e7eb;border-radius:999px;background:#fff;padding:8px 10px;font-size:14px}
+    .pill{background:#f3f4f6;color:#111827}
+    .status{font-size:12px;color:#065f46;background:#ecfdf5;border:1px solid #a7f3d0}
+    .muted{color:var(--muted);font-size:12px}
+    details{border:1px solid #e5e7eb;border-radius:12px;padding:12px;background:#fff}
+    summary{cursor:pointer;font-weight:600}
+    code{background:#f3f4f6;padding:2px 6px;border-radius:6px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Demo HTML: Textarea + Dictado (con fix) + Resumen</h1>
+      <p class="sub">El dictado <strong>nunca borra</strong> el contenido del textarea; solo <em>agrega</em> resultados finales. Idioma: <code>es-MX</code>.</p>
+
+      <label for="inputText"><strong>Texto original</strong></label>
+      <textarea id="inputText" placeholder="Pulsa el micrófono y habla, o pega/escribe tu texto..."></textarea>
+
+      <div class="row">
+        <button id="btnMic" class="btn" type="button">🎤 Iniciar dictado</button>
+        <span id="micStatus" class="pill">Micrófono inactivo</span>
+        <label class="muted"><input type="checkbox" id="chkContinuous"> Continuo</label>
+        <label class="muted"><input type="checkbox" id="chkAutorestart" checked> Auto-reiniciar al pausar</label>
+        <span class="muted">(Recomendado activar uno u otro según prefieras)</span>
+      </div>
+
+      <div class="row">
+        <label class="muted">Tono</label>
+        <select id="tone">
+          <option value="breve">Breve (3–4 líneas)</option>
+          <option value="executive">Ejecutivo (viñetas)</option>
+          <option value="detallado">Detallado (1–2 párrafos)</option>
+        </select>
+        <select id="mode">
+          <option value="demo">Demo local</option>
+          <option value="api">API (/summarize)</option>
+        </select>
+        <button id="btnSummarize" class="btn alt" type="button">✨ Resumir</button>
+        <span id="loading" class="pill" style="display:none">Procesando…</span>
+      </div>
+
+      <label for="outputText"><strong>Resumen</strong></label>
+      <textarea id="outputText" placeholder="Aquí aparecerá el resumen" readonly></textarea>
+
+      <p class="muted">Nota: En <em>Demo local</em> no se llama a OpenAI; se genera un pseudo-resumen en el navegador. Cambia a <strong>API</strong> si tienes un backend en <code>/summarize</code>.</p>
+    </div>
+
+    <details class="card" style="margin-top:16px">
+      <summary>¿Qué cambia este "fix"?</summary>
+      <ul>
+        <li>Usamos <code>res.isFinal</code> y <strong>solo agregamos</strong> texto final al textarea.</li>
+        <li>No reasignamos <code>inputText.value</code> con el resultado completo; únicamente hacemos <code>+=</code>.</li>
+        <li>Opcional: <code>recognition.continuous</code> (checkbox) o <em>auto-reinicio</em> en <code>onend</code> para sesiones largas.</li>
+      </ul>
+    </details>
+  </div>
+
+  <script>
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const inputText = document.getElementById('inputText');
+    const outputText = document.getElementById('outputText');
+    const btnMic = document.getElementById('btnMic');
+    const micStatus = document.getElementById('micStatus');
+    const chkContinuous = document.getElementById('chkContinuous');
+    const chkAutorestart = document.getElementById('chkAutorestart');
+
+    let recognition = null;
+    let listening = false;
+    let lastFinalChunk = '';
+
+    if (SpeechRecognition) {
+      recognition = new SpeechRecognition();
+      recognition.lang = 'es-MX';
+      recognition.interimResults = true;
+      recognition.continuous = false;
+
+      recognition.onstart = () => {
+        listening = true;
+        btnMic.textContent = '🛑 Detener dictado';
+        btnMic.classList.add('stop');
+        micStatus.textContent = 'Escuchando…';
+        micStatus.classList.add('status');
+      };
+
+      recognition.onend = () => {
+        listening = false;
+        btnMic.textContent = '🎤 Iniciar dictado';
+        btnMic.classList.remove('stop');
+        micStatus.textContent = 'Micrófono inactivo';
+        micStatus.classList.remove('status');
+        if (chkAutorestart.checked && !listening) {
+          try { recognition.start(); } catch (e) {}
+        }
+      };
+
+      recognition.onerror = (e) => {
+        console.error('Speech error:', e);
+        alert('Error de reconocimiento de voz: ' + (e.error || 'desconocido'));
+      };
+
+      recognition.onresult = (event) => {
+        let finalTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const res = event.results[i];
+          if (res.isFinal) finalTranscript += res[0].transcript;
+        }
+        if (finalTranscript && finalTranscript !== lastFinalChunk) {
+          const sep = inputText.value && !/\s$/.test(inputText.value) ? ' ' : '';
+          inputText.value += sep + finalTranscript.trim();
+          lastFinalChunk = finalTranscript;
+          inputText.selectionStart = inputText.selectionEnd = inputText.value.length;
+        }
+      };
+    } else {
+      btnMic.disabled = true;
+      micStatus.textContent = 'Tu navegador no soporta Web Speech API';
+    }
+
+    btnMic.addEventListener('click', () => {
+      if (!recognition) return;
+      try {
+        recognition.continuous = !!chkContinuous.checked;
+        if (listening) recognition.stop(); else recognition.start();
+      } catch (e) {
+        console.error(e);
+      }
+    });
+
+    const btnSummarize = document.getElementById('btnSummarize');
+    const toneSel = document.getElementById('tone');
+    const modeSel = document.getElementById('mode');
+    const loading = document.getElementById('loading');
+
+    function demoSummarize(text, tone) {
+      const sentences = text.replace(/\n+/g,' ').split(/(?<=[.!?;:])\s+/).filter(Boolean);
+      if (!sentences.length) return '(El texto es muy corto para resumir)';
+      if (tone === 'executive') {
+        return sentences.slice(0, 5).map(s => '• ' + s.trim()).join('\n');
+      }
+      if (tone === 'detallado') {
+        let a = sentences.slice(0, 4).join(' ');
+        if (sentences.length > 4) a += '\n\n' + sentences.slice(4, 8).join(' ');
+        return a;
+      }
+      return sentences.slice(0, 3).join(' ');
+    }
+
+    btnSummarize.addEventListener('click', async () => {
+      const text = inputText.value.trim();
+      if (!text) { alert('Escribe o dicta algo primero.'); return; }
+      loading.style.display = 'inline-block';
+      outputText.value = '';
+
+      try {
+        if (modeSel.value === 'api') {
+          const res = await fetch('/summarize', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text, tone: toneSel.value })
+          });
+          if (!res.ok) throw new Error('Fallo en el servidor');
+          const data = await res.json();
+          outputText.value = data.summary || '(Sin respuesta)';
+        } else {
+          await new Promise(r => setTimeout(r, 400));
+          outputText.value = demoSummarize(text, toneSel.value);
+        }
+      } catch (err) {
+        console.error(err);
+        alert('No se pudo obtener el resumen. ¿Está corriendo el endpoint /summarize?');
+      } finally {
+        loading.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>

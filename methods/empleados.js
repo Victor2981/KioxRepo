@@ -59,6 +59,7 @@ $(document).ready(function(){
                                     Phone: telefono,
                                     Position : puesto,
                                     Status: 1,
+                                    Available: true,
                                     UserId: usuario.user.uid
                                 }
                                 var uId = await GuardarDatosEmpleado(dato,operacionEmpleado,selEmployeeGlobal);
@@ -263,4 +264,17 @@ async function UpdateStatusEmployee(idEmployee,Status) {
     Employee.Status = Status;
     await updateDb(urlEmployeesGlobal,idEmployee,Employee);
     MostrarMensajePrincipal("El empleado se eliminó","success");
+}
+
+async function UpdateAvailabilityEmployee(IdAppointmen,idEmployee,Available) {
+    var Employee = await selectDb(urlEmployeesGlobal,idEmployee);
+    Employee.Available = Available;
+    if (Available) {
+        Employee.IdLastAppointment = "";    
+    }
+    else{
+        Employee.IdLastAppointment = IdAppointmen;
+    }
+    await updateDb(urlEmployeesGlobal,idEmployee,Employee);
+    //MostrarMensajePrincipal("El empleado se Actualizó","success");
 }

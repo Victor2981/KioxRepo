@@ -89,7 +89,8 @@ $(document).ready(function(){
                     setTimeout(function(){Redireccionar("/views/IngresosEgresos/validacionPago.html?idPacientePago=" + selIdPatientGlobal + "&idCita=" + selIdAppointmentGlobal);},3000);
                 }
                 else{
-                    await UpdateAppointmentMonitoring(selIdAppointmentGlobal,observations,recommendations,StatusAppointment.Pagado);   
+                    await UpdateAppointmentMonitoring(selIdAppointmentGlobal,observations,recommendations,StatusAppointment.Pagado);
+                    await UpdateAvailabilityEmployee(selIdAppointmentGlobal,parent.idUsuarioSistema,true);        
                     MostrarMensajePrincipal("La cíta finalizó, serás enviado a el calendario de citas","success");
                     setTimeout(function(){Redireccionar("citas.html");},3000);
                 }

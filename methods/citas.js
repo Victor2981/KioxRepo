@@ -14,6 +14,12 @@ $(document).ready(function(){
     $(".btnConfirmAppointments").click(function(){
         window.location.href ="confirmacionCitas.html";
     });
+
+    $('.txtHoraInicioCita').change(function(){
+        var hora = parseInt($('.txtHoraInicioCita').val().substring(0,2));
+        hora += 1;
+        $('.txtHoraFinCita').val(hora.toString().padStart(2, "0") + ":" + $('.txtHoraInicioCita').val().substring(3,6));
+    });
     
     $(".txtEmpleadoGeneral").keyup(function(){
         var textSearch = $(".txtEmpleadoGeneral").val().trim();
@@ -119,11 +125,52 @@ $(document).ready(function(){
         setTimeout(function() {$(".alert-success").alert('close');}, 2000);
     });
 
+    // $(".btnStartAppointment").click(async function(){
+    //     await UpdateStatusAppointment(selIdAppointmen,StatusAppointment.Atendido);
+    //     window.location.href ="seguiminetoCita.html?idAppointment=" + selIdAppointmen;
+    // });
+
     $(".btnStartAppointment").click(async function(){
-        await UpdateStatusAppointment(selIdAppointmen,StatusAppointment.Atendido);
-        //$('.modalNewDate').modal('toggle');
-        //MostrarMensajePrincipal("La cíta se inició","success");
-        window.location.href ="seguiminetoCita.html?idAppointment=" + selIdAppointmen;
+        selIdAppointmentGlobal = selIdAppointmen;
+        var datos = await selectDb(urlCitasGlobal,selIdAppointmentGlobal);
+        switch (datos.Status) {
+            case StatusAppointment.Registrado:
+            case StatusAppointment.Confirmado:
+            case StatusAppointment.ConfirmacionLlegada:
+                await UpdateStatusAppointment(selIdAppointmen,StatusAppointment.Atendido);
+                await UpdateAvailabilityEmployee(selIdAppointmen,parent.idUsuarioSistema,false);
+                window.location.href ="seguiminetoCita.html?idAppointment=" + selIdAppointmen;
+                break;
+            case StatusAppointment.Atendido:
+                window.location.href ="seguiminetoCita.html?idAppointment=" + selIdAppointmen;
+            break;
+            case StatusAppointment.Finalizado:
+                $('.modalNewDate').modal('toggle');
+                MostrarMensajePrincipal("Serás enviado a el pago","success");
+                
+                selIdPatientGlobal = idPatientSelected;
+                parent.tipoConceptoCobro = 1;
+                
+                if (datos != null) {
+                    await db.collection(urlPackagesGlobal).where("IdPatient","==",selIdPatientGlobal).where("IdService","==",selIdServiceGlobal).where("IsPack","==",true).where("IsPackCompleted","==",false).get().then(async (obj)=>{
+                        if (obj.docs.length > 0) {
+                            var datosPaquete = obj.docs[0].data();
+                            datosPaquete.TakenNumbreSesions += 1;
+                            if (datosPaquete.NumbreSesions == datosPaquete.TakenNumbreSesions) {
+                                datosPaquete.IsPackCompleted = true;
+                            }                    
+                            await GuardarDatosPaquete(datosPaquete,1,obj.docs[0].id);    
+                        }
+                        else{
+                            agregarConceptosCobro(datos);
+                        }
+                    });            
+                    setTimeout(function(){Redireccionar("/views/IngresosEgresos/validacionPago.html?idPacientePago=" + selIdPatientGlobal + "&idCita=" + selIdAppointmentGlobal);},3000);
+                }
+            break;
+            default:
+                break;
+        }
     });
     
     $(".btnPaidAppointment").click(async function(){
@@ -223,7 +270,7 @@ function enviarMensaje(element) {
         if (horaActual > 4 && horaActual < 12) {
             saludo = "Buenos días " + nombrePaciente;
         }
-        else if (horaActual => 12 && horaActual < 19) {
+        else if (horaActual >= 12 && horaActual < 19) {
             saludo = "Buenas tardes " + nombrePaciente;
         }
         else{
@@ -356,7 +403,22 @@ function llenarEventos(){
             var tituloCita = AppoitmentData.Title;
             var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);
             if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Administrador)) {
-                tituloCita = AppoitmentData.Title + "<br>(" + AppoitmentData.EmployeeName.substr(0, 2) + ")";
+                tituloCita = AppoitmentData.Title;
+                //  parent.lstPacksGlobal
+                //  parent.lstPatientsGlobal[idPatientQuery]
+                //&& item.IsPackCompleted == false
+                var datosPaquete = Object.values(parent.lstPacksGlobal).filter(item => item.IdPatient === AppoitmentData.IdPatient && item.IdService === AppoitmentData.Service.IdService && item.IsPackCompleted == false)
+                if (datosPaquete.length > 0) {
+                    datosPaquete = datosPaquete[0];
+                    var sesionActual = datosPaquete.TakenNumbreSesions + 1
+                    if(AppoitmentData.Status > StatusAppointment.Atendido) {
+                        sesionActual = datosPaquete.TakenNumbreSesions;
+                    }
+                    tituloCita += "<br>(" + AppoitmentData.EmployeeName.substr(0, 2) + " | Paquete:" + sesionActual + "/" + datosPaquete.NumbreSesions +")";    
+                }
+                else{
+                    tituloCita += "<br>(" + AppoitmentData.EmployeeName.substr(0, 2) + ")";
+                }
             }
             appointments.push({
             id: idAppoitment,
@@ -463,6 +525,7 @@ function generarCalendario() {
         $('.modalNewDate').modal('toggle');            
     },
     eventClick: function(info) {
+        $(".msjCitaPendiente").hide();
         if (datosCuentaUsusario.Position !=  parseInt(KioxPositions.Recepcion) && datosCuentaUsusario.Position !=  parseInt(KioxPositions.Practicantes)) {
             clearFields();
             operacionCitas = 1;
@@ -495,21 +558,31 @@ function generarCalendario() {
                         $(".btnCancelAppointment").show();
                     break;
                     case StatusAppointment.Atendido:
-                        if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Fisioterapeuta)) {
-                            $(".btnStartAppointment").show();
+                        if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Administrador)) {
+                            $(".btnPaidAppointment").show();
                         }   
                         else{
-                            $(".btnPaidAppointment").show();
+                            $(".btnStartAppointment").show();
                         }
+                        $(".btnStartAppointment").show();
                     break;
                     case StatusAppointment.Finalizado:
-                        $(".btnPaidAppointment").show();
+                        if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Administrador)) {
+                            $(".btnPaidAppointment").show();
+                        }
+                        $(".btnStartAppointment").show();
                     break;
                     default:
                         break;
                 }
                 if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Administrador)) {
                     $(".btnAcceptAppointment").show();
+                }
+
+                var datosEmpleados = Object.values(parent.lstEmployeesGlobal).find(x => x.uId == datosCuentaUsusario.uId);
+                if ( datosEmpleados.Available == false && datosEmpleados.IdLastAppointment != selIdAppointmen) {
+                    $(".btnStartAppointment").hide();
+                    $(".msjCitaPendiente").show();
                 }
                 // $(".btnStartAppointment").show();
                 // $(".btnPaidAppointment").show();

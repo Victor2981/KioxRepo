@@ -168,6 +168,7 @@
                         </div>                   
                 </div>
             </div>            
+            <div class="msjCitaPendiente alert alert-warning" role="alert">Aún tienes una cita sin terminar, no puedes iniciar otra hasta que la termines</div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 <button type="button" class="btn btn-danger btnCancelAppointment">Cancelar cita</button>                
@@ -213,22 +214,23 @@
       <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-database.js"></script>
       <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-auth.js"></script>
       <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-analytics.js"></script>
-      <script src="../methods/conexiones.js?kvs=4.5"></script>    
-      <script src="../methods/Globals.js?kvs=4.5"></script>
-      <script src="../methods/empleados.js?kvs=4.5"></script>
-      <script src="../methods/Pacientes.js?kvs=4.5"></script>
-      <script src="../methods/categorias.js?kvs=4.5"></script>
-      <script src="../methods/servicios.js?kvs=4.5"></script>
-      <script src="../methods/citas.js?kvs=4.5"></script>     
-      <script src="../methods/IngresosEgresos/paquetes.js?kvs=4.5"></script> 
-      <script src="../methods/seguimientoCita.js?kvs=4.5"></script>
-      <script src="../methods/utilidades.js?kvs=4.5"></script>
-      <script src="../methods/dbManager.js?kvs=4.5"></script>
+      <script src="../methods/conexiones.js?kvs=4.6"></script>    
+      <script src="../methods/Globals.js?kvs=4.6"></script>
+      <script src="../methods/empleados.js?kvs=4.6"></script>
+      <script src="../methods/Pacientes.js?kvs=4.6"></script>
+      <script src="../methods/categorias.js?kvs=4.6"></script>
+      <script src="../methods/servicios.js?kvs=4.6"></script>
+      <script src="../methods/IngresosEgresos/paquetes.js?kvs=4.6"></script> 
+      <script src="../methods/citas.js?kvs=4.6"></script>     
+      <script src="../methods/seguimientoCita.js?kvs=4.6"></script>
+      <script src="../methods/utilidades.js?kvs=4.6"></script>
+      <script src="../methods/dbManager.js?kvs=4.6"></script>
         <script>
             
              $(document).ready(async function(){        
                 var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);
                 await SeleccionarDatosPacientes();
+                await SeleccionarDatosPaquetes();
                 //generarCalendario();
                 await SeleccionarDatosCitas();
                 await SeleccionarDatosCategorias("dropdown");
