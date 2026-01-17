@@ -72,19 +72,39 @@
         </div>
     </div>    
     <!-- Page Heading -->
+  
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Citas</h1>
-        <div class="row">
-            <div class="col-auto">
-                <button type="button" class="btn btn-info btnNewPatient btnEdicion float-right">Agregar paciente</button>
-            </div>
-            <div class="col-auto">
-                <button type="button" class="btn btn-primary btnConfirmAppointments btnEdicion float-right">Confirmar citas</button>
-            </div>
-        </div>
+        <h1 class="h3 mb-0 text-gray-800">Citas</h1>              
     </div>
     <div class="card shadow mb-4">
         <div id='calendar-container'>
+              <div class="rowSucursal d-sm-flex align-items-center justify-content-between mb-4">
+                <div class="row">
+                    <div class="col-auto">
+                        <label>Sucursal:</label>
+                        <select class="ddlSucursalFiltro" id="ddlSucursalFiltro">
+                            <option value="">Ambas</option>
+                            <option value="WbZ7Uj46y6wP2MEox6p1" selected>Kiox del valle</option> 
+                            <option value="2E6EoRBZYkZWxBTZH6Wp">Kiox Lindavista</option>                                               
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label>Paciente:</label>
+                        <input type="text" id="txtEmpleadoGeneralFiltro" class="txtEmpleadoGeneralFiltro" style="width: 50vw;" autocomplete="one-time-code"/>                
+                        <button type="button" class="btn btn-danger btnBorrarFiltro float-right">Borrar</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-info btnNewPatient btnEdicion float-right">Agregar paciente</button>
+                    </div>
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-primary btnConfirmAppointments btnEdicion float-right">Confirmar citas</button>
+                    </div>
+                </div>
+            </div>
             <div id='calendar' class="calendar"></div>
           </div>
     </div>
@@ -107,6 +127,16 @@
                             <input type="text" id="txtEmpleadoGeneral" class="form-control txtEmpleadoGeneral inputCapture" style="width: 500px;" autocomplete="one-time-code"/>
                             <p id="pEmpleadoGeneral" class="form-control pEmpleadoGeneral inputDetail" style="width: 500px;" autocomplete="one-time-code"></p>
                         </div>
+                    </div>
+                    <div class="row rowSucursal">              
+                        <div class="col">
+                            <label>Sucursal:</label>
+                            <select class="form-control ddlSucursal" id="ddlSucursal">
+                                <option value=""></option>
+                                <option value="WbZ7Uj46y6wP2MEox6p1">Kiox del valle</option> 
+                                <option value="2E6EoRBZYkZWxBTZH6Wp">Kiox Lindavista</option>                                               
+                            </select>
+                          </div>
                     </div>
                     <div class="row rwFisioterapeuta">
                         <div class="col">
@@ -214,17 +244,17 @@
       <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-database.js"></script>
       <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-auth.js"></script>
       <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-analytics.js"></script>
-      <script src="../methods/conexiones.js?kvs=4.7"></script>    
-      <script src="../methods/Globals.js?kvs=4.7"></script>
-      <script src="../methods/empleados.js?kvs=4.7"></script>
-      <script src="../methods/Pacientes.js?kvs=4.7"></script>
-      <script src="../methods/categorias.js?kvs=4.7"></script>
-      <script src="../methods/servicios.js?kvs=4.7"></script>
-      <script src="../methods/IngresosEgresos/paquetes.js?kvs=4.7"></script> 
-      <script src="../methods/citas.js?kvs=4.7"></script>     
-      <script src="../methods/seguimientoCita.js?kvs=4.7"></script>
-      <script src="../methods/utilidades.js?kvs=4.7"></script>
-      <script src="../methods/dbManager.js?kvs=4.7"></script>
+      <script src="../methods/conexiones.js?kvs=4.8"></script>    
+      <script src="../methods/Globals.js?kvs=4.8"></script>
+      <script src="../methods/empleados.js?kvs=4.8"></script>
+      <script src="../methods/Pacientes.js?kvs=4.8"></script>
+      <script src="../methods/categorias.js?kvs=4.8"></script>
+      <script src="../methods/servicios.js?kvs=4.8"></script>
+      <script src="../methods/IngresosEgresos/paquetes.js?kvs=4.8"></script> 
+      <script src="../methods/citas.js?kvs=4.8"></script>     
+      <script src="../methods/seguimientoCita.js?kvs=4.8"></script>
+      <script src="../methods/utilidades.js?kvs=4.8"></script>
+      <script src="../methods/dbManager.js?kvs=4.8"></script>
         <script>
             
              $(document).ready(async function(){        
@@ -235,6 +265,7 @@
                 await SeleccionarDatosCitas();
                 await SeleccionarDatosCategorias("dropdown");
                 await SeleccionarDatosEmpleados("dropdown");
+                $(".btnBorrarFiltro").hide();
                 parent.lstServicesGlobal = {};
                 parent.lstServicesFiltroGlobal = [];
                 await SeleccionarDatosServicios();

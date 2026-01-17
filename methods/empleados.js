@@ -10,6 +10,7 @@ $(document).ready(function(){
         banValidacion = Validador($(".txtNombre"),"nombre empleado",$(".txtNombre").val(),1,'',false);
         if(banValidacion == true){banValidacion = Validador($(".txtPrimerApellido"),"primer apellido",$(".txtPrimerApellido").val(),1,'',false)};
         if(banValidacion == true){banValidacion = Validador($(".txtCorreo"),"correo",$(".txtCorreo").val(),4,'',false)};
+        if(banValidacion == true){banValidacion = Validador($(".ddlSucursal"),"sucursal",$(".ddlSucursal").val(),1,'',false)};
         if(banValidacion == true){
             if (Object.values(parent.lstEmployeesGlobal).filter(x => x.Email === $(".txtCorreo").val().trim() && x.uId != selEmployeeGlobal).length > 0) {
                 QuitarMensaje();
@@ -43,6 +44,7 @@ $(document).ready(function(){
         var correo = $(".txtCorreo").val().trim();
         var telefono = $(".txtTelefono").val();
         var puesto = parseInt($(".ddlPuesto").val());
+        var sucursal = $(".ddlSucursal").val()
         var password ="Kiox" + Date.now();
         if (banValidacion) {
             if (operacionEmpleado == 0) {
@@ -60,7 +62,9 @@ $(document).ready(function(){
                                     Position : puesto,
                                     Status: 1,
                                     Available: true,
-                                    UserId: usuario.user.uid
+                                    IdBranch: sucursal,
+                                    UserId: usuario.user.uid,
+                                    uId: usuario.user.uid
                                 }
                                 var uId = await GuardarDatosEmpleado(dato,operacionEmpleado,selEmployeeGlobal);
                                 dato.uId = uId;
@@ -104,7 +108,10 @@ $(document).ready(function(){
                     Email: correo,
                     Phone: telefono,
                     Position : puesto,
-                    Status: 1,
+                    Status: 1,                    
+                    Available: true,
+                    IdBranch: sucursal,
+                    UserId: selEmployeeGlobal,
                     uId: selEmployeeGlobal
                 }
                 await GuardarDatosEmpleado(dato,operacionEmpleado,selEmployeeGlobal);

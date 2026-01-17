@@ -24,6 +24,7 @@ $(document).ready(function(){
         if ($('.txtFechaNacimiento').val() != "") {
             fecha = $('.txtFechaNacimiento').val().substr(8,2) + "/" + $('.txtFechaNacimiento').val().substr(5,2) + "/" + $('.txtFechaNacimiento').val().substr(0,4);    
         }
+        if(banValidacion == true){banValidacion = Validador($(".ddlContacto"),"como se enteró de nosotros",$(".ddlContacto").val(),1,'',false);$(".ddlContacto").trigger( "focus" );};
         if(banValidacion == true){banValidacion = Validador($(".txtFechaNacimiento"),"fecha de nacimiento",fecha,10,'',false);$(".txtFechaNacimiento").trigger( "focus" );};
         if(banValidacion == true){banValidacion = Validador($(".ddlEdoCivil"),"estado civil",$(".ddlEdoCivil").val(),1,'',false);$(".ddlEdoCivil").trigger( "focus" );};
         if(banValidacion == true){banValidacion = Validador($(".ddlEscolaridad"),"escolaridad",$(".ddlEscolaridad").val(),1,'',false);$(".ddlEscolaridad").trigger( "focus" );};
@@ -58,6 +59,7 @@ $(document).ready(function(){
                 MaritalStatus: $(".ddlEdoCivil").val(),
                 Schooling: $(".ddlEscolaridad").val(),
                 Religion: $(".txtReligion").val(),
+                Contact: parseInt($(".ddlContacto").val())
             }
             patient.GeneralInformation = datosGenerales;
             
@@ -108,6 +110,7 @@ async function populatePatientHistoricoData(IdPatient){
             $(".ddlEdoCivil").val(patient.GeneralInformation.MaritalStatus);
             $(".ddlEscolaridad").val(patient.GeneralInformation.Schooling);
             $(".txtReligion").val(patient.GeneralInformation.Religion); 
+            $(".ddlContacto").val(patient.GeneralInformation.Contact);
         }
 
         if (patient.MedicalHistory != null) {

@@ -6,8 +6,10 @@ var TitleAppointment;
 var AppointmentStart;
 var AppointmentEnd;
 var selIdAppointmen = "";
+let selIdPacienteFiltro = "";
 
 var lstCitasPorConfirmar = [];
+var calendar;
 
 $(document).ready(function(){        
 
@@ -59,6 +61,48 @@ $(document).ready(function(){
         }
      
     });
+
+     $(".txtEmpleadoGeneralFiltro").keyup(function(){
+        var textSearch = $(".txtEmpleadoGeneralFiltro").val().trim();
+        var idTxtEmp = $(".txtEmpleadoGeneralFiltro")[0].id;
+        $(".autocomplete-items").empty();
+        $(".autocomplete-items").remove();
+        if (textSearch != "") {
+            var lstPatients = searchPatients(textSearch);
+            //llenarTablaPacientes(lstPatients);
+            var a, b, i;
+            currentFocus = -1;
+            a = document.createElement("DIV");
+            a.setAttribute("id", idTxtEmp + "autocomplete-list");
+            a.setAttribute("class", "autocomplete-items");
+            this.parentNode.appendChild(a);
+            for (i = 0; i < lstPatients.length; i++) {
+              b = document.createElement("DIV");
+                const idPatient = Object.keys(lstPatients[i])[0];
+                const dato = lstPatients[i][Object.keys(lstPatients[i])[0]].datos;
+              b.innerHTML = "<strong>" + dato.Name + " " + dato.LastName + " " + dato.SecondLastName + "</strong>";
+              b.innerHTML += "<input type='hidden' value='" + idPatient + "'>";
+                  b.addEventListener("click", function(e) {
+                    $(".autocomplete-items").empty();
+                    $(".autocomplete-items").remove();
+                    $(".txtEmpleadoGeneralFiltro").val(dato.Name + " " + dato.LastName + " " + dato.SecondLastName);
+                    selIdPacienteFiltro = idPatient;
+                    $(".btnBorrarFiltro").show();
+                    SeleccionarDatosCitas();                    
+              });
+              a.appendChild(b);
+            }
+            $(".autocomplete-items").append(a);
+        }
+     
+    });
+
+    $(".btnBorrarFiltro").click(function(){
+        $(".txtEmpleadoGeneralFiltro").val("");
+        selIdPacienteFiltro = "";
+        $(".btnBorrarFiltro").hide();
+        SeleccionarDatosCitas();
+    });
     
     $(".btnAcceptAppointment").click(async function(){
         var banValidacion = true;
@@ -66,6 +110,7 @@ $(document).ready(function(){
         if (parent.lstCategoriesGlobal[$(".ddlCategoria").val()].Name != "Bloqueo") {
             banValidacion = Validador($(".txtEmpleadoGeneral"),"paciente",idPatientSelected,1,'',$('.modalNewDate'));    
         }
+        if(banValidacion == true){banValidacion = Validador($(".ddlSucursal"),"sucursal",$(".ddlSucursal").val(),1,'',$('.modalNewDate'))};
         if(banValidacion == true){banValidacion = Validador($(".ddlEmpleados"),"empleado",$(".ddlEmpleados").val(),1,'',$('.modalNewDate'))};
         if(banValidacion == true){banValidacion = Validador($(".ddlCategoria"),"categoría",$(".ddlCategoria").val(),1,'',$('.modalNewDate'))};
         if(banValidacion == true){banValidacion = Validador($(".ddlServicio"),"servicio",$(".ddlServicio").val(),1,'',$('.modalNewDate'))};
@@ -95,6 +140,8 @@ $(document).ready(function(){
                         Title:TitleAppointment,
                         Service: parent.lstServicesGlobal[$(".ddlServicio").val()],
                         Category:parent.lstCategoriesGlobal[$(".ddlCategoria").val()],
+                        IdBranch: $(".ddlSucursal").val(),
+                        Branch: $(".ddlSucursal").find("option:selected").text(),
                         IdPatient: idPatientSelected,
                         IdEmployee: datosEmpleados.uId,
                         EmployeeName: datosEmpleados.Name + ' ' + datosEmpleados.LastName + ' ' + datosEmpleados.SecondLastName,
@@ -106,10 +153,12 @@ $(document).ready(function(){
                     
                         if (selIdAppointmen == "") {
                             resolve(await insertDb(urlCitasGlobal,Appointment));
+                            calendar.gotoDate(Appointment.AppointmentDateStart);
                             MostrarMensajePrincipal("La cita fue registrada correctamente","success");    
                         }
                         else{
                             resolve(await updateDb(urlCitasGlobal,selIdAppointmen,Appointment));
+                            calendar.gotoDate(Appointment.AppointmentDateStart);
                             MostrarMensajePrincipal("La cita fue registrada correctamente","success");    
                         }
                         $('.modalNewDate').modal('toggle');                    
@@ -246,6 +295,9 @@ $(document).ready(function(){
         });
     });
 
+    $(".ddlSucursalFiltro").change(function() {
+        generarCalendario();
+    });
 });
 
 function enviarMensaje(element) {
@@ -300,15 +352,22 @@ async function UpdateStatusAppointment(idAppoitment,Status) {
 
 const SeleccionarDatosCitas = async function(){
     $(".dvLoader").show();
+    parent.lstAppointmentsGlobal = {};
     var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);
-    let consultadb =db.collection(urlCitasGlobal).where("Status", ">",StatusAppointment.Cancelado);
-    //datosCuentaUsusario.Position = parseInt(KioxPositions.Recepcion);
-    if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Fisioterapeuta)) {
+    let consultadb;
+    if (selIdPacienteFiltro != "") {
+        consultadb = db.collection(urlCitasGlobal).where("IdPatient", "==", selIdPacienteFiltro);
+    }
+    else{
+        consultadb =db.collection(urlCitasGlobal).where("Status", ">",StatusAppointment.Cancelado);
+        //datosCuentaUsusario.Position = parseInt(KioxPositions.Recepcion);
+        if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Fisioterapeuta)) {
         consultadb = db.collection(urlCitasGlobal).where("Status", ">",StatusAppointment.Cancelado).where("IdEmployee", "==", datosCuentaUsusario.uId);
-    }   
-    else if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Recepcion)) {
+        }   
+        else if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Recepcion)) {
         var fechaInicio = new Date(new Date().getFullYear(),(new Date().getMonth()),new Date().getDate(),6,0,0);
         consultadb = db.collection(urlCitasGlobal).where("Status", "==",StatusAppointment.Registrado).where('AppointmentDateStart', '>=', fechaInicio);
+        }
     }
 
     await consultadb.onSnapshot(function(snapshot) {
@@ -347,7 +406,7 @@ const SeleccionarDatosCitas = async function(){
         $(".btnNewPatient").hide();
         $(".btnConfirmAppointments").hide();
     }  
-    $(".dvLoader").show();
+    $(".dvLoader").hide();
 };
 
 const StatusAppointment = {
@@ -420,16 +479,19 @@ function llenarEventos(){
                     tituloCita += "<br>(" + AppoitmentData.EmployeeName.substr(0, 2) + ")";
                 }
             }
-            appointments.push({
-            id: idAppoitment,
-            title: tituloCita,
-            start: AppoitmentData.AppointmentDateStart.toDate(),
-            end: AppoitmentData.AppointmentDateEnd.toDate(),
-            editable:Editable,
-            backgroundColor: AppoitmentData.Category.Color,
-            borderColor: AppoitmentData.Category.Color,
-            classNames:ClassAppointment,
-            });
+            if ($(".ddlSucursalFiltro").val() == "" || AppoitmentData.IdBranch == $(".ddlSucursalFiltro").val()) {
+                appointments.push({
+                    id: idAppoitment,
+                    title: tituloCita,
+                    start: AppoitmentData.AppointmentDateStart.toDate(),
+                    end: AppoitmentData.AppointmentDateEnd.toDate(),
+                    editable:Editable,
+                    backgroundColor: AppoitmentData.Category.Color,
+                    borderColor: AppoitmentData.Category.Color,
+                    classNames:ClassAppointment,
+                });     
+            }
+           
         }
     }
     return appointments;
@@ -440,11 +502,14 @@ function generarCalendario() {
     var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);
     if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Fisioterapeuta)) {
         eventoEditable = false;
+        $(".ddlSucursalFiltro").val(datosCuentaUsusario.IdBranch);
+        $(".rowSucursal").hide();
     }   
     var calendarEl = document.getElementById('calendar');    
     //FullCalendar.Calendar(calendarEl)
     var header = {};
     var vistainicial  = "";
+    var duracionCaleendario = 1;
     var slotInicio = "08:00";
     var slotFin = "22:00";
     var editorCalendario = true;
@@ -472,28 +537,54 @@ function generarCalendario() {
         vistainicial = "timeGridWeek";
      }
     }
-  
-    var calendar = new FullCalendar.Calendar(calendarEl, {
+    var vistas;
+    if (selIdPacienteFiltro != "") {
+        vistainicial = "list";
+          vistas = {
+            list: {
+                visibleRange: function () {
+                    const hoy = new Date();
+
+                    const inicio = new Date(hoy);
+                    inicio.setDate(hoy.getDate() - 28); // 4 semanas atrás
+
+                    const fin = new Date(hoy);
+                    fin.setDate(hoy.getDate() + 28); // 4 semanas adelante
+
+                    return {
+                        start: inicio,
+                        end: fin
+                    };
+                },
+                buttonText: 'Agenda'
+            }
+        }
+    }
+    else{
+        vistas = {
+            dayGrid: {
+                titleFormat: { year: '2-digit', month: '2-digit'}
+            },
+            week: {
+                titleFormat: { year: '2-digit', month: '2-digit'}
+            },
+            day: {
+                titleFormat: { year: '2-digit', month: '2-digit', day: '2-digit' }
+            },
+            timeGrid: {
+                titleFormat: { year: '2-digit', month: '2-digit', day: '2-digit' }
+            }
+        }
+    }
+
+    calendar = new FullCalendar.Calendar(calendarEl, {
         height:'90%',
         locale: 'es',
         slotMinTime: slotInicio,
         slotMaxTime: slotFin,
         allDaySlot: false,
         headerToolbar: header,
-    views: {
-        dayGrid: {
-            titleFormat: { year: '2-digit', month: '2-digit'}
-        },
-        week: {
-            titleFormat: { year: '2-digit', month: '2-digit'}
-        },
-        day: {
-            titleFormat: { year: '2-digit', month: '2-digit', day: '2-digit' }
-        },
-        timeGrid: {
-            titleFormat: { year: '2-digit', month: '2-digit', day: '2-digit' }
-        },
-    },
+    views: vistas,
     initialView: vistainicial,
     initialDate: new Date(),
     navLinks: editorCalendario, // can click day/week names to navigate views
@@ -508,19 +599,21 @@ function generarCalendario() {
     };
     },
     events: llenarEventos(),
-    select: function(info) {               
+    select: async function(info) {
+        $(".msjCitaPendiente").hide();               
         clearFields();
         hideButtons();
         if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Fisioterapeuta)) {
             $(".rwFisioterapeuta").hide();
             $(".ddlEmpleados").val(datosCuentaUsusario.uId);
+            $(".ddlSucursal").val(datosCuentaUsusario.IdBranch);
         }
-        $(".btnCancelAppointment").show();
+        $(".btnCancelAppointment").hide();
         $(".btnAcceptAppointment").show();
         selIdAppointmen = "";        
         $('.txtFechaCita').val(info.start.getFullYear().toString().padStart(4, "0")  + "-" + (info.start.getMonth() + 1).toString().padStart(2, "0")  + "-" + info.start.getDate().toString().padStart(2, "0"));
         $('.txtHoraInicioCita').val(info.start.getHours().toString().padStart(2, "0") + ":" + info.start.getMinutes().toString().padStart(2, "0"));
-        $('.txtHoraFinCita').val(info.end.getHours().toString().padStart(2, "0") + ":" + info.end.getMinutes().toString().padStart(2, "0"));        
+        $('.txtHoraFinCita').val(info.end.getHours().toString().padStart(2, "0") + ":" + info.end.getMinutes().toString().padStart(2, "0"));              
         hideShowFields(false);
         $('.modalNewDate').modal('toggle');            
     },
@@ -535,7 +628,8 @@ function generarCalendario() {
                 selIdAppointmen = info.el.fcSeg.eventRange.def.publicId;
                 var patient = parent.lstPatientsGlobal[datos.IdPatient];
                 var DateI = datos.AppointmentDateStart.toDate();
-                var DateF = datos.AppointmentDateEnd.toDate();            
+                var DateF = datos.AppointmentDateEnd.toDate();           
+                $('.ddlSucursal').val(datos.IdBranch);   
                 hideButtons();
                 var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);            
                 switch (datos.Status) {
@@ -575,8 +669,16 @@ function generarCalendario() {
                     default:
                         break;
                 }
+            
                 if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Administrador)) {
                     $(".btnAcceptAppointment").show();
+                }
+                else{
+                    if (pasoMasDeHoraYMedia(DateI)) {
+                        $(".btnAcceptAppointment").hide();
+                        $(".btnStartAppointment").hide();    
+                    }                    
+                    $(".btnCancelAppointment").hide();
                 }
 
                 var datosEmpleados = Object.values(parent.lstEmployeesGlobal).find(x => x.uId == datosCuentaUsusario.uId);
@@ -671,12 +773,21 @@ function generarCalendario() {
             Appointment.AppointmentDateStart = info.event.start;
             Appointment.AppointmentDateEnd = info.event.end;
             resolve(await updateDb(urlCitasGlobal,info.el.fcSeg.eventRange.def.publicId, Appointment));
+            calendar.gotoDate(Appointment.AppointmentDateStart);
             MostrarMensajePrincipal("La cita fue actualizada correctamente","success");
         }, 250);});
     }
     });
     calendar.render();
 };
+
+function pasoMasDeHoraYMedia(fecha) {
+    const ahora = new Date();
+    const fechaComparar = new Date(fecha);
+    
+    const diferencia = ahora - fechaComparar;
+    return diferencia >= (1.5 * 60 * 60 * 1000);
+}
 
 function hideButtons(){
     $(".btnStartAppointment").hide();
@@ -710,6 +821,7 @@ function clearFields(){
     $('.txtHoraFinCita').val('');
     $(".ddlServicio").val('');
     $(".ddlCategoria").val('');
+    $(".ddlSucursal").val('');
     $(".txtNotaCita").val('');  
 }
 
