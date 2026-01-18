@@ -12,6 +12,7 @@ var lstCitasPorConfirmar = [];
 var calendar;
 
 $(document).ready(function(){        
+    $(".rowSucursal").hide();
 
     $(".btnConfirmAppointments").click(function(){
         window.location.href ="confirmacionCitas.html";
@@ -504,6 +505,9 @@ function generarCalendario() {
         eventoEditable = false;
         $(".ddlSucursalFiltro").val(datosCuentaUsusario.IdBranch);
         $(".rowSucursal").hide();
+    }   
+    if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Administrador)) {        
+        $(".rowSucursal").show();
     }   
     var calendarEl = document.getElementById('calendar');    
     //FullCalendar.Calendar(calendarEl)

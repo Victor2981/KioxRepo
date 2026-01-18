@@ -573,6 +573,80 @@ function llenarTablaIngresosPago(datosIngresos){
     $(".dvLoader").hide();
 }
 
+function generarDatosIngresos(obj,TitulosDatos,datos,Buttons){
+  var tblBody = $("<tbody>");
+  const lstDatos = JSON.parse(JSON.stringify(datos));
+  if (Object.keys(lstDatos).length >0) {
+      for (const ap in lstDatos) {
+          const dato = lstDatos[ap];
+          const datosBase = datos[ap];
+          //tblDato += "<tr>";
+          let fila = $("<tr class='trDatoGlobal'>");
+          TitulosDatos.forEach(titulo => {
+            let columna = "";
+            var valorColumnaOrigen;
+            if (titulo.indexOf(".")) {
+              //valorColumnaOrigen = dato[titulo.split(".")[0]];
+              titulo.split(".").forEach(function(prop){
+                if (valorColumnaOrigen == undefined) {
+                  valorColumnaOrigen = datosBase[prop];
+                }
+                else{
+                  valorColumnaOrigen = valorColumnaOrigen[prop];
+                }
+              });  
+            }
+            else{
+              valorColumnaOrigen = datosBase[titulo];
+            }
+            
+            switch (typeof valorColumnaOrigen) {
+              case "string":
+                if (valorColumnaOrigen.includes("#")) {
+                  columna = $("<td><div style='height: 30px;width: 80px;background-color: " + valorColumnaOrigen +";'></div></td>"); 
+                 }
+                 else{
+                  columna = $("<td><label>" + valorColumnaOrigen +"</label></td>"); 
+                 }
+                break;
+              case "object":
+                if (datosBase[titulo] != null) {
+					if (Object.prototype.toString.call(datosBase[titulo]) === "[object Date]") {
+						var fecha = datosBase[titulo];
+						columna = $("<td><label>" + fecha.getDate() + "/" + (fecha.getMonth() + 1).toString() + "/" + fecha.getFullYear() +"</label></td>");   		
+					}
+					else{
+						var fecha = datosBase[titulo].toDate();
+						columna = $("<td><label>" + fecha.getDate() + "/" + (fecha.getMonth() + 1).toString() + "/" + fecha.getFullYear() +"</label></td>");   		
+					}
+                  
+                }
+                else{
+                  columna = $("<td></td>"); 
+                }
+              break;
+              default:
+                columna = $("<td><label>" + valorColumnaOrigen +"</label></td>"); 
+                break;
+            }
+            fila.append(columna);
+          });
+          if (Buttons != undefined) {
+            for (let index = 0; index < Buttons[ap].length; index++) {
+              const element = Buttons[ap][index];
+              let columna = "";
+              columna = $('<td style="width: 5%;text-align: center;">');
+              columna.append(element);
+              fila.append(columna);            
+            }      
+          }
+          
+          tblBody.append(fila);
+      }
+  }
+  obj.append(tblBody);
+}
+
 function llenarControles() {
     $(".ddlFormaPago").empty();
     $(".ddlMensualidades").empty();

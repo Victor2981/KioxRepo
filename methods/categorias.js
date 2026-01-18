@@ -116,7 +116,11 @@ function llenarTablaCategorias(datosCategories){
     $(".tblCategories").empty();
     var titulos = ["Nombre","Color","Activo","",""];    
     var TitulosDatos = ["Name","Color"];    
-
+    var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);
+    if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Fisioterapeuta)) {
+        titulos = ["Nombre","Color"];    
+        TitulosDatos = ["Name","Color"];
+    }
     const lstCategories = JSON.parse(JSON.stringify(datosCategories));
     let lstButtons = {};
     if (Object.keys(lstCategories).length >0) {
@@ -124,28 +128,31 @@ function llenarTablaCategorias(datosCategories){
             var idCategory = ap;   
             var datos = lstCategories[idCategory];
             var Buttons = [];            
-            var lblActivo = $("<label class='switch'>");
-            var tgActivo = $("<input type='checkbox' class='chkActivo'><span class='slider round'></span>");
-            if (datos.Avalible) {
-                tgActivo = $("<input type='checkbox' class='chkActivo' checked><span class='slider round'></span>");
+            if (datosCuentaUsusario.Position == parseInt(KioxPositions.Administrador)) {
+                var lblActivo = $("<label class='switch'>");
+                var tgActivo = $("<input type='checkbox' class='chkActivo'><span class='slider round'></span>");
+                if (datos.Avalible) {
+                    tgActivo = $("<input type='checkbox' class='chkActivo' checked><span class='slider round'></span>");
+                }
+                tgActivo.on('change',(chk)=>{
+                    UpdateAvalibleCategory(idCategory,chk.currentTarget.checked);
+                });
+                //Object.assign(Buttons,tgActivo);
+                lblActivo.append(tgActivo);
+                Buttons.push(lblActivo);
+                let btnEditar = $("<a class='btnTablaGlobal material-icons btnIcon' title='Editar'>edit</a>");
+                btnEditar.on('click',()=>{
+                    location.href = "altaCategorias.html?idCategory=" + ap;
+                });
+                Buttons.push(btnEditar);
+                let btnEliminar = $("<a class='btnTablaGlobal material-icons btnIcon' title='Eliminar'>delete</a>");
+                btnEliminar.on('click',()=>{
+                    UpdateStatusCategory(idCategory,0);
+                });
+                Buttons.push(btnEliminar);
+                //Object.assign(Buttons,btnEditar);
             }
-            tgActivo.on('change',(chk)=>{
-                UpdateAvalibleCategory(idCategory,chk.currentTarget.checked);
-            });
-            //Object.assign(Buttons,tgActivo);
-            lblActivo.append(tgActivo);
-            Buttons.push(lblActivo);
-            let btnEditar = $("<a class='btnTablaGlobal material-icons btnIcon' title='Editar'>edit</a>");
-            btnEditar.on('click',()=>{
-                location.href = "altaCategorias.html?idCategory=" + ap;
-            });
-            Buttons.push(btnEditar);
-            let btnEliminar = $("<a class='btnTablaGlobal material-icons btnIcon' title='Eliminar'>delete</a>");
-            btnEliminar.on('click',()=>{
-                UpdateStatusCategory(idCategory,0);
-            });
-            Buttons.push(btnEliminar);
-            //Object.assign(Buttons,btnEditar);
+           
             var evento = {[idCategory]:Buttons};
             Object.assign(lstButtons,evento);
         }

@@ -559,3 +559,11 @@ const LlenarModulos = function(){
     }, 0);
     });
 }
+
+function fechaLocal(dateString, endOfDay = false){
+    const [year,month,day] = dateString.split("-").map(Number);
+    if(endOfDay){
+        return new Date(year, month-1, day, 23, 59, 59);
+    }
+    return new Date(year, month-1, day, 0, 0, 0);
+}

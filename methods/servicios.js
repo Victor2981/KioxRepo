@@ -135,6 +135,11 @@ function llenarTablaServicios(datosServices){
     $(".tblCategories").empty();
     var titulos = ["Nombre","Categoría","Precio","Descripción","Activo","",""];    
     var TitulosDatos = ["Name","CategoryName","Price","Description"];    
+    var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);
+    if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Fisioterapeuta)) {
+        titulos = ["Nombre","Categoría","Precio","Descripción"];    
+        TitulosDatos = ["Name","CategoryName","Price","Description"];
+    }
     const lstServices = JSON.parse(JSON.stringify(datosServices));
     let lstButtons = {};
     if (Object.keys(lstServices).length >0) {
@@ -143,29 +148,33 @@ function llenarTablaServicios(datosServices){
             const datos = datosServices[idService];
             datos.CategoryName = parent.lstCategoriesGlobal[datos.idCategory].Name;
             var Buttons = [];            
-            var lblActivo = $("<label class='switch'>");
-            var tgActivo = $("<input type='checkbox' class='chkActivo'><span class='slider round'></span>");
-            if (datos.Avalible) {
-                tgActivo = $("<input type='checkbox' class='chkActivo' checked><span class='slider round'></span>");
-            }
-            tgActivo.on('change',(chk)=>{
-                UpdateAvalibleServices(idService,chk.currentTarget.checked);
-            });
-            //Object.assign(Buttons,tgActivo);
-            lblActivo.append(tgActivo);
-            Buttons.push(lblActivo);
-            let btnEditar = $("<a class='btnTablaGlobal material-icons btnIcon' title='Editar'>edit</a>");
-            btnEditar.on('click',()=>{
-                location.href = "altaServicios.html?idService=" + ap;
-            });
-            Buttons.push(btnEditar);
-            let btnEliminar = $("<a class='btnTablaGlobal material-icons btnIcon' title='Eliminar'>delete</a>");
-            btnEliminar.on('click',()=>{
-                UpdateStatusServices(idService,0);
-            });
-            Buttons.push(btnEliminar);
+            if (datosCuentaUsusario.Position == parseInt(KioxPositions.Administrador)) {
+                var lblActivo = $("<label class='switch'>");
+                var tgActivo = $("<input type='checkbox' class='chkActivo'><span class='slider round'></span>");
+                if (datos.Avalible) {
+                    tgActivo = $("<input type='checkbox' class='chkActivo' checked><span class='slider round'></span>");
+                }
+                tgActivo.on('change',(chk)=>{
+                    UpdateAvalibleServices(idService,chk.currentTarget.checked);
+                });
+                //Object.assign(Buttons,tgActivo);
+                lblActivo.append(tgActivo);
+                Buttons.push(lblActivo);
+                let btnEditar = $("<a class='btnTablaGlobal material-icons btnIcon' title='Editar'>edit</a>");
+                btnEditar.on('click',()=>{
+                    location.href = "altaServicios.html?idService=" + ap;
+                });
+                Buttons.push(btnEditar);
+                let btnEliminar = $("<a class='btnTablaGlobal material-icons btnIcon' title='Eliminar'>delete</a>");
+                btnEliminar.on('click',()=>{
+                    UpdateStatusServices(idService,0);
+                });
+                Buttons.push(btnEliminar);
+            }            
+            
             //Object.assign(Buttons,btnEditar);
             var evento = {[idService]:Buttons};
+          
             Object.assign(lstButtons,evento);
         }
     }

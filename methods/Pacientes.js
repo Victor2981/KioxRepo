@@ -182,7 +182,11 @@ function llenarTablaPacientes(datosPatients){
     $(".tblPacientes").empty();
     var titulos = ["Nombre","Edad","Telefono","","",""];    
     var TitulosDatos = ["NameComplete","Age","Phone"];    
-
+    var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);
+    if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Fisioterapeuta)) {
+        titulos = ["Nombre","Edad","","",""];    
+        TitulosDatos = ["NameComplete","Age"];    
+    }
     const lstPatients = JSON.parse(JSON.stringify(datosPatients));
     let lstButtons = {};
     if (Object.keys(lstPatients).length >0) {

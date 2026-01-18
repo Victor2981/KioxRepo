@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Bitácora DB</title>
+
+<style>
+body{
+    margin:0;
+    background:#f4f6f9;
+    font-family:'Segoe UI',sans-serif;
+}
+
+.kiox-container{
+    padding:15px;
+}
+
+.kiox-panel{
+    background:white;
+    border-radius:6px;
+    box-shadow:0 1px 4px rgba(0,0,0,0.08);
+}
+
+.kiox-header{
+    background:#e9edf2;
+    padding:12px 15px;
+    font-size:15px;
+    font-weight:600;
+    border-bottom:1px solid #d8dde3;
+}
+
+.kiox-filtros{
+    padding:15px;
+    border-bottom:1px solid #eee;
+}
+
+.kiox-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+.kiox-row label{
+    font-size:13px;
+    color:#666;
+}
+
+.kiox-row input{
+    height:32px;
+    border:1px solid #ccc;
+    border-radius:4px;
+    padding:4px 8px;
+}
+
+.btn-kiox{
+    background:#2bb673;
+    border:none;
+    color:white;
+    padding:6px 14px;
+    border-radius:4px;
+    cursor:pointer;
+}
+
+.btn-kiox:hover{
+    background:#249963;
+}
+
+.kiox-table-container{
+    padding:10px 15px 15px 15px;
+}
+
+#tablaBitacora{
+    width:100%;
+    border-collapse:collapse;
+    font-size:12px;
+}
+
+#tablaBitacora th{
+    background:#f0f2f5;
+    padding:8px;
+    border:1px solid #e2e5e9;
+}
+
+#tablaBitacora td{
+    padding:6px;
+    border:1px solid #eaecef;
+}
+
+.kiox-footer{
+    background:#fafafa;
+    padding:10px 15px;
+    font-size:13px;
+    border-top:1px solid #eee;
+}
+
+.detalle-btn{
+    background:#4e73df;
+    border:none;
+    color:white;
+    padding:4px 8px;
+    border-radius:3px;
+    cursor:pointer;
+}
+
+/* MODAL */
+.kiox-modal{
+    display:none;
+    position:fixed;
+    top:0; left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.4);
+}
+
+.kiox-modal-content{
+    background:white;
+    width:70%;
+    margin:5% auto;
+    border-radius:6px;
+    padding:15px;
+}
+
+pre{
+    background:#f8f9fc;
+    padding:10px;
+    border-radius:4px;
+    max-height:400px;
+    overflow:auto;
+}
+</style>
+</head>
+
+<body>
+
+<div class="kiox-container">
+    <div class="kiox-panel">
+
+        <div class="kiox-header">
+            📋 Bitácora de movimientos de base de datos
+        </div>
+
+        <div class="kiox-filtros">
+            <div class="kiox-row">
+                <label>Desde</label>
+                <input type="date" id="fechaInicio">
+
+                <label>Hasta</label>
+                <input type="date" id="fechaFin">
+
+                <label>Usuario / Colección</label>
+                <input type="text" id="filtroTexto" placeholder="Buscar...">
+
+                <button class="btn-kiox" onclick="buscarBitacora()">Buscar</button>
+            </div>
+        </div>
+
+        <div class="kiox-table-container">
+            <table id="tablaBitacora">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Usuario</th>
+                        <th>Acción</th>
+                        <th>Colección</th>
+                        <th>Documento</th>
+                        <th>Resultado</th>
+                        <th>Detalle</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div class="kiox-footer">
+            Total registros: <span id="totalRegistros">0</span>
+        </div>
+
+    </div>
+</div>
+
+<!-- MODAL DETALLE -->
+<div class="kiox-modal" id="modalDetalle">
+    <div class="kiox-modal-content">
+        <h3>Detalle del movimiento</h3>
+        <pre id="detalleJson"></pre>
+        <button class="btn-kiox" onclick="cerrarModal()">Cerrar</button>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-storage.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-analytics.js"></script>
+<script src="../methods/conexiones.js?kvs=4.9"></script>    
+<script src="../methods/Globals.js?kvs=4.9"></script>
+<script src="../methods/empleados.js?kvs=4.9"></script>
+<script src="../methods/Pacientes.js?kvs=4.9"></script>
+<script src="../methods/categorias.js?kvs=4.9"></script>
+<script src="../methods/servicios.js?kvs=4.9"></script>
+<script src="../methods/citas.js?kvs=4.9"></script>     
+<script src="../methods/seguimientoCita.js?kvs=4.9"></script>
+<script src="../methods/utilidades.js?kvs=4.9"></script>
+<script src="../methods/bitacora.js?kvs=4.9"></script>
+<script src="../methods/dbManager.js?kvs=4.9"></script>
+
+<script>
+const firebaseConfig = { /* TU CONFIG */ };
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+</script>
+
+</body>
+</html>
