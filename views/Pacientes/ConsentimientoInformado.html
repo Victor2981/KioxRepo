@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="">
+    
+        <title>SB Admin 2 - Dashboard</title>
+    
+        <!-- Custom fonts for this template-->
+        <link href="../../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+        <link
+            href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+            rel="stylesheet">
+        <!-- Custom styles for this template-->
+        <link href="../../css/sb-admin-2.min.css" rel="stylesheet">
+        <link href="../../css/custom.css" rel="stylesheet">
+        <!-- <link href="vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet"> -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">            
+        <style>
+            canvas{
+                border:1px solid #ced4da;
+                border-radius:6px;
+                background:white;
+            }
+        </style>
+    </head>
+<body id="page-top">
+    <div class="dvLoader">
+        <div class="dvLoaderContenido">
+            <div class="spinner-border d-flex" role="status">
+            </div>
+            <p>Cargando</p>
+        </div>
+    </div>
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Consentimiento informado</h1>
+    </div>
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h4 class="m-0 font-weight-bold text-primary">Agregar categoría</h4>            
+        </div>
+        <div class="card-body">
+            <div class="form-row">
+
+                <div class="form-group col-md-4">
+                <label>Paciente</label>
+                <input type="text" class="form-control form-control-sm" id="txtPaciente" disabled>
+                </div>
+                
+                <div class="form-group col-md-4">
+                <label>Tratamiento</label>
+                <input type="text" class="form-control form-control-sm" id="txtTratamiento" disabled>
+                </div>
+                
+                <div class="form-group col-md-4">
+                <label>Fecha</label>
+                <input type="text" class="form-control form-control-sm" id="txtFecha" disabled>
+                </div>
+                
+                </div>
+                
+                <div class="form-group">
+                    <label>Documento de consentimiento</label>
+                    
+                    <div class="border rounded p-3 bg-light" style="white-space: pre-line; line-height:1.6">
+                    Hago constar por este medio que he sido debidamente informado por el personal de KIOX FISIOTERAPIA, S.A.S. sobre el tratamiento al que seré sometido con agentes físicos, terapia manual y/o ejercicios terapéuticos de acuerdo con las necesidades diagnosticadas. El cual puede tener beneficios, complicaciones y riesgos.
+                    
+                    Se me ha explicado y respondido mis dudas en lenguaje claro y sencillo lo que realizaremos durante este programa.
+                    
+                    Otorgo mi consentimiento para el uso de contenido multimedia para el seguimiento, difusión o publicidad. Sin remuneración a cambio de ninguna índole.
+                    
+                    Entiendo mi plan de tratamiento y consiento ser tratado. Declaro haber facilitado de manera leal y verdadera los datos sobre estado físico y salud de mi persona que pudiera afectar a los tratamientos que se me van a realizar. Otorgo mi consentimiento para que se me realice el tratamiento terapéutico.
+                    </div>
+                    </div>
+                    
+                
+                <hr>
+                
+                <div class="row">
+                <div class="col-md-6">
+                <label>Firma del paciente</label>
+                <canvas id="canvasFirma" style="width:100%; max-width:500px; height:200px;"></canvas>
+                
+                <div class="mt-2">
+                <button class="btn btn-primary btn-sm" onclick="limpiarFirma()">Limpiar firma</button>
+                </div>
+                </div>
+                
+                <div class="col-md-6">
+                <div class="alert alert-secondary">
+                <b>Importante:</b><br>
+                La firma digital confirma que el paciente acepta voluntariamente el procedimiento descrito.
+                Este documento quedará almacenado como respaldo clínico dentro del sistema.
+                </div>
+                </div>
+                </div>
+                
+                <hr>
+                
+                <button class="btn btn-success btn-sm" onclick="guardarConsentimiento()">
+                Guardar consentimiento
+                </button>
+                
+                </div>
+        </div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-analytics.js"></script>
+    <script src="../../methods/conexiones.js?kvs=5.0"></script>
+    <script src="../../methods/Globals.js?kvs=5.0"></script>
+    <script src="../../methods/citas.js?kvs=5.0"></script>
+    <script src="../../methods/categorias.js?kvs=5.0"></script>
+    <script src="../../methods/utilidades.js?kvs=5.0"></script>
+    <script src="../../methods/dbManager.js?kvs=5.0"></script>
+    <script src="../../methods/Pacientes/ConcentimientoInformado.js?kvs=5.0"></script>
+    <script>
+        $(document).ready(async function(){        
+           //await SeleccionarDatosPacientes();
+           //generarCalendario();
+        //    await SeleccionarDatosCitas();
+        //    await SeleccionarDatosCategorias("dropdown");
+        //    await SeleccionarDatosServicios();
+       });                           
+   </script>
+</body>    
+                   

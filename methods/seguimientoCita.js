@@ -142,6 +142,11 @@ async function populateAppointmentData(idAppointment) {
                 if (datosPacienteAux.NewPatient) {            
                     Redireccionar("/views/HistoriaClinica.html?idPatientHistoria=" + selIdPatientGlobal + "&idCita=" + selIdAppointmentGlobal);
                 }              
+                await db.collection("/PatientConsents").where("IdPatient","==",datos.IdPatient).where("IdService","==",datos.Service.IdService).get().then(async (objConsentimiento)=>{
+                    if (objConsentimiento.docs.length == 0) {                        
+                        Redireccionar("/views/Pacientes/ConsentimientoInformado.html?idAppointment=" + idAppointment);
+                    }
+                });
             }
             else{
                 Redireccionar("/views/citas.html");

@@ -678,8 +678,8 @@ function generarCalendario() {
                     $(".btnAcceptAppointment").show();
                 }
                 else{
-                    if (pasoMasDeHoraYMedia(DateI)) {
-                        $(".btnAcceptAppointment").hide();
+                    $(".btnAcceptAppointment").hide();
+                    if (pasoMasDeHoraYMedia(DateI)) {                        
                         $(".btnStartAppointment").hide();    
                     }                    
                     $(".btnCancelAppointment").hide();
