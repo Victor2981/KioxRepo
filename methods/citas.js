@@ -428,7 +428,13 @@ function llenarEventos(){
             var idAppoitment= ap;
             var AppoitmentData = parent.lstAppointmentsGlobal[idAppoitment];
             var Editable = false;
-            var ClassAppointment = "";                        
+            var ClassAppointment = "";             
+            var branchClass = "";
+            if (AppoitmentData.IdBranch === "WbZ7Uj46y6wP2MEox6p1") {
+                branchClass = "BranchV";
+            } else {
+                branchClass = "BranchL";
+            }           
             switch (AppoitmentData.Status) {
                 case StatusAppointment.Registrado:
                     Editable = true;    
@@ -474,10 +480,10 @@ function llenarEventos(){
                     if(AppoitmentData.Status > StatusAppointment.Atendido) {
                         sesionActual = datosPaquete.TakenNumbreSesions;
                     }
-                    tituloCita += "<br>(" + AppoitmentData.EmployeeName.substr(0, 2) + " | Paquete:" + sesionActual + "/" + datosPaquete.NumbreSesions +")";    
+                    tituloCita += "<br>(" + obtenerTresIniciales(AppoitmentData.EmployeeName) + " | Paquete:" + sesionActual + "/" + datosPaquete.NumbreSesions +")";    
                 }
                 else{
-                    tituloCita += "<br>(" + AppoitmentData.EmployeeName.substr(0, 2) + ")";
+                    tituloCita += "<br>(" + obtenerTresIniciales(AppoitmentData.EmployeeName) + ")";
                 }
             }
             if ($(".ddlSucursalFiltro").val() == "" || AppoitmentData.IdBranch == $(".ddlSucursalFiltro").val()) {
@@ -489,7 +495,7 @@ function llenarEventos(){
                     editable:Editable,
                     backgroundColor: AppoitmentData.Category.Color,
                     borderColor: AppoitmentData.Category.Color,
-                    classNames:ClassAppointment,
+                    classNames:ClassAppointment + " " + branchClass                    
                 });     
             }
            
@@ -497,6 +503,21 @@ function llenarEventos(){
     }
     return appointments;
 }
+
+function obtenerTresIniciales(nombreCompleto) {
+    if (!nombreCompleto) return "";
+  
+    // Divide el nombre por espacios, filtra elementos vacíos
+    const palabras = nombreCompleto.trim().split(/\s+/);
+    
+    // Toma las primeras 3 palabras, obtiene la primera letra y une
+    const iniciales = palabras
+      .slice(0, 3)
+      .map(palabra => palabra.charAt(0).toUpperCase())
+      .join("");
+  
+    return iniciales;
+  }
 
 function generarCalendario() {  
     var eventoEditable = true;
@@ -780,10 +801,41 @@ function generarCalendario() {
             calendar.gotoDate(Appointment.AppointmentDateStart);
             MostrarMensajePrincipal("La cita fue actualizada correctamente","success");
         }, 250);});
+    },
+    eventDidMount: function(info) {
+
+        // Tomamos el color real del evento
+        const bgColor = info.event.backgroundColor;
+    
+        if (info.el.classList.contains("BranchV")) {
+            info.el.setAttribute("data-branch", "V");
+        }
+    
+        if (info.el.classList.contains("BranchL")) {
+            info.el.setAttribute("data-branch", "L");
+        }
+    
+        // Convertimos el color HEX a RGBA con transparencia
+        if (bgColor) {
+            const rgbaColor = hexToRGBA(bgColor, 0.18);
+            info.el.style.setProperty('--watermark-color', rgbaColor);
+        }
     }
     });
     calendar.render();
 };
+
+function hexToRGBA(hex, alpha) {
+    let r = 0, g = 0, b = 0;
+
+    if (hex.length == 7) {
+        r = parseInt(hex.slice(1, 3), 16);
+        g = parseInt(hex.slice(3, 5), 16);
+        b = parseInt(hex.slice(5, 7), 16);
+    }
+
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
 
 function pasoMasDeHoraYMedia(fecha) {
     const ahora = new Date();
