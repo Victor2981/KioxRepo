@@ -20,7 +20,7 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
         <!-- Custom styles for this template-->
         <link href="../../../css/sb-admin-2.min.css" rel="stylesheet">
-        <link href="../../../css/custom.css?kvs=5.1" rel="stylesheet">
+        <link href="../../../css/custom.css?kvs=6.0" rel="stylesheet">
         <link href="../../../vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker.css">
         <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">             -->
@@ -49,6 +49,7 @@
                 <div class="col">                    
                     <button type="button" class="btn btn-primary float-right btnAcceptCheckout">Aceptar</button>
                     <button type="button" class="btn btn-primary float-right btnAcceptCheckoutPaquete">Aceptar</button>
+                    <button type="button" class="btn btn-success float-right btnPack">Crear paquete</button>
                     <button type="button" class="btn btn-info float-right btnAddService">Agregar extra</button>
                 </div>
             </div>
@@ -69,7 +70,7 @@
                 <div class="row">
                     <div class="col">
                         <label>Pago:</label>
-                        <input type="text" class="form-control txtPago inputCapture" id="txtPago" maxlength="10" style="width: 150px;">
+                        <input type="text" class="form-control txtPago inputCapture" id="txtPago" maxlength="10" style="width: 150px;" disabled>
                         <label class="lblPago"></label>
                     </div>
                 </div>
@@ -126,17 +127,17 @@
     <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-analytics.js"></script>
-    <script src="../../../methods/conexiones.js?kvs=5.1"></script>
-    <script src="../../../methods/empleados.js?kvs=5.1"></script>
-    <script src="../../../methods/Pacientes.js?kvs=5.1"></script>
-    <script src="../../../methods/categorias.js?kvs=5.1"></script>
-    <script src="../../../methods/servicios.js?kvs=5.1"></script>
-    <script src="../../../methods/citas.js?kvs=5.1"></script>
-    <script src="../../../methods/IngresosEgresos/ingresos.js?kvs=5.1"></script>
-    <script src="../../../methods/IngresosEgresos/paquetes.js?kvs=5.1"></script>
-    <script src="../../../methods/IngresosEgresos/adeudos.js?kvs=5.1"></script>
-    <script src="../../../methods/utilidades.js?kvs=5.1"></script>
-    <script src="../../../methods/dbManager.js?kvs=5.1"></script>
+    <script src="../../../methods/conexiones.js?kvs=6.0"></script>
+    <script src="../../../methods/empleados.js?kvs=6.0"></script>
+    <script src="../../../methods/Pacientes.js?kvs=6.0"></script>
+    <script src="../../../methods/categorias.js?kvs=6.0"></script>
+    <script src="../../../methods/servicios.js?kvs=6.0"></script>
+    <script src="../../../methods/citas.js?kvs=6.0"></script>
+    <script src="../../../methods/IngresosEgresos/ingresos.js?kvs=6.0"></script>
+    <script src="../../../methods/IngresosEgresos/paquetes.js?kvs=6.0"></script>
+    <script src="../../../methods/IngresosEgresos/adeudos.js?kvs=6.0"></script>
+    <script src="../../../methods/utilidades.js?kvs=6.0"></script>
+    <script src="../../../methods/dbManager.js?kvs=6.0"></script>
     <script>
         $(document).ready(async function(){   
             await llenarControles();  

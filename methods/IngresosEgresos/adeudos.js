@@ -1,11 +1,11 @@
 var urlDebtsGlobal = "/Debts";
-const GuardarDatosAdeudo = async function(objAdeudo, operacion, idDebt){
+const GuardarDatosAdeudo = async function(ctrl,objAdeudo, operacion, idDebt){
     return new Promise(resolve => {setTimeout(async function(){
         QuitarMensaje();
         if (operacion == 0){
-            resolve(await insertDb(urlDebtsGlobal,objAdeudo));
+            resolve(await insertDb(ctrl,urlDebtsGlobal,objAdeudo));
         } else {
-            resolve(await updateDb(urlDebtsGlobal,idDebt,objAdeudo));
+            resolve(await updateDb(ctrl,urlDebtsGlobal,idDebt,objAdeudo));
         }
     }, 250);});
 };

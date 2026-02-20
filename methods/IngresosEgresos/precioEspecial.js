@@ -15,7 +15,7 @@ $(document).ready(function () {
         if (operacionPrecios == 0) {
             await db.collection(urlPrecioEspecial).where("IdPatient","==",selIdPatientEarning).where("IdService","==",$(".ddlServicio").val()).get().then(async datoValidacion =>{
                 if (datoValidacion.docs.length == 0) {
-                    await GuardarPrecioEspecial(precio,operacionPrecios);
+                    await GuardarPrecioEspecial($(".btnAceptarPrecioEspecial"),precio,operacionPrecios);
                     setTimeout(function(){Redireccionar("/views/IngresosEgresos/precioEspecial.html");},3000);
                 }
                 else{
@@ -24,7 +24,7 @@ $(document).ready(function () {
             });             
         }
         else{
-            await GuardarPrecioEspecial(precio,operacionPrecios,idPrecioQuery);
+            await GuardarPrecioEspecial($(".btnAceptarPrecioEspecial"),precio,operacionPrecios,idPrecioQuery);
             setTimeout(function(){Redireccionar("/views/IngresosEgresos/precioEspecial.html");},3000);
         }
        
@@ -67,14 +67,14 @@ async function populateSpecialPriceData(idPrecioQuery){
     $(".dvLoader").hide();
 }
 
-const GuardarPrecioEspecial = async function(objPrecio, operacion, idPrice){
+const GuardarPrecioEspecial = async function(ctrl,objPrecio, operacion, idPrice){
     return new Promise(resolve => {setTimeout(async function(){
         QuitarMensaje();
         if (operacion == 0){
-            resolve(await insertDb(urlPrecioEspecial,objPrecio));
+            resolve(await insertDb(ctrl,urlPrecioEspecial,objPrecio));
             MostrarMensajePrincipal("El precio se registró correctamente","success");
         } else {
-            resolve(await updateDb(urlPrecioEspecial,idPrice,objPrecio));
+            resolve(await updateDb(ctrl,urlPrecioEspecial,idPrice,objPrecio));
             MostrarMensajePrincipal("El precio se actualizó correctamente","success");
         }
     }, 250);});

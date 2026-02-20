@@ -25,7 +25,7 @@ $(document).ready(function(){
                 Status: 1,
                 Avalible: true
             }
-            GuardarDatosServices(dato,operacionServices,selServicesGlobal);
+            GuardarDatosServices($(".btnGuardarServicio"),dato,operacionServices,selServicesGlobal);
             $(".dvLoader").hide();
             return false;
         }
@@ -78,15 +78,15 @@ async function populateCategoryData(idService){
     }
 }
 
-const GuardarDatosServices = async function(objCategoria, operacion, idService){
+const GuardarDatosServices = async function(ctrl,objCategoria, operacion, idService){
     return new Promise(resolve => {setTimeout(async function(){
         QuitarMensaje();
         if (operacion == 0){
-            resolve(await insertDb(urlServicesGlobal,objCategoria));
-            MostrarMensajePrincipal("La categoría se registró correctamente","success");
+            resolve(await insertDb(ctrl,urlServicesGlobal,objCategoria));
+            MostrarMensajePrincipal("El servicio se registró correctamente","success");
         } else {
-            resolve(await updateDb(urlServicesGlobal,idService,objCategoria));
-            MostrarMensajePrincipal("La categoría se actualizo correctamente","success");
+            resolve(await updateDb(ctrl,urlServicesGlobal, idService, objCategoria));
+            MostrarMensajePrincipal("El servicio se actualizo correctamente","success");
         }
     }, 250);});
 };

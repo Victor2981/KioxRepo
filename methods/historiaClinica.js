@@ -76,7 +76,7 @@ $(document).ready(function(){
             };                   
             patient.MedicalHistory = historial;
             patient.NewPatient = false;
-            await GuardarDatosHistoriaClinicaPacientes(patient,1,selPacienteHistoricoGlobal);   
+            await GuardarDatosHistoriaClinicaPacientes($(".btnGuardarHistoriaClinica"),patient,1,selPacienteHistoricoGlobal);   
             Redireccionar("/views/seguiminetoCita.html?idPacientePago=" + selPacienteHistoricoGlobal + "&idAppointment=" + idCitaHistoria);    
             
             $(".dvLoader").hide();
@@ -85,14 +85,14 @@ $(document).ready(function(){
     });
 });
 
-const GuardarDatosHistoriaClinicaPacientes = async function(objGrupo, operation, idPatient){
+const GuardarDatosHistoriaClinicaPacientes = async function(ctrl,objGrupo, operation, idPatient){
     return new Promise(resolve => {setTimeout(async function(){
         QuitarMensaje();
         if (operation == 0){
-            resolve(await insertDb(urlPacientesGlobal,objGrupo));
+            resolve(await insertDb(ctrl,urlPacientesGlobal,objGrupo));
             MostrarMensajePrincipal("El paciente se registró correctamente","success");
         } else {
-            resolve(await updateDb(urlPacientesGlobal, idPatient, objGrupo));
+            resolve(await updateDb(ctrl,urlPacientesGlobal, idPatient, objGrupo));
             MostrarMensajePrincipal("El paciente se actualizo correctamente","success");
         }
     }, 250);});

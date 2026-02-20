@@ -1,4 +1,5 @@
 var urlEarningsGlobal = "/Earnings";
+var urlCitasGlobal = "/Appointment"
 var selEarningGlobal = "";
 var selEarningPackGlobal = "";
 var selEarningDebtGlobal = "";
@@ -9,6 +10,7 @@ var operacionIngresos = 0;
 var selIdAppointmen = "";
 var arrayIngresos = [];
 var lstIngresos = {};
+var selIdBranch = "";
 
 //var lstPatientsGlobal = {};
 const PaymentType = {
@@ -53,6 +55,10 @@ $(document).ready(function(){
         $(".btnAcceptCheckout").show();
     }
 
+    $(".btnPack").click(function() {
+       window.location.href = "AltaIngresos.html?idCita=" + idCita;
+    });
+
     $(".btnBuscarIngresos").click(function (){
         $(".pTotalingresos").text("$" + formatoMoneda(0));
         $(".pEfectivoIngresos").text("$" + formatoMoneda(0));
@@ -64,10 +70,10 @@ $(document).ready(function(){
         }
         $(".tblIngresosDetalle").empty();
         parent.lstIngresosGlobal = {};
-        SeleccionarDatosIngresos("tabla",fechaInicio,fechafin);
+        SeleccionarDatosIngresos("tabla",fechaInicio,fechafin,$(".ddlSucursal").val());
     });
     
-    $(".btnAgregarIngresos").click(async function (){
+    $(".btnAgregarIngresos").click(async function (){        
         const Categoria = await selectDb(urlCategoriesGlobal,$(".ddlCategoria").val());        
         const Servicio = await selectDb(urlServicesGlobal,$(".ddlServicio").val());
         const Paciente = await selectDb(urlPacientesGlobal,selIdPatientEarning);
@@ -91,6 +97,16 @@ $(document).ready(function(){
                     }
                     var importeTotal = parseFloat($(".txtImporteTotal").val());//Servicio.Price * NumeroSesiones;
 
+                    var idBranch = "";
+                    if (selIdAppointmen == "") {
+                        idBranch = $(".ddlSucursal").val()
+                    }
+                    else{
+                        var datosCita = await selectDb(urlCitasGlobal,selIdAppointmen);
+                        idBranch = datosCita.IdBranch
+                        selIdBranch = datosCita.IdBranch;
+                    }
+                    
                     var dato={
                         Price: importeTotal,
                         IsPack: paquete,
@@ -101,6 +117,7 @@ $(document).ready(function(){
                         Service: Servicio,
                         IdCategory: $(".ddlCategoria").val(),
                         Category: Categoria,
+                        IdBranch: idBranch,
                         NumbreSesions: NumeroSesiones,
                         datePayOff:fechaPago
                     }
@@ -117,8 +134,15 @@ $(document).ready(function(){
     });
 
     $(".btnPago").click(function(){
-        parent.tipoConceptoCobro = 2;
-        window.location.href = "validacionPago.html?idPacientePago=" + selIdPatientEarning + "&idCita=" + idCita;
+        QuitarMensaje();
+        if(Object.keys(parent.lstConceptosPago).length > 0){
+            const idCita = urlQueryString.get('idCita');
+            parent.tipoConceptoCobro = 2;
+            window.location.href = "validacionPago.html?idPacientePago=" + selIdPatientEarning + "&idCita=" + idCita;
+        }        
+        else{
+            MostrarMensajePrincipal("Debes agregar un concepto antes pasar al pago","warning");
+        }
     });
     
     $(".btnAgregarIngreso").click(function(){
@@ -143,7 +167,7 @@ $(document).ready(function(){
         if(banValidacion){
             var Servicio = parent.lstServicesGlobal[$(".ddlServicio").val()];
             var Categoria = parent.lstCategoriesGlobal[$(".ddlCategoria").val()];
-            agregarConceptosCobroExtra($(".ddlServicio").val(), Servicio, Categoria, selIdPatientEarning);        
+            agregarConceptosCobroExtra($(".ddlServicio").val(), Servicio, Categoria, selIdPatientEarning,selIdBranch);        
             $('.modalAddExtra').modal('toggle');      
         }
         return false;
@@ -182,6 +206,7 @@ $(document).ready(function(){
         var Paciente = await selectDb(urlPacientesGlobal,selIdPatientEarning);
         var folio = Date.now(); //+ parent.nomSucursal + parent.idUsuarioSistema;
                 
+
         var invoice={
             IdEarn: "",
             Invoice: folio,
@@ -190,6 +215,7 @@ $(document).ready(function(){
             IdEmployeRegister: parent.idUsuarioSistema,
             idPatient: idPaciente,
             Patient: Paciente,
+            IdBranch: datosCita.IdBranch,
             PaymentType: formaPago,
             Total: 0
         }
@@ -215,9 +241,9 @@ $(document).ready(function(){
             banPagado = true;
         }
 
-        var idIngreso = await GuardarDatosIngresos(invoice,operacionIngresos,selEarningGlobal);
+        var idIngreso = await GuardarDatosIngresos($(".btnAcceptCheckoutPaquete"),invoice,operacionIngresos,selEarningGlobal);
         invoice.IdEarn = idIngreso;
-        await GuardarDatosIngresos(invoice,1,idIngreso);
+        await GuardarDatosIngresos($(".btnAcceptCheckoutPaquete"),invoice,1,idIngreso);
         invoice.Products.forEach(async element => {
             if (element.IsPack) {
                 element.IdEarn = [idIngreso];
@@ -231,7 +257,7 @@ $(document).ready(function(){
                 element.NumberPayments = Mensualidades;
                 element.Total = TotalFactura;
                 element.IsPackCompleted = false;
-                await GuardarDatosPaquete(element,operacionIngresos,selEarningPackGlobal);    
+                await GuardarDatosPaquete($(".btnAcceptCheckoutPaquete"),element,operacionIngresos,selEarningPackGlobal);    
                 if (banPagado == false) {
                     var objAdeudo ={
                         IdService: element.IdService,
@@ -239,14 +265,15 @@ $(document).ready(function(){
                         Due: TotalFactura - deposito,
                         Total: TotalFactura
                     }
-                    await GuardarDatosAdeudo(objAdeudo,operacionIngresos,selEarningDebtGlobal)
+                    await GuardarDatosAdeudo($(".btnAcceptCheckoutPaquete"),objAdeudo,operacionIngresos,selEarningDebtGlobal)
                 }
             }
         });
 
-        if (parent.tipoConceptoCobro != 2) {
-            await UpdateStatusAppointment(selIdAppointmen,StatusAppointment.Pagado);   
-            await UpdateAvailabilityEmployee(selIdAppointmen,parent.idUsuarioSistema,true);     
+        const idCita = urlQueryString.get('idCita');
+        if (idCita != "") {
+            await UpdateStatusAppointment($(".btnAcceptCheckoutPaquete"),selIdAppointmen,StatusAppointment.Pagado);   
+            await UpdateAvailabilityEmployee($(".btnAcceptCheckoutPaquete"),selIdAppointmen,parent.idUsuarioSistema,true);     
             MostrarMensajePrincipal("La cíta se pago","success");
             setTimeout(function(){Redireccionar("../citas.html");},3000);
             parent.lstConceptosPago = {};
@@ -287,6 +314,7 @@ $(document).ready(function(){
                 //var Paciente = datosPaquete.Patient;
                 var idPaciente = selIdPatientEarning;
                 var Paciente = await selectDb(urlPacientesGlobal,selIdPatientEarning);
+                
                 if (Paciente != null) {
                     var folio = Date.now(); //+ parent.nomSucursal + parent.idUsuarioSistema;
                     var invoice={
@@ -296,6 +324,7 @@ $(document).ready(function(){
                         Products: [],
                         IdEmployeRegister: parent.idUsuarioSistema,
                         idPatient: idPaciente,
+                        IdBranch: "",
                         Patient: Paciente,
                         PaymentType: formaPago,
                         Payment: 0,
@@ -305,12 +334,14 @@ $(document).ready(function(){
                     for (const datoIngreso in parent.lstConceptosPago) {
                         const ingreso = parent.lstConceptosPago[datoIngreso];
                         var importeTotal = parseFloat(ingreso.Price);
-                        await db.collection("/SpecialPrice").where("IdPatient","==",selIdPatientEarning).where("IdService","==",ingreso.IdService).get().then(async (obj)=>{
-                            if (obj.docs.length > 0) {
-                                var datosPrecio = obj.docs[0].data();
-                                importeTotal = parseFloat(datosPrecio.Price);
-                            }
-                        }); 
+                        if (ingreso.IsPack == false) {
+                            await db.collection("/SpecialPrice").where("IdPatient","==",selIdPatientEarning).where("IdService","==",ingreso.IdService).get().then(async (obj)=>{
+                                if (obj.docs.length > 0) {
+                                    var datosPrecio = obj.docs[0].data();
+                                    importeTotal = parseFloat(datosPrecio.Price);
+                                }
+                            });     
+                        }                        
                         const servicios = JSON.parse(JSON.stringify(ingreso.Service));
                         var dato={
                             Price: importeTotal,
@@ -321,8 +352,9 @@ $(document).ready(function(){
                             NumbreSesions:ingreso.NumbreSesions
                         }
                         TotalFactura += importeTotal;
+                        invoice.IdBranch= ingreso.IdBranch,
                         invoice.Products.push(dato);
-                    };
+                    };                    
                     invoice.Total = TotalFactura;
                     
                     if (parent.tipoConceptoCobro == 1) {
@@ -336,9 +368,9 @@ $(document).ready(function(){
                     if (deposito > 0) {
                         invoice.Payment = deposito;
                         deposito = deposito/invoice.Products.length;
-                        var idIngreso = await GuardarDatosIngresos(invoice,operacionIngresos,selEarningGlobal);
+                        var idIngreso = await GuardarDatosIngresos($(".btnGuardarIngreso"),invoice,operacionIngresos,selEarningGlobal);
                         invoice.IdEarn = idIngreso;
-                        await GuardarDatosIngresos(invoice,1,idIngreso);    
+                        await GuardarDatosIngresos($(".btnGuardarIngreso"),invoice,1,idIngreso);    
                     }
                     
                     invoice.Products.forEach(async element => {
@@ -354,7 +386,7 @@ $(document).ready(function(){
                             element.NumberPayments = Mensualidades;                
                             element.Total = TotalFactura;
                             element.IsPackCompleted = false;
-                            await GuardarDatosPaquete(element,operacionIngresos,selEarningPackGlobal);    
+                            await GuardarDatosPaquete($(".btnAcceptCheckout"),element,operacionIngresos,selEarningPackGlobal);    
                         }
                         if (banPagado == false) {
                             var objAdeudo ={
@@ -363,20 +395,20 @@ $(document).ready(function(){
                                 Due: element.Price - deposito,
                                 Cost: element.Price
                             }
-                            await GuardarDatosAdeudo(objAdeudo,operacionIngresos,selEarningDebtGlobal)
+                            await GuardarDatosAdeudo($(".btnAcceptCheckout"),objAdeudo,operacionIngresos,selEarningDebtGlobal)
                         }
                     });
-
-                    if (parent.tipoConceptoCobro != 2) {
-                        await UpdateStatusAppointment(selIdAppointmen,StatusAppointment.Pagado);     
-                        await UpdateAvailabilityEmployee(selIdAppointmen,parent.idUsuarioSistema,true);        
+                    const idCita = urlQueryString.get('idCita');
+                    if (idCita != "") {
+                        await UpdateStatusAppointment($(".btnAcceptCheckout"),selIdAppointmen,StatusAppointment.Pagado);     
+                        await UpdateAvailabilityEmployee($(".btnAcceptCheckout"),selIdAppointmen,parent.idUsuarioSistema,true);        
                         MostrarMensajePrincipal("La cíta se pago","success");
-                        setTimeout(function(){Redireccionar("../citas.html");},3000);
+                        Redireccionar("../citas.html");
                         parent.lstConceptosPago = {};
                     }                
                     else{
                         MostrarMensajePrincipal("Ingreso registrado","success");
-                        setTimeout(function(){Redireccionar("ingresos.html");},3000);
+                        Redireccionar("ingresos.html");
                         parent.lstConceptosPago = {};
                     }
                 }
@@ -392,10 +424,10 @@ $(document).ready(function(){
 
     $(".txtNumeroSesiones").keyup(function(){
         var sesiones = $(".txtNumeroSesiones").val();
-        if (sesiones < 2) {
-            sesiones = 2
-            $(".txtNumeroSesiones").val(sesiones);
-        }
+        // if (sesiones < 2) {
+        //     sesiones = 2
+        //     $(".txtNumeroSesiones").val(sesiones);
+        // }
         var cost = calcularCostoPorSesion(selPriceService,sesiones);
         $(".txtImporteTotal").val(cost);
     });
@@ -521,6 +553,34 @@ function llenarTablaIngresos(datosIngresos){
     generarTabla($(".tblIngresos"),titulos,TitulosDatos,datosIngresos,lstButtons);
     
     $(".dvLoader").hide();
+}
+
+function llenarDatosCitas() {
+    parent.lstConceptosPago = {};
+    const urlQueryString = new URLSearchParams(window.location.search);
+    const idCita = urlQueryString.get('idCita');
+    if (idCita != "" && idCita != null) {
+        $(".rowSucursal").hide();
+        db.collection("/Appointment").doc(idCita).get().then((obj)=>{
+            if (obj.exists) {
+                var datosCita = obj.data();
+                //var fechaCita = datosCita.Date.toDate();
+                //$(".txtFechaPago").val(fechaCita.getFullYear() + "-" + (fechaCita.getMonth()+1).toString().padStart(2,"0") + "-" + fechaCita.getDate().toString().padStart(2,"0"));
+                if (selIdPatientEarning == "") {
+                    selIdPatientEarning = datosCita.IdPatient;
+                    var paciente = parent.lstPatientsGlobal[selIdPatientEarning];
+                    $(".txtPacienteIngresos").val(paciente.Name + " " + paciente.LastName + " " + paciente.SecondLastName);
+                    $(".ddlCategoria").val(datosCita.Service.idCategory);
+                    llenarDropDownServices(datosCita.Service.idCategory);
+                    $(".ddlServicio").val(datosCita.Service.IdService);
+                    $(".ddlServicio").change();
+                }
+            }
+        });
+    }
+    else{
+        $(".rowSucursal").show();
+    }
 }
 
 function llenarTablaIngresosPago(datosIngresos){
@@ -666,17 +726,23 @@ function llenarControles() {
 
 function calcularCostoPorSesion(costo,sesiones){
     var cost = costo * sesiones;
+    if (sesiones >= 2 && sesiones <= 6) {
+        cost = cost - (sesiones * 50);
+    }
+    else if (sesiones > 6) {
+        cost = cost - (sesiones * 100);
+    }   
     return cost;
 }
 
-const GuardarDatosIngresos = async function(objIngresos, operacion, idEarn){
+const GuardarDatosIngresos = async function(ctrl,objIngresos, operacion, idEarn){
     return new Promise(resolve => {setTimeout(async function(){
         QuitarMensaje();
         if (operacion == 0){
-            resolve(await insertDb(urlEarningsGlobal,objIngresos));
+            resolve(await insertDb(ctrl,urlEarningsGlobal,objIngresos));
             MostrarMensajePrincipal("El ingreso se registró correctamente","success");
         } else {
-            resolve(await updateDb(urlEarningsGlobal,idEarn,objIngresos));
+            resolve(await updateDb(ctrl,urlEarningsGlobal,idEarn,objIngresos));
             MostrarMensajePrincipal("El ingreso se actualizo correctamente","success");
         }
     }, 250);});
@@ -695,7 +761,7 @@ const SeleccionarDatosIngresosPorId = async function(arrayIdEarnings){
     })});
 };
 
-const SeleccionarDatosIngresos = async function(tipoControl,fechaInicio,fechafin){
+const SeleccionarDatosIngresos = async function(tipoControl,fechaInicio,fechafin,idBranch){
     $(".dvLoader").show();    
     parent.lstIngresosGlobal = {};
     //var FechaI = new Date(new Date(fechaInicio).getFullYear(),new Date(fechaInicio).getMonth() - 1 ,new Date(fechaInicio).getDate(),0,0,0);
@@ -709,6 +775,9 @@ const SeleccionarDatosIngresos = async function(tipoControl,fechaInicio,fechafin
     }   
     if (selIdPatientEarning != "") {
         consultadb = consultadb.where("idPatient", "==",selIdPatientEarning);
+    }   
+    if (idBranch != undefined && idBranch != "") {
+        consultadb = consultadb.where("IdBranch", "==",idBranch);
     }   
 
     await consultadb.onSnapshot(function(snapshot) {
@@ -846,7 +915,7 @@ function llenarTablaIngresosDetalle(datosIngresos){
     $(".dvLoader").hide();
 }
 
-async function agregarConceptosCobroExtra(IdService, Servicio, Category, selIdPatientGlobal){
+async function agregarConceptosCobroExtra(IdService, Servicio, Category, selIdPatientGlobal, IdBranch){
     //parent.lstConceptosPago = {};
     //var Servicio = conceptoCobro.Service;
     var precio = parseFloat(Servicio.Price);
@@ -865,6 +934,7 @@ async function agregarConceptosCobroExtra(IdService, Servicio, Category, selIdPa
         IdCategory: Servicio.idCategory,
         Category: Category,
         NumbreSesions: 1,
+        IdBranch: IdBranch,
         datePayOff:new Date()
     }
     //var datos = change.doc.data();

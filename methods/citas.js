@@ -153,12 +153,12 @@ $(document).ready(function(){
                     Appointment.Category.idCategory = $(".ddlCategoria").val();
                     
                         if (selIdAppointmen == "") {
-                            resolve(await insertDb(urlCitasGlobal,Appointment));
+                            resolve(await insertDb($(".btnAcceptAppointment"),urlCitasGlobal,Appointment));
                             calendar.gotoDate(Appointment.AppointmentDateStart);
                             MostrarMensajePrincipal("La cita fue registrada correctamente","success");    
                         }
                         else{
-                            resolve(await updateDb(urlCitasGlobal,selIdAppointmen,Appointment));
+                            resolve(await updateDb($(".btnAcceptAppointment"),urlCitasGlobal,selIdAppointmen,Appointment));
                             calendar.gotoDate(Appointment.AppointmentDateStart);
                             MostrarMensajePrincipal("La cita fue registrada correctamente","success");    
                         }
@@ -169,7 +169,7 @@ $(document).ready(function(){
     });       
     
     $(".btnAcceptArrived").click(async function(){
-        await UpdateStatusAppointment(selIdAppointmen,StatusAppointment.ConfirmacionLlegada);       
+        await UpdateStatusAppointment($(".btnAcceptArrived"),selIdAppointmen,StatusAppointment.ConfirmacionLlegada);       
         $('.modalRecepcion').modal('toggle');
         MostrarMensajePrincipal("La cita fue enviada para su atención","success");
         setTimeout(function() {$(".alert-success").alert('close');}, 2000);
@@ -187,8 +187,8 @@ $(document).ready(function(){
             case StatusAppointment.Registrado:
             case StatusAppointment.Confirmado:
             case StatusAppointment.ConfirmacionLlegada:
-                await UpdateStatusAppointment(selIdAppointmen,StatusAppointment.Atendido);
-                await UpdateAvailabilityEmployee(selIdAppointmen,parent.idUsuarioSistema,false);
+                await UpdateStatusAppointment($(".btnStartAppointment"),selIdAppointmen,StatusAppointment.Atendido);
+                await UpdateAvailabilityEmployee($(".btnStartAppointment"),selIdAppointmen,parent.idUsuarioSistema,false);
                 window.location.href ="seguiminetoCita.html?idAppointment=" + selIdAppointmen;
                 break;
             case StatusAppointment.Atendido:
@@ -209,7 +209,7 @@ $(document).ready(function(){
                             if (datosPaquete.NumbreSesions == datosPaquete.TakenNumbreSesions) {
                                 datosPaquete.IsPackCompleted = true;
                             }                    
-                            await GuardarDatosPaquete(datosPaquete,1,obj.docs[0].id);    
+                            await GuardarDatosPaquete($(".btnStartAppointment"),datosPaquete,1,obj.docs[0].id);    
                         }
                         else{
                             agregarConceptosCobro(datos);
@@ -239,7 +239,7 @@ $(document).ready(function(){
                     if (datosPaquete.NumbreSesions == datosPaquete.TakenNumbreSesions) {
                         datosPaquete.IsPackCompleted = true;
                     }                    
-                    await GuardarDatosPaquete(datosPaquete,1,obj.docs[0].id);    
+                    await GuardarDatosPaquete($(".btnPaidAppointment"),datosPaquete,1,obj.docs[0].id);    
                 }
                 else{
                     agregarConceptosCobro(datos);
@@ -252,7 +252,7 @@ $(document).ready(function(){
     
     
     $(".btnCancelAppointment").click(async function(){
-        await UpdateStatusAppointment(selIdAppointmen,StatusAppointment.Cancelado);
+        await UpdateStatusAppointment($(".btnCancelAppointment"),selIdAppointmen,StatusAppointment.Cancelado);
         $('.modalNewDate').modal('toggle');
         MostrarMensajePrincipal("La cíta se cancelo","success");
     });
@@ -345,10 +345,10 @@ function enviarMensaje(element) {
         //EnviarWhatsApp(TipoMensajeWhatsApp.Confirmacion,lstParametrosMensaje);   
 }
 
-async function UpdateStatusAppointment(idAppoitment,Status) {
+async function UpdateStatusAppointment(ctrl,idAppoitment,Status) {
     var Appointment = await selectDb(urlCitasGlobal,idAppoitment);
     Appointment.Status = Status;
-    await updateDb(urlCitasGlobal,idAppoitment,Appointment);    
+    await updateDb(ctrl,urlCitasGlobal,idAppoitment,Appointment);    
 }
 
 const SeleccionarDatosCitas = async function(){
@@ -527,7 +527,7 @@ function generarCalendario() {
         $(".ddlSucursalFiltro").val(datosCuentaUsusario.IdBranch);
         $(".rowSucursal").hide();
     }   
-    if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Administrador)) {        
+    if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Administrador)) {                
         $(".rowSucursal").show();
     }   
     var calendarEl = document.getElementById('calendar');    
@@ -603,7 +603,7 @@ function generarCalendario() {
     }
 
     calendar = new FullCalendar.Calendar(calendarEl, {
-        height:'90%',
+        height:'60vh',
         locale: 'es',
         slotMinTime: slotInicio,
         slotMaxTime: slotFin,

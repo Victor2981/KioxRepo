@@ -41,17 +41,18 @@ $(document).ready(function () {
               }
         }
     });
+    
 });
 
-const GuardarDatosPaquete = async function(objPaquete, operacion, idPack){
+const GuardarDatosPaquete = async function(ctrl,objPaquete, operacion, idPack){
     return new Promise(resolve => {setTimeout(async function(){
         QuitarMensaje();
         if (operacion == 0){
-            resolve(await insertDb(urlPackagesGlobal,objPaquete));
-            MostrarMensajePrincipal("El ingreso se registró correctamente","success");
+            resolve(await insertDb(ctrl,urlPackagesGlobal,objPaquete));
+            MostrarMensajePrincipal("El paquete se registró correctamente","success");
         } else {
-            resolve(await updateDb(urlPackagesGlobal,idPack,objPaquete));
-            MostrarMensajePrincipal("El ingreso se actualizo correctamente","success");
+            resolve(await updateDb(ctrl,urlPackagesGlobal,idPack,objPaquete));
+            MostrarMensajePrincipal("El paquete se actualizo correctamente","success");
         }
     }, 250);});
 };

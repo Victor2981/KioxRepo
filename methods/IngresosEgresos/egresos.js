@@ -103,7 +103,7 @@ $(document).ready(function(){
                 idBankAccount:parseInt($(".ddlCuenta").val())
             }
             
-             await GuardarDatosEgresos(dato,operacionEgresos,selEarningGlobal);
+             await GuardarDatosEgresos($(".btnGuardarEgreso"),dato,operacionEgresos,selEarningGlobal);
              MostrarMensajePrincipal("El egreso se guardo correctamente","success");
              setTimeout(function(){Redireccionar("egresos.html");},3000);
         }      
@@ -132,14 +132,14 @@ $(document).ready(function(){
 
 });
 
-const GuardarDatosEgresos = async function(objEgresos, operacion, idEarn){
+const GuardarDatosEgresos = async function(ctrl,objEgresos, operacion, idEarn){
     return new Promise(resolve => {setTimeout(async function(){
         QuitarMensaje();
         if (operacion == 0){
-            resolve(await insertDb(urlExpensesGlobal,objEgresos));
+            resolve(await insertDb(ctrl,urlExpensesGlobal,objEgresos));
             MostrarMensajePrincipal("El Egreso se registró correctamente","success");
         } else {
-            resolve(await updateDb(urlExpensesGlobal,idEarn,objEgresos));
+            resolve(await updateDb(ctrl,urlExpensesGlobal,idEarn,objEgresos));
             MostrarMensajePrincipal("El Egreso se actualizo correctamente","success");
         }
     }, 250);});

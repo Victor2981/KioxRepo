@@ -56,7 +56,10 @@ async function selectDb(url,id){
 //     })});
 // }
 
-async function insertDb(url,obj){
+async function insertDb(ctrl,url,obj){
+    const originalText = ctrl.text();
+    ctrl.prop("disabled", true);
+    ctrl.addClass("btn-loading").text("Enviando...");
     try{
         const ref = await db.collection(url).add(obj);
 
@@ -71,7 +74,8 @@ async function insertDb(url,obj){
             error: null,
             date: firebase.firestore.FieldValue.serverTimestamp()
         });
-
+        ctrl.removeClass("btn-loading").text(originalText);
+        ctrl.prop("disabled", false);
         return ref.id;
     }catch(error){
 
@@ -85,7 +89,8 @@ async function insertDb(url,obj){
             error: error.toString(),
             date: firebase.firestore.FieldValue.serverTimestamp()
         });
-
+        ctrl.removeClass("btn-loading").text(originalText);
+        ctrl.prop("disabled", false);
         alert("error");
         return false;
     }
@@ -103,7 +108,10 @@ async function insertDb(url,obj){
 //     })});
 // }
 
-async function updateDb(url,id,obj){
+async function updateDb(ctrl,url,id,obj){
+    const originalText = ctrl.text();
+    ctrl.prop("disabled", true);
+    ctrl.addClass("btn-loading").text("Enviando...");
     try{
         const beforeDoc = await db.collection(url).doc(id).get();
         const beforeData = beforeDoc.exists ? beforeDoc.data() : null;
@@ -121,7 +129,8 @@ async function updateDb(url,id,obj){
             error: null,
             date: firebase.firestore.FieldValue.serverTimestamp()
         });
-
+        ctrl.removeClass("btn-loading").text(originalText);
+        ctrl.prop("disabled", false);
         return true;
     }catch(error){
 
@@ -135,7 +144,8 @@ async function updateDb(url,id,obj){
             error: error.toString(),
             date: firebase.firestore.FieldValue.serverTimestamp()
         });
-
+        ctrl.removeClass("btn-loading").text(originalText);
+        ctrl.prop("disabled", false);
         alert("error");
         return false;
     }
@@ -171,7 +181,7 @@ async function deleteDb(url,id){
             error: null,
             date: firebase.firestore.FieldValue.serverTimestamp()
         });
-
+        ctrl.removeClass("btn-loading");
         return true;
     }catch(error){
 
@@ -184,7 +194,7 @@ async function deleteDb(url,id){
             error: error.toString(),
             date: firebase.firestore.FieldValue.serverTimestamp()
         });
-
+        ctrl.removeClass("btn-loading");
         alert("error");
         return false;
     }

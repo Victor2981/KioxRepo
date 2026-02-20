@@ -39,7 +39,7 @@ $(document).ready(function(){
             $(".pNombre").text(parent.lstPatientsGlobal[datos.IdPatient].NameComplete)
             var observations = $(".txtObservaciones").val();
             var recommendations = $(".txtRecomendaciones").val();
-            await UpdateAppointmentMonitoring(selIdAppointmentGlobal,observations,recommendations,StatusAppointment.Finalizado);
+            await UpdateAppointmentMonitoring($(".btnGuardarHistorial"),selIdAppointmentGlobal,observations,recommendations,StatusAppointment.Finalizado);
             if (datosPaciente.NewPatient) {
                 var datosRegistro = datosPaciente;
                 var historial = {
@@ -51,7 +51,7 @@ $(document).ready(function(){
                 };                   
                 datosRegistro.MedicalHistory = historial;
                 datosRegistro.NewPatient = false;
-                await GuardarDatosPacientes(datosRegistro,1,datos.IdPatient);   
+                await GuardarDatosPacientes($(".btnGuardarHistorial"),datosRegistro,1,datos.IdPatient);   
             }
             $(".dvLoader").hide();
             MostrarMensajePrincipal("El historial ha sido guardado, serás enviado a las citas del paciente","success");
@@ -69,7 +69,7 @@ $(document).ready(function(){
         if (datos != null) {
             const lstPatients = JSON.parse(JSON.stringify(parent.lstPatientsGlobal));
             let datosPaciente = lstPatients[datos.IdPatient];
-            await UpdateAppointmentMonitoring(selIdAppointmentGlobal,observations,recommendations,StatusAppointment.Finalizado);        
+            await UpdateAppointmentMonitoring($(".btnFinishAppointment"),selIdAppointmentGlobal,observations,recommendations,StatusAppointment.Finalizado);        
             await db.collection(urlPackagesGlobal).where("IdPatient","==",selIdPatientGlobal).where("IdService","==",selIdServiceGlobal).where("IsPack","==",true).where("IsPackCompleted","==",false).get().then(async (obj)=>{
                 if (obj.docs.length > 0) {
                     var datosPaquete = obj.docs[0].data();
@@ -78,7 +78,7 @@ $(document).ready(function(){
                         datosPaquete.IsPackCompleted = true;
                     }
                     banPago = false;
-                    await GuardarDatosPaquete(datosPaquete,1,obj.docs[0].id);    
+                    await GuardarDatosPaquete($(".btnFinishAppointment"),datosPaquete,1,obj.docs[0].id);    
                 }
                 else{
                     agregarConceptosCobro(datos);
@@ -89,8 +89,8 @@ $(document).ready(function(){
                     setTimeout(function(){Redireccionar("/views/IngresosEgresos/validacionPago.html?idPacientePago=" + selIdPatientGlobal + "&idCita=" + selIdAppointmentGlobal);},3000);
                 }
                 else{
-                    await UpdateAppointmentMonitoring(selIdAppointmentGlobal,observations,recommendations,StatusAppointment.Pagado);
-                    await UpdateAvailabilityEmployee(selIdAppointmentGlobal,parent.idUsuarioSistema,true);        
+                    await UpdateAppointmentMonitoring($(".btnFinishAppointment"),selIdAppointmentGlobal,observations,recommendations,StatusAppointment.Pagado);
+                    await UpdateAvailabilityEmployee($(".btnFinishAppointment"),selIdAppointmentGlobal,parent.idUsuarioSistema,true);        
                     MostrarMensajePrincipal("La cíta finalizó, serás enviado a el calendario de citas","success");
                     setTimeout(function(){Redireccionar("citas.html");},3000);
                 }
@@ -120,6 +120,7 @@ async function agregarConceptosCobro(conceptoCobro){
         IdCategory: Servicio.idCategory,
         Category: conceptoCobro.Category,
         NumbreSesions: 1,
+        IdBranch: conceptoCobro.IdBranch,
         datePayOff:new Date()
     }
     //var datos = change.doc.data();
@@ -178,11 +179,11 @@ async function populateAppointmentData(idAppointment) {
     $(".dvLoader").hide();
 }
 
-async function UpdateAppointmentMonitoring(idAppoitment,observations,recommendations,Status) {
+async function UpdateAppointmentMonitoring(ctrl,idAppoitment,observations,recommendations,Status) {
     var Appointment = await selectDb(urlCitasGlobal,idAppoitment);
     Appointment.Observation = observations;
     Appointment.Recommendations = recommendations;
     Appointment.Status = Status;
     Appointment.IdEmployeeAttended = parent.idUsuarioSistema;
-    await updateDb(urlCitasGlobal,idAppoitment,Appointment);    
+    await updateDb(ctrl,urlCitasGlobal,idAppoitment,Appointment);    
 }

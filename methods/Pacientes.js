@@ -45,7 +45,7 @@ $(document).ready(function(){
 
                 await db.collection(urlPacientesGlobal).where("Phone","==",celular).get().then(datoValidacion =>{
                     if (datoValidacion.docs.length == 0) {
-                        GuardarDatosPacientes(dato,operationPatient,selPacienteGlobal);        
+                        GuardarDatosPacientes($(".btnGuardarPaciente"),dato,operationPatient,selPacienteGlobal);        
                     }
                     else{
                         MostrarMensajePrincipal("El paciente ya esta registrado","warning");
@@ -60,7 +60,7 @@ $(document).ready(function(){
                 patient.LastName = primerApellido;
                 patient.Phone = celular;
                 patient.SecondLastName = segundoApellido;
-                GuardarDatosPacientes(patient,operationPatient,selPacienteGlobal);
+                GuardarDatosPacientes($(".btnGuardarPaciente"),patient,operationPatient,selPacienteGlobal);
             }
             $(".dvLoader").hide();
             return false;
@@ -115,14 +115,14 @@ async function populatePatientData(IdPatient){
     }
 }
 
-const GuardarDatosPacientes = async function(objGrupo, operation, idPatient){
+const GuardarDatosPacientes = async function(ctrl,objGrupo, operation, idPatient){
     return new Promise(resolve => {setTimeout(async function(){
         QuitarMensaje();
         if (operation == 0){
-            resolve(await insertDb(urlPacientesGlobal,objGrupo));
+            resolve(await insertDb(ctrl,urlPacientesGlobal,objGrupo));
             MostrarMensajePrincipal("El paciente se registró correctamente","success");
         } else {
-            resolve(await updateDb(urlPacientesGlobal, idPatient, objGrupo));
+            resolve(await updateDb(ctrl,urlPacientesGlobal, idPatient, objGrupo));
             MostrarMensajePrincipal("El paciente se actualizo correctamente","success");
         }
     }, 250);});

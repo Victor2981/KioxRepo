@@ -210,7 +210,7 @@ $(document).ready(function(){
                 element.NumberPayments = Mensualidades;
                 element.Total = TotalFactura;
                 element.IsPackCompleted = false;
-                await GuardarDatosPaquete(element,operacionIngresos,selEarningPackGlobal);    
+                await GuardarDatosPaquete($(".btnAcceptCheckoutPaquete"),element,operacionIngresos,selEarningPackGlobal);    
                 if (banPagado == false) {
                     var objAdeudo ={
                         IdService: element.IdService,
@@ -332,7 +332,7 @@ $(document).ready(function(){
                 element.NumberPayments = Mensualidades;                
                 element.Total = TotalFactura;
                 element.IsPackCompleted = false;
-                await GuardarDatosPaquete(element,operacionIngresos,selEarningPackGlobal);    
+                await GuardarDatosPaquete($(".btnAcceptCheckout"),element,operacionIngresos,selEarningPackGlobal);    
             }
             if (banPagado == false) {
                 var objAdeudo ={

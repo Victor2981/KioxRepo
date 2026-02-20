@@ -66,9 +66,9 @@ $(document).ready(function(){
                                     UserId: usuario.user.uid,
                                     uId: usuario.user.uid
                                 }
-                                var uId = await GuardarDatosEmpleado(dato,operacionEmpleado,selEmployeeGlobal);
+                                var uId = await GuardarDatosEmpleado($(".btnGuardarEmpleado"),dato,operacionEmpleado,selEmployeeGlobal);
                                 dato.uId = uId;
-                                await GuardarDatosEmpleado(dato,1,uId);
+                                await GuardarDatosEmpleado($(".btnGuardarEmpleado"),dato,1,uId);
                                 MostrarMensajePrincipal("El empleado se registró correctamente","success");
                                 $(".dvLoader").hide();
                                 return false;                            
@@ -114,7 +114,7 @@ $(document).ready(function(){
                     UserId: selEmployeeGlobal,
                     uId: selEmployeeGlobal
                 }
-                await GuardarDatosEmpleado(dato,operacionEmpleado,selEmployeeGlobal);
+                await GuardarDatosEmpleado($(".btnGuardarEmpleado"),dato,operacionEmpleado,selEmployeeGlobal);
                 MostrarMensajePrincipal("El empleado se actualizó correctamente","success");
                 $(".dvLoader").hide();  
             }
@@ -149,14 +149,14 @@ async function populateEmployeesData(idEmployee){
     }
 }
 
-const GuardarDatosEmpleado = async function(objEmpleado, operacion, idEmployee){
+const GuardarDatosEmpleado = async function(ctrl,objEmpleado, operacion, idEmployee){
     return new Promise(resolve => {setTimeout(async function(){
         QuitarMensaje();
         if (operacion == 0){
-            resolve(await insertDb(urlEmployeesGlobal,objEmpleado));
+            resolve(await insertDb(ctrl,urlEmployeesGlobal,objEmpleado));
             MostrarMensajePrincipal("El empleado se registró correctamente","success");
         } else {
-            resolve(await updateDb(urlEmployeesGlobal,idEmployee,objEmpleado));
+            resolve(await updateDb(ctrl,urlEmployeesGlobal,idEmployee,objEmpleado));
             MostrarMensajePrincipal("El empleado se actualizo correctamente","success");
         }
     }, 250);});
@@ -273,7 +273,7 @@ async function UpdateStatusEmployee(idEmployee,Status) {
     MostrarMensajePrincipal("El empleado se eliminó","success");
 }
 
-async function UpdateAvailabilityEmployee(IdAppointmen,idEmployee,Available) {
+async function UpdateAvailabilityEmployee(ctrl,IdAppointmen,idEmployee,Available) {
     var Employee = await selectDb(urlEmployeesGlobal,idEmployee);
     Employee.Available = Available;
     if (Available) {
@@ -282,6 +282,6 @@ async function UpdateAvailabilityEmployee(IdAppointmen,idEmployee,Available) {
     else{
         Employee.IdLastAppointment = IdAppointmen;
     }
-    await updateDb(urlEmployeesGlobal,idEmployee,Employee);
+    await updateDb(ctrl,urlEmployeesGlobal,idEmployee,Employee);
     //MostrarMensajePrincipal("El empleado se Actualizó","success");
 }

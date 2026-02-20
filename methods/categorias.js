@@ -15,7 +15,7 @@ $(document).ready(function(){
                 Status: 1,
                 Avalible: true
             }
-            GuardarDatosCategoria(dato,operacionCategorias,selCategoryGlobal);
+            GuardarDatosCategoria($(".btnGuardarCategoria"),dato,operacionCategorias,selCategoryGlobal);
             $(".dvLoader").hide();
             return false;
         }
@@ -44,14 +44,14 @@ async function populateCategoryData(idCategory){
     }
 }
 
-const GuardarDatosCategoria = async function(objCategoria, operacion, idCategory){
+const GuardarDatosCategoria = async function(ctrl,objCategoria, operacion, idCategory){
     return new Promise(resolve => {setTimeout(async function(){
         QuitarMensaje();
         if (operacion == 0){
-            resolve(await insertDb(urlCategoriesGlobal,objCategoria));
+            resolve(await insertDb(ctrl,urlCategoriesGlobal,objCategoria));
             MostrarMensajePrincipal("La categoría se registró correctamente","success");
         } else {
-            resolve(await updateDb(urlCategoriesGlobal,idCategory,objCategoria));
+            resolve(await updateDb(ctrl,urlCategoriesGlobal,idCategory,objCategoria));
             MostrarMensajePrincipal("La categoría se actualizo correctamente","success");
         }
     }, 250);});

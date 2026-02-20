@@ -19,7 +19,7 @@
         <script src='../js/calendar/dist/es.global.js'></script>
         <!-- Custom styles for this template-->
         <link href="../css/sb-admin-2.min.css" rel="stylesheet">
-        <link href="../css/custom.css?kvs=5.1?2" rel="stylesheet">
+        <link href="../css/custom.css?kvs=6.0?2" rel="stylesheet">
         <link href="../vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">        
     
         <style>
@@ -83,8 +83,8 @@
                     <div class="col-auto">
                         <label>Sucursal:</label>
                         <select class="ddlSucursalFiltro" id="ddlSucursalFiltro">
-                            <option value="">Ambas</option>
-                            <option value="WbZ7Uj46y6wP2MEox6p1" selected>Kiox del valle</option> 
+                            <option value="" selected>Ambas</option>
+                            <option value="WbZ7Uj46y6wP2MEox6p1">Kiox del valle</option> 
                             <option value="2E6EoRBZYkZWxBTZH6Wp">Kiox Lindavista</option>                                               
                         </select>
                     </div>
@@ -105,7 +105,9 @@
                     </div>
                 </div>
             </div>
-            <div id='calendar' class="calendar"></div>
+            <div style="height:100%; overflow: auto;">
+                <div id='calendar' class="calendar"></div>
+            </div>
           </div>
     </div>
   
@@ -244,17 +246,17 @@
       <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-database.js"></script>
       <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-auth.js"></script>
       <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-analytics.js"></script>
-      <script src="../methods/conexiones.js?kvs=5.1"></script>    
-      <script src="../methods/Globals.js?kvs=5.1"></script>
-      <script src="../methods/empleados.js?kvs=5.1"></script>
-      <script src="../methods/Pacientes.js?kvs=5.1"></script>
-      <script src="../methods/categorias.js?kvs=5.1"></script>
-      <script src="../methods/servicios.js?kvs=5.1"></script>
-      <script src="../methods/IngresosEgresos/paquetes.js?kvs=5.1"></script> 
-      <script src="../methods/citas.js?kvs=5.1"></script>     
-      <script src="../methods/seguimientoCita.js?kvs=5.1"></script>
-      <script src="../methods/utilidades.js?kvs=5.1"></script>
-      <script src="../methods/dbManager.js?kvs=5.1"></script>
+      <script src="../methods/conexiones.js?kvs=6.0"></script>    
+      <script src="../methods/Globals.js?kvs=6.0"></script>
+      <script src="../methods/empleados.js?kvs=6.0"></script>
+      <script src="../methods/Pacientes.js?kvs=6.0"></script>
+      <script src="../methods/categorias.js?kvs=6.0"></script>
+      <script src="../methods/servicios.js?kvs=6.0"></script>
+      <script src="../methods/IngresosEgresos/paquetes.js?kvs=6.0"></script> 
+      <script src="../methods/citas.js?kvs=6.0"></script>     
+      <script src="../methods/seguimientoCita.js?kvs=6.0"></script>
+      <script src="../methods/utilidades.js?kvs=6.0"></script>
+      <script src="../methods/dbManager.js?kvs=6.0"></script>
         <script>
             
              $(document).ready(async function(){        
