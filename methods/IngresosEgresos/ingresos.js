@@ -399,7 +399,7 @@ $(document).ready(function(){
                         }
                     });
                     const idCita = urlQueryString.get('idCita');
-                    if (idCita != "") {
+                    if (idCita != "" && idCita != "null") {
                         await UpdateStatusAppointment($(".btnAcceptCheckout"),selIdAppointmen,StatusAppointment.Pagado);     
                         await UpdateAvailabilityEmployee($(".btnAcceptCheckout"),selIdAppointmen,parent.idUsuarioSistema,true);        
                         MostrarMensajePrincipal("La cíta se pago","success");
