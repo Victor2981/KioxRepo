@@ -276,7 +276,7 @@ function Validador(control,nomCampo,valor,tipoValidacion,msjOpcional,popup){
 			if (valor !='' && cp.test(valor)) {
 				banValidacion = true;
 			} else {
-				MostarMensaje(2,"El campo " + nomCampo + " no es un valor válido",mensajePopup);
+				MostrarMensaje(2,"El campo " + nomCampo + " no es un valor válido",mensajePopup);
 			}
 		break;
 		default:

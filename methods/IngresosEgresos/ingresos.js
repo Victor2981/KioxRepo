@@ -428,7 +428,7 @@ $(document).ready(function(){
         //     sesiones = 2
         //     $(".txtNumeroSesiones").val(sesiones);
         // }
-        var cost = calcularCostoPorSesion(selPriceService,sesiones);
+        var cost = calcularCostoPorSesion($(".ddlServicio").val(),selPriceService,sesiones);
         $(".txtImporteTotal").val(cost);
     });
 
@@ -483,11 +483,11 @@ $(document).ready(function(){
         $(".txtImporteTotal").val(datosServicio.Price);
         selPriceService = datosServicio.Price;
         if ($(".ddlPaquete").val() == 1) {
-            var cost = calcularCostoPorSesion(selPriceService,2);   
+            var cost = calcularCostoPorSesion($(".ddlServicio").val(),selPriceService,2);   
             $(".txtImporteTotal").val(cost);   
         }
         else{
-            var cost = calcularCostoPorSesion(selPriceService,1);   
+            var cost = calcularCostoPorSesion($(".ddlServicio").val(),selPriceService,1);   
             $(".txtImporteTotal").val(cost);   
         }
         
@@ -499,11 +499,11 @@ $(document).ready(function(){
         if ($(".ddlPaquete").val()== 1) {
             $(".rowPaquete").show();
             $(".txtNumeroSesiones").val(2);      
-            var cost = calcularCostoPorSesion(selPriceService,2);   
+            var cost = calcularCostoPorSesion($(".ddlServicio").val(),selPriceService,2);   
             $(".txtImporteTotal").val(cost);   
         }
         else{
-            var cost = calcularCostoPorSesion(selPriceService,1);   
+            var cost = calcularCostoPorSesion($(".ddlServicio").val(),selPriceService,1);   
             $(".txtImporteTotal").val(cost);   
         }
     });
@@ -724,14 +724,16 @@ function llenarControles() {
 }
 
 
-function calcularCostoPorSesion(costo,sesiones){
+function calcularCostoPorSesion(idServicio,costo,sesiones){
     var cost = costo * sesiones;
-    if (sesiones >= 2 && sesiones <= 6) {
-        cost = cost - (sesiones * 50);
-    }
-    else if (sesiones > 6) {
-        cost = cost - (sesiones * 100);
-    }   
+    if (idServicio == "q7ZcmRvq0Hlg1k07zy8U" || idServicio == "2kwRyDvUpfTDSeA3n6FW") {
+        if (sesiones >= 2 && sesiones <= 6) {
+            cost = cost - (sesiones * 50);
+        }
+        else if (sesiones > 6) {
+            cost = cost - (sesiones * 100);
+        }       
+    }    
     return cost;
 }
 
