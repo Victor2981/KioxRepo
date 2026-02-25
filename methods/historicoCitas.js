@@ -38,8 +38,8 @@ async function populatePatientsAppointments(idPatient){
 function llenarTablaHistorialCitas(datosCitas){
     $(".tblHistorialCitas").empty();
     $(".dvLoader").show();
-    var titulos = ["Tratamiento","Fecha",""];    
-    var TitulosDatos = ["Service.Name","AppointmentDateStart"];    
+    var titulos = ["Tratamiento","Fecha","Atendió",""];    
+    var TitulosDatos = ["Service.Name","AppointmentDateStart","EmployeeName"];    
 
     const lstCategories = JSON.parse(JSON.stringify(datosCitas));
     let lstButtons = {};

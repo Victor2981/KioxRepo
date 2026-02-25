@@ -217,14 +217,14 @@ function llenarDropDownEmployee(datosEmployees){
 
 function llenarTablaEmpleados(datosEmployees){
     $(".tblEmployees").empty();
-    var titulos = ["Nombre","Puesto","",""];    
+    var titulos = ["Nombre","Puesto","","",""];    
     var TitulosDatos = ["NameComplete","PositionName"];    
 
     const lstEmployees = JSON.parse(JSON.stringify(datosEmployees));
     let lstButtons = {};
     if (Object.keys(lstEmployees).length >0) {
         for (const ap in lstEmployees) {         
-            var idEmployee = ap;   
+            const idEmployee = ap;   
             var datos = datosEmployees[idEmployee];
             datos.NameComplete = datos.Name + " " + datos.LastName + " " + datos.SecondLastName;
             datos.PositionName = GetNamePosition(datos.Position);
@@ -234,9 +234,19 @@ function llenarTablaEmpleados(datosEmployees){
                 location.href = "altaEmpleados.html?idEmployee=" + ap;
             });
             Buttons.push(btnEditar);
+            let btnDesbloquear = $("<a class='btnTablaGlobal material-icons btnIcon' title='Desbloquear'>lock_open</a>");
+            btnDesbloquear.on('click',()=>{
+                UnlockEmployee(btnDesbloquear,idEmployee);
+            });
+            if (datos.Available == false) {
+                Buttons.push(btnDesbloquear);    
+            }
+            else{
+                Buttons.push("");
+            }
             let btnEliminar = $("<a class='btnTablaGlobal material-icons btnIcon' title='Eliminar'>delete</a>");
             btnEliminar.on('click',()=>{
-                UpdateStatusEmployee(idEmployee,0);
+                UpdateStatusEmployee(btnEliminar,idEmployee,0);
             });
             Buttons.push(btnEliminar);
             //Object.assign(Buttons,btnEditar);
@@ -266,11 +276,19 @@ function GetNamePosition(idPosition) {
     return tituloPuesto;
 }
 
-async function UpdateStatusEmployee(idEmployee,Status) {
+async function UpdateStatusEmployee(ctrl,idEmployee,Status) {
     var Employee = await selectDb(urlEmployeesGlobal,idEmployee);
     Employee.Status = Status;
-    await updateDb(urlEmployeesGlobal,idEmployee,Employee);
+    await updateDb(ctrl,urlEmployeesGlobal,idEmployee,Employee);
     MostrarMensajePrincipal("El empleado se eliminó","success");
+}
+
+async function UnlockEmployee(ctrl,idEmployee) {
+    var Employee = await selectDb(urlEmployeesGlobal,idEmployee);
+    Employee.Available = true;
+    Employee.IdLastAppointment = "";
+    await updateDb(ctrl,urlEmployeesGlobal,idEmployee,Employee);
+    MostrarMensajePrincipal("El empleado se desbloqueó","success");
 }
 
 async function UpdateAvailabilityEmployee(ctrl,IdAppointmen,idEmployee,Available) {
