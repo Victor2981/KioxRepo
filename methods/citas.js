@@ -605,7 +605,7 @@ function generarCalendario() {
     calendar = new FullCalendar.Calendar(calendarEl, {
         themeSystem: 'bootstrap5', // importante
         initialView: 'dayGridMonth',
-        height:'60vh',
+        height:'75vh',
         locale: 'es',
         slotMinTime: slotInicio,
         slotMaxTime: slotFin,
