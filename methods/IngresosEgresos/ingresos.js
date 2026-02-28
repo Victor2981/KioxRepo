@@ -177,250 +177,165 @@ $(document).ready(function(){
         $('.modalAddExtra').modal('toggle');              
         return false;
     });
+    
+    $(".btnAcceptCheckout").on("click", async function (e) {
+        e.preventDefault();
 
-    $(".btnAcceptCheckoutPaquete").click(async function (){
-        QuitarMensaje();
-        $(".modalCheckOut").modal('toggle');
-        $(".dvLoader").show();
-        operacionIngresos = 0;
-        var formaPago = 0;
-        var Mensualidades = 1;
-        var deposito = 0;
-        var TotalFactura = 0;
-        var banPagado = false;
+        const $btn = $(this);
 
-        if (parent.tipoConceptoCobro != 1) {
-            deposito = parseFloat($(".txtPago").val());
-        }
-        
+        try {
+            QuitarMensaje();
+            $(".dvLoader").show();
+            $btn.prop("disabled", true);
 
-        formaPago = parseInt($(".ddlFormaPago").val());
-        if (formaPago == "3") {
-            if (parent.tipoConceptoCobro != 1) {
-            Mensualidades = parseInt($(".ddlMensualidades").val());    
+            const checkoutData = await buildInvoiceData();
+
+            if (!checkoutData) return;
+
+            await saveCheckoutTransaction(checkoutData);
+
+            const idCita = urlQueryString.get('idCita');
+            if (idCita != "") {
+                await UpdateStatusAppointment($(".btnAcceptCheckoutPaquete"),selIdAppointmen,StatusAppointment.Pagado);   
+                await UpdateAvailabilityEmployee($(".btnAcceptCheckoutPaquete"),selIdAppointmen,parent.idUsuarioSistema,true);     
+                MostrarMensajePrincipal("La cíta se pago","success");
+                Redireccionar("../citas.html");
+                parent.lstConceptosPago = {};
+            }                
+            else{
+                MostrarMensajePrincipal("Ingreso registrado","success");
+                Redireccionar("ingresos.html");
+                parent.lstConceptosPago = {};
             }
+
+        } catch (error) {
+            console.error(error);
+            MostrarMensajePrincipal("Error al procesar el pago", "danger");
+        } finally {
+            $(".dvLoader").hide();
+            $btn.prop("disabled", false);
         }
-        
+    });
 
-        var idPaciente = selIdPatientEarning;
-        var Paciente = await selectDb(urlPacientesGlobal,selIdPatientEarning);
-        var folio = Date.now(); //+ parent.nomSucursal + parent.idUsuarioSistema;
-                
+    async function buildInvoiceData() {
 
-        var invoice={
-            IdEarn: "",
-            Invoice: folio,
-            PaymentDate: new Date(),
-            Products: [],
-            IdEmployeRegister: parent.idUsuarioSistema,
-            idPatient: idPaciente,
-            Patient: Paciente,
-            IdBranch: datosCita.IdBranch,
-            PaymentType: formaPago,
-            Total: 0
-        }
+        const formaPagoVal = $(".ddlFormaPago").val();
+        const esValido = Validador($(".ddlFormaPago"), "forma de pago", formaPagoVal, 1, '', false);
+        if (!esValido) return null;
 
-        for (const datoIngreso in parent.lstConceptosPago) {
-            const ingreso = parent.lstConceptosPago[datoIngreso];
-            var importeTotal = parseFloat(ingreso.Price);
-            const servicios = JSON.parse(JSON.stringify(ingreso.Service));
-            var dato={
+        const idPaciente = selIdPatientEarning;
+        const Paciente = await selectDb(urlPacientesGlobal, idPaciente);
+        if (!Paciente) return null;
+
+        const formaPago = parseInt(formaPagoVal);
+        const esLiquidacionTotal = parent.tipoConceptoCobro === 1;
+
+        const conceptos = Object.values(parent.lstConceptosPago);
+
+        // 🔥 CONSULTAS EN PARALELO
+        const pricePromises = conceptos.map(async ingreso => {
+
+            let importeTotal = parseFloat(ingreso.Price);
+
+            if (!ingreso.IsPack) {
+                const snapshot = await db.collection("SpecialPrice")
+                    .where("IdPatient", "==", idPaciente)
+                    .where("IdService", "==", ingreso.IdService)
+                    .limit(1)
+                    .get();
+
+                if (!snapshot.empty) {
+                    importeTotal = parseFloat(snapshot.docs[0].data().Price);
+                }
+            }
+
+            return {
                 Price: importeTotal,
                 IsPack: ingreso.IsPack,
-                //IsPackCompleted: false,
                 IdService: ingreso.IdService,
-                Service: servicios,
-                NumbreSesions:ingreso.NumbreSesions
-            }
-            TotalFactura += importeTotal;
-            invoice.Products.push(dato);
-        };
-        invoice.Total = deposito;
-        
-        if (TotalFactura == deposito) {
-            banPagado = true;
-        }
+                Service: { ...ingreso.Service },
+                NumbreSesions: ingreso.NumbreSesions,
+                IdBranch: ingreso.IdBranch
+            };
+        });
 
-        var idIngreso = await GuardarDatosIngresos($(".btnAcceptCheckoutPaquete"),invoice,operacionIngresos,selEarningGlobal);
-        invoice.IdEarn = idIngreso;
-        await GuardarDatosIngresos($(".btnAcceptCheckoutPaquete"),invoice,1,idIngreso);
-        invoice.Products.forEach(async element => {
-            if (element.IsPack) {
-                element.IdEarn = [idIngreso];
-                element.TakenNumbreSesions = 0;
-                element.IdPatient = idPaciente;
-                element.Patient = Paciente;
-                element.IdService = element.IdService;
-                element.Service = element.Service;
-                element.Date = new Date();
-                element.IsPayed = banPagado;
-                element.NumberPayments = Mensualidades;
-                element.Total = TotalFactura;
-                element.IsPackCompleted = false;
-                await GuardarDatosPaquete($(".btnAcceptCheckoutPaquete"),element,operacionIngresos,selEarningPackGlobal);    
-                if (banPagado == false) {
-                    var objAdeudo ={
-                        IdService: element.IdService,
-                        Service: element.Service,
-                        Due: TotalFactura - deposito,
-                        Total: TotalFactura
-                    }
-                    await GuardarDatosAdeudo($(".btnAcceptCheckoutPaquete"),objAdeudo,operacionIngresos,selEarningDebtGlobal)
+        const products = await Promise.all(pricePromises);
+
+        const total = products.reduce((acc, p) => acc + p.Price, 0);
+
+        let deposito = esLiquidacionTotal
+            ? total
+            : parseFloat($(".txtPago").val()) || 0;
+
+            return {
+                paciente: Paciente,
+                idPaciente,
+                formaPago,
+                deposito,
+                total,
+                products,
+                esLiquidacionTotal
+            };
+    }
+
+    async function saveCheckoutTransaction(data) {
+
+        await db.runTransaction(async (transaction) => {
+
+            const invoiceRef = db.collection("Earnings").doc();
+
+            const invoice = {
+                Invoice: Date.now(),
+                PaymentDate: new Date(),
+                IdEmployeRegister: parent.idUsuarioSistema,
+                idPatient: data.idPaciente,
+                Patient: data.paciente,
+                PaymentType: data.formaPago,
+                Payment: data.deposito,
+                Total: data.total,
+                IdBranch: data.products[0].IdBranch
+            };
+
+            transaction.set(invoiceRef, invoice);
+
+            const depositoPorProducto = data.deposito / data.products.length;
+            const pagadoCompleto = data.deposito >= data.total;
+
+            for (const product of data.products) {
+
+                // 🔹 Guardar paquete si aplica
+                if (product.IsPack) {
+
+                    const packRef = db.collection("Packages").doc();
+
+                    transaction.set(packRef, {
+                        ...product,
+                        IdEarn: invoiceRef.id,
+                        IdPatient: data.idPaciente,
+                        Patient: data.paciente,
+                        TakenNumbreSesions: 1,
+                        IsPayed: pagadoCompleto,
+                        Date: new Date(),
+                        IsPackCompleted: false
+                    });
+                }
+
+                // 🔹 Guardar adeudo si no está pagado
+                if (!pagadoCompleto) {
+
+                    const debtRef = db.collection("Debts").doc();
+
+                    transaction.set(debtRef, {
+                        IdService: product.IdService,
+                        Service: product.Service,
+                        Due: product.Price - depositoPorProducto,
+                        Cost: product.Price,
+                        IdEarn: invoiceRef.id
+                    });
                 }
             }
         });
-
-        const idCita = urlQueryString.get('idCita');
-        if (idCita != "") {
-            await UpdateStatusAppointment($(".btnAcceptCheckoutPaquete"),selIdAppointmen,StatusAppointment.Pagado);   
-            await UpdateAvailabilityEmployee($(".btnAcceptCheckoutPaquete"),selIdAppointmen,parent.idUsuarioSistema,true);     
-            MostrarMensajePrincipal("La cíta se pago","success");
-            setTimeout(function(){Redireccionar("../citas.html");},3000);
-            parent.lstConceptosPago = {};
-        }                
-        else{
-            MostrarMensajePrincipal("Ingreso registrado","success");
-            setTimeout(function(){Redireccionar("ingresos.html");},3000);
-            parent.lstConceptosPago = {};
-        }
-        $(".dvLoader").hide();
-        return false;
-    });
-
-    $(".btnAcceptCheckout").click(async function (){
-        QuitarMensaje();        
-        $(".dvLoader").show();
-        operacionIngresos = 0;
-        var formaPago = 0;
-        var Mensualidades = 1;
-        var deposito = 0;
-        var TotalFactura = 0;
-        var banPagado = false;
-        var banValidacion = true;
-        banValidacion = Validador($(".ddlFormaPago"),"forma de pago",$(".ddlFormaPago").val(),1,'',false);
-        if(banValidacion == true){
-             if (parent.tipoConceptoCobro != 1) {
-                    deposito = parseFloat($(".txtPago").val());
-                }
-
-                formaPago = parseInt($(".ddlFormaPago").val());
-                if (formaPago == "3") {
-                    if (parent.tipoConceptoCobro != 1) {
-                    Mensualidades = parseInt($(".ddlMensualidades").val());    
-                    }
-                }   
-                
-                //var datosPaquete = parent.lstPacksGlobal[idPaquete];        
-                //var Paciente = datosPaquete.Patient;
-                var idPaciente = selIdPatientEarning;
-                var Paciente = await selectDb(urlPacientesGlobal,selIdPatientEarning);
-                
-                if (Paciente != null) {
-                    var folio = Date.now(); //+ parent.nomSucursal + parent.idUsuarioSistema;
-                    var invoice={
-                        IdEarn: "",
-                        Invoice: folio,
-                        PaymentDate: new Date(),
-                        Products: [],
-                        IdEmployeRegister: parent.idUsuarioSistema,
-                        idPatient: idPaciente,
-                        IdBranch: "",
-                        Patient: Paciente,
-                        PaymentType: formaPago,
-                        Payment: 0,
-                        Total: 0
-                    }
-
-                    for (const datoIngreso in parent.lstConceptosPago) {
-                        const ingreso = parent.lstConceptosPago[datoIngreso];
-                        var importeTotal = parseFloat(ingreso.Price);
-                        if (ingreso.IsPack == false) {
-                            await db.collection("/SpecialPrice").where("IdPatient","==",selIdPatientEarning).where("IdService","==",ingreso.IdService).get().then(async (obj)=>{
-                                if (obj.docs.length > 0) {
-                                    var datosPrecio = obj.docs[0].data();
-                                    importeTotal = parseFloat(datosPrecio.Price);
-                                }
-                            });     
-                        }                        
-                        const servicios = JSON.parse(JSON.stringify(ingreso.Service));
-                        var dato={
-                            Price: importeTotal,
-                            IsPack: ingreso.IsPack,
-                            //IsPackCompleted: false,
-                            IdService: ingreso.IdService,
-                            Service: servicios,
-                            NumbreSesions:ingreso.NumbreSesions
-                        }
-                        TotalFactura += importeTotal;
-                        invoice.IdBranch= ingreso.IdBranch,
-                        invoice.Products.push(dato);
-                    };                    
-                    invoice.Total = TotalFactura;
-                    
-                    if (parent.tipoConceptoCobro == 1) {
-                        deposito = TotalFactura;
-                    }
-                    if (TotalFactura == deposito) {
-                        banPagado = true;
-                    }
-                    
-                    var idIngreso =0;
-                    if (deposito > 0) {
-                        invoice.Payment = deposito;
-                        deposito = deposito/invoice.Products.length;
-                        var idIngreso = await GuardarDatosIngresos($(".btnGuardarIngreso"),invoice,operacionIngresos,selEarningGlobal);
-                        invoice.IdEarn = idIngreso;
-                        await GuardarDatosIngresos($(".btnGuardarIngreso"),invoice,1,idIngreso);    
-                    }
-                    
-                    invoice.Products.forEach(async element => {
-                        if (element.IsPack) {
-                            element.IdEarn = idIngreso;
-                            element.TakenNumbreSesions = 1;
-                            element.IdPatient = idPaciente;
-                            element.Patient = Paciente;
-                            element.IdService = element.IdService;
-                            element.Service = element.Service;
-                            element.Date = new Date();
-                            element.IsPayed = banPagado;
-                            element.NumberPayments = Mensualidades;                
-                            element.Total = TotalFactura;
-                            element.IsPackCompleted = false;
-                            await GuardarDatosPaquete($(".btnAcceptCheckout"),element,operacionIngresos,selEarningPackGlobal);    
-                        }
-                        if (banPagado == false) {
-                            var objAdeudo ={
-                                IdService: element.IdService,
-                                Service: element.Service,
-                                Due: element.Price - deposito,
-                                Cost: element.Price
-                            }
-                            await GuardarDatosAdeudo($(".btnAcceptCheckout"),objAdeudo,operacionIngresos,selEarningDebtGlobal)
-                        }
-                    });
-                    const idCita = urlQueryString.get('idCita');
-                    if (idCita != "" && idCita != "null") {
-                        await UpdateStatusAppointment($(".btnAcceptCheckout"),selIdAppointmen,StatusAppointment.Pagado);     
-                        await UpdateAvailabilityEmployee($(".btnAcceptCheckout"),selIdAppointmen,parent.idUsuarioSistema,true);        
-                        MostrarMensajePrincipal("La cíta se pago","success");
-                        Redireccionar("../citas.html");
-                        parent.lstConceptosPago = {};
-                    }                
-                    else{
-                        MostrarMensajePrincipal("Ingreso registrado","success");
-                        Redireccionar("ingresos.html");
-                        parent.lstConceptosPago = {};
-                    }
-                }
-                else{
-                    MostrarMensajePrincipal("Error al registrar, vuelve intentarlo","danger");
-                }
-            
-        }
-       
-        $(".dvLoader").hide();
-        return false;
-    });
+    }
 
     $(".txtNumeroSesiones").keyup(function(){
         var sesiones = $(".txtNumeroSesiones").val();

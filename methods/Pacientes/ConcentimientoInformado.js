@@ -65,7 +65,7 @@ async function guardarConsentimiento(){
 
         await db.collection("PatientConsents").add(datos);        
         MostrarMensajePrincipal("Consentimiento guardado correctamente","success");        
-        setTimeout(function(){Redireccionar("../seguiminetoCita.html?idAppointment=" + idAppointmentQuery);},3000);        
+        Redireccionar("../seguiminetoCita.html?idAppointment=" + idAppointmentQuery);
         signaturePad.clear();
     }
     else{

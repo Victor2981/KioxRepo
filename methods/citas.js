@@ -215,7 +215,7 @@ $(document).ready(function(){
                             agregarConceptosCobro(datos);
                         }
                     });            
-                    setTimeout(function(){Redireccionar("/views/IngresosEgresos/validacionPago.html?idPacientePago=" + selIdPatientGlobal + "&idCita=" + selIdAppointmentGlobal);},3000);
+                    Redireccionar("/views/IngresosEgresos/validacionPago.html?idPacientePago=" + selIdPatientGlobal + "&idCita=" + selIdAppointmentGlobal);
                 }
             break;
             default:
@@ -245,7 +245,7 @@ $(document).ready(function(){
                     agregarConceptosCobro(datos);
                 }
             });            
-            setTimeout(function(){Redireccionar("/views/IngresosEgresos/validacionPago.html?idPacientePago=" + selIdPatientGlobal + "&idCita=" + selIdAppointmentGlobal);},3000);
+            Redireccionar("/views/IngresosEgresos/validacionPago.html?idPacientePago=" + selIdPatientGlobal + "&idCita=" + selIdAppointmentGlobal);
         }
         
     });

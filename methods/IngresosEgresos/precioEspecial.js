@@ -16,7 +16,7 @@ $(document).ready(function () {
             await db.collection(urlPrecioEspecial).where("IdPatient","==",selIdPatientEarning).where("IdService","==",$(".ddlServicio").val()).get().then(async datoValidacion =>{
                 if (datoValidacion.docs.length == 0) {
                     await GuardarPrecioEspecial($(".btnAceptarPrecioEspecial"),precio,operacionPrecios);
-                    setTimeout(function(){Redireccionar("/views/IngresosEgresos/precioEspecial.html");},3000);
+                    Redireccionar("/views/IngresosEgresos/precioEspecial.html");
                 }
                 else{
                     MostrarMensajePrincipal("El paciente ya esta registrado con este servicio","warning");
@@ -25,7 +25,7 @@ $(document).ready(function () {
         }
         else{
             await GuardarPrecioEspecial($(".btnAceptarPrecioEspecial"),precio,operacionPrecios,idPrecioQuery);
-            setTimeout(function(){Redireccionar("/views/IngresosEgresos/precioEspecial.html");},3000);
+            Redireccionar("/views/IngresosEgresos/precioEspecial.html");
         }
        
     });  

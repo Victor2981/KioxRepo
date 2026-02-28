@@ -105,7 +105,7 @@ $(document).ready(function(){
             
              await GuardarDatosEgresos($(".btnGuardarEgreso"),dato,operacionEgresos,selEarningGlobal);
              MostrarMensajePrincipal("El egreso se guardo correctamente","success");
-             setTimeout(function(){Redireccionar("egresos.html");},3000);
+             Redireccionar("egresos.html");
         }      
     });
 

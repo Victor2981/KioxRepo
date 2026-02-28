@@ -55,50 +55,173 @@ $(document).ready(function(){
             }
             $(".dvLoader").hide();
             MostrarMensajePrincipal("El historial ha sido guardado, serás enviado a las citas del paciente","success");
-            setTimeout(function(){Redireccionar("historialClinico.html?idPatient=" + datos.IdPatient);},3000);
+            Redireccionar("historialClinico.html?idPatient=" + datos.IdPatient);
         }
     });
 
-    $(".btnFinishAppointment").click(async function(){
-        $(".dvLoader").show();
-        parent.lstConceptosPago = {};
-        var observations = $(".txtObservaciones").val();
-        var recommendations = $(".txtRecomendaciones").val();
-        var datos = await selectDb(urlCitasGlobal,selIdAppointmentGlobal);
-        var banPago = true;
-        if (datos != null) {
-            const lstPatients = JSON.parse(JSON.stringify(parent.lstPatientsGlobal));
-            let datosPaciente = lstPatients[datos.IdPatient];
-            await UpdateAppointmentMonitoring($(".btnFinishAppointment"),selIdAppointmentGlobal,observations,recommendations,StatusAppointment.Finalizado);        
-            await db.collection(urlPackagesGlobal).where("IdPatient","==",selIdPatientGlobal).where("IdService","==",selIdServiceGlobal).where("IsPack","==",true).where("IsPackCompleted","==",false).get().then(async (obj)=>{
-                if (obj.docs.length > 0) {
-                    var datosPaquete = obj.docs[0].data();
-                    datosPaquete.TakenNumbreSesions += 1;
-                    if (datosPaquete.NumbreSesions == datosPaquete.TakenNumbreSesions) {
-                        datosPaquete.IsPackCompleted = true;
-                    }
-                    banPago = false;
-                    await GuardarDatosPaquete($(".btnFinishAppointment"),datosPaquete,1,obj.docs[0].id);    
-                }
-                else{
-                    agregarConceptosCobro(datos);
-                }
-                if (banPago) {            
-                    MostrarMensajePrincipal("La cíta finalizó, serás enviado a el cobro","success");
-                    parent.tipoConceptoCobro = 1;
-                    setTimeout(function(){Redireccionar("/views/IngresosEgresos/validacionPago.html?idPacientePago=" + selIdPatientGlobal + "&idCita=" + selIdAppointmentGlobal);},3000);
-                }
-                else{
-                    await UpdateAppointmentMonitoring($(".btnFinishAppointment"),selIdAppointmentGlobal,observations,recommendations,StatusAppointment.Pagado);
-                    await UpdateAvailabilityEmployee($(".btnFinishAppointment"),selIdAppointmentGlobal,parent.idUsuarioSistema,true);        
-                    MostrarMensajePrincipal("La cíta finalizó, serás enviado a el calendario de citas","success");
-                    setTimeout(function(){Redireccionar("citas.html");},3000);
-                }
+   $(".btnFinishAppointment").on("click", async function (e) {
+        e.preventDefault();
+
+        const $btn = $(this);
+
+        try {
+            $(".dvLoader").show();
+            $btn.prop("disabled", true);
+
+            parent.lstConceptosPago = {};
+
+            const observations = $(".txtObservaciones").val();
+            const recommendations = $(".txtRecomendaciones").val();
+
+            const appointment = await selectDb(urlCitasGlobal, selIdAppointmentGlobal);
+
+            if (!appointment) {
+                MostrarMensajePrincipal("No se encontró la cita", "danger");
+                return;
+            }
+
+            await finishAppointmentFlow({
+                appointment,
+                observations,
+                recommendations
             });
+
+        } catch (error) {
+            console.error(error);
+            MostrarMensajePrincipal("Ocurrió un error al finalizar la cita", "danger");
+        } finally {
+            $(".dvLoader").hide();
+            $btn.prop("disabled", false);
         }
-        $(".dvLoader").hide();      
     });
     
+    async function finishAppointmentFlow({ appointment, observations, recommendations }) {
+
+        // 🔹 Actualizar cita a Finalizado
+        await UpdateAppointmentMonitoring(
+            $(".btnFinishAppointment"),
+            selIdAppointmentGlobal,
+            observations,
+            recommendations,
+            StatusAppointment.Finalizado
+        );
+
+        // 🔹 Buscar paquete activo del paciente
+        const snapshot = await db.collection(urlPackagesGlobal)
+            .where("IdPatient", "==", selIdPatientGlobal)
+            .where("IdService", "==", selIdServiceGlobal)
+            .where("IsPack", "==", true)
+            .where("IsPackCompleted", "==", false)
+            .limit(1)
+            .get();
+
+        if (!snapshot.empty) {
+
+            await processPackSession(snapshot.docs[0], observations, recommendations);
+
+        } else {
+
+            await processNormalCharge(appointment);
+        }
+    }
+
+    async function processPackSession(packDoc, observations, recommendations) {
+
+    const packData = packDoc.data();
+
+    packData.TakenNumbreSesions += 1;
+
+    if (packData.TakenNumbreSesions >= packData.NumbreSesions) {
+        packData.IsPackCompleted = true;
+    }
+
+    // 🔥 Transaction para evitar inconsistencias
+    await db.runTransaction(async (transaction) => {
+
+            const packRef = db.collection(urlPackagesGlobal).doc(packDoc.id);
+
+            transaction.update(packRef, {
+                TakenNumbreSesions: packData.TakenNumbreSesions,
+                IsPackCompleted: packData.IsPackCompleted
+            });
+
+            const appointmentRef = db.collection(urlCitasGlobal).doc(selIdAppointmentGlobal);
+
+            transaction.update(appointmentRef, {
+                Status: StatusAppointment.Pagado
+            });
+        });
+
+        await UpdateAvailabilityEmployee(
+            $(".btnFinishAppointment"),
+            selIdAppointmentGlobal,
+            parent.idUsuarioSistema,
+            true
+        );
+
+        MostrarMensajePrincipal(
+            "La cita finalizó y se descontó del paquete",
+            "success"
+        );
+
+        Redireccionar("citas.html");
+    }
+
+    async function processNormalCharge(appointment) {
+
+        await agregarConceptosCobroOptimizado(appointment);
+
+        MostrarMensajePrincipal(
+            "La cita finalizó, serás enviado al cobro",
+            "success"
+        );
+
+        parent.tipoConceptoCobro = 1;
+
+        Redireccionar(
+            "/views/IngresosEgresos/validacionPago.html?idPacientePago=" +
+            selIdPatientGlobal +
+            "&idCita=" +
+            selIdAppointmentGlobal
+        );
+    }
+
+    async function agregarConceptosCobroOptimizado(conceptoCobro) {
+
+        parent.lstConceptosPago = {};
+
+        const Servicio = conceptoCobro.Service;
+
+        let precio = parseFloat(Servicio.Price);
+
+        // 🔥 Consulta directa con limit
+        const snapshot = await db.collection("SpecialPrice")
+            .where("IdPatient", "==", selIdPatientGlobal)
+            .where("IdService", "==", Servicio.IdService)
+            .limit(1)
+            .get();
+
+        if (!snapshot.empty) {
+            precio = parseFloat(snapshot.docs[0].data().Price);
+        }
+
+        const dato = {
+            Price: precio,
+            IsPack: false,
+            IsPackCompleted: false,
+            IdService: Servicio.IdService,
+            Service: Servicio,
+            IdCategory: Servicio.idCategory,
+            Category: conceptoCobro.Category,
+            NumbreSesions: 1,
+            IdBranch: conceptoCobro.IdBranch,
+            datePayOff: new Date()
+        };
+
+        const idProducto = crypto.randomUUID(); // 🔥 mejor que Date.now()
+
+        parent.lstConceptosPago[idProducto] = dato;
+    }
 });
 
 async function agregarConceptosCobro(conceptoCobro){
