@@ -178,6 +178,115 @@ $(document).ready(function(){
         return false;
     });
     
+    $(".btnAcceptCheckout1").click(async function () {
+        QuitarMensaje();
+        $(".dvLoader").show();
+        operacionIngresos = 0; var formaPago = 0; var Mensualidades = 1; var deposito = 0; var TotalFactura = 0; var banPagado = false; var banValidacion = true; banValidacion = Validador($(".ddlFormaPago"), "forma de pago", $(".ddlFormaPago").val(), 1, '', false); if (banValidacion == true) {
+            if (parent.tipoConceptoCobro != 1) { 
+                deposito = parseFloat($(".txtPago").val());
+             } 
+             formaPago = parseInt($(".ddlFormaPago").val()); 
+             if (formaPago == "3") { if (parent.tipoConceptoCobro != 1) { 
+                 Mensualidades = parseInt($(".ddlMensualidades").val()); 
+                } 
+            } 
+            //var datosPaquete = parent.lstPacksGlobal[idPaquete]; //var Paciente = datosPaquete.Patient; 
+            var idPaciente = selIdPatientEarning; 
+            var Paciente = await selectDb(urlPacientesGlobal,selIdPatientEarning); 
+            if (Paciente != null) { 
+                var folio = Date.now(); //+ parent.nomSucursal + parent.idUsuarioSistema; 
+                var invoice={ 
+                    IdEarn: "", 
+                    Invoice: folio, 
+                    PaymentDate: new Date(), 
+                    Products: [], 
+                    IdEmployeRegister: parent.idUsuarioSistema, 
+                    idPatient: idPaciente, 
+                    IdBranch: "", 
+                    Patient: Paciente, 
+                    PaymentType: formaPago, 
+                    Payment: 0, 
+                    Total: 0 } 
+                    for (const datoIngreso in parent.lstConceptosPago) { 
+                        const ingreso = parent.lstConceptosPago[datoIngreso]; 
+                        var importeTotal = parseFloat(ingreso.Price); 
+                        if (ingreso.IsPack == false) { 
+                            await db.collection("/SpecialPrice").where("IdPatient","==",selIdPatientEarning).where("IdService","==",ingreso.IdService).get().then(async (obj)=>{ 
+                                if (obj.docs.length > 0) { 
+                                    var datosPrecio = obj.docs[0].data(); 
+                                    importeTotal = parseFloat(datosPrecio.Price); 
+                                } 
+                            }); 
+                        } 
+                        const servicios = JSON.parse(JSON.stringify(ingreso.Service)); 
+                        var dato={ 
+                            Price: importeTotal,
+                            IsPack: ingreso.IsPack, 
+                            //IsPackCompleted: false,
+                            IdService: ingreso.IdService,
+                            Service: servicios, 
+                            NumbreSesions:ingreso.NumbreSesions 
+                        } 
+                        TotalFactura += importeTotal; 
+                        invoice.IdBranch= ingreso.IdBranch, invoice.Products.push(dato); 
+                    }; 
+                    invoice.Total = TotalFactura; 
+                    if (parent.tipoConceptoCobro == 1) { 
+                        deposito = TotalFactura; 
+                    } 
+                    if (TotalFactura == deposito) { 
+                        banPagado = true; 
+                    } 
+                    var idIngreso =0; 
+                    if (deposito > 0) { 
+                        invoice.Payment = deposito; deposito = deposito/invoice.Products.length; 
+                        var idIngreso = await GuardarDatosIngresos($(".btnGuardarIngreso"),invoice,operacionIngresos,selEarningGlobal); 
+                        invoice.IdEarn = idIngreso; await GuardarDatosIngresos($(".btnGuardarIngreso"),invoice,1,idIngreso); 
+                    } 
+                    invoice.Products.forEach(async element => { 
+                        if (element.IsPack) { 
+                            element.IdEarn = idIngreso; 
+                            element.TakenNumbreSesions = 1; 
+                            element.IdPatient = idPaciente; 
+                            element.Patient = Paciente; 
+                            element.IdService = element.IdService; 
+                            element.Service = element.Service; 
+                            element.Date = new Date(); 
+                            element.IsPayed = banPagado; 
+                            element.NumberPayments = Mensualidades; 
+                            element.Total = TotalFactura; 
+                            element.IsPackCompleted = false; 
+                            await GuardarDatosPaquete($(".btnAcceptCheckout"),element,operacionIngresos,selEarningPackGlobal); 
+                        } 
+                        if (banPagado == false) { 
+                            var objAdeudo ={ 
+                                IdService: element.IdService, 
+                                Service: element.Service, 
+                                Due: element.Price - deposito, 
+                                Cost: element.Price 
+                            } 
+                            await GuardarDatosAdeudo($(".btnAcceptCheckout"),objAdeudo,operacionIngresos,selEarningDebtGlobal) 
+                        } 
+                    }); 
+                    const idCita = urlQueryString.get('idCita'); 
+                    if (idCita != "" && idCita != "null") { 
+                        await UpdateStatusAppointment($(".btnAcceptCheckout"),selIdAppointmen,StatusAppointment.Pagado); 
+                        await UpdateAvailabilityEmployee($(".btnAcceptCheckout"),selIdAppointmen,parent.idUsuarioSistema,true); 
+                        MostrarMensajePrincipal("La cíta se pago","success"); 
+                        Redireccionar("../citas.html"); parent.lstConceptosPago = {}; 
+                    } 
+                    else{ 
+                        MostrarMensajePrincipal("Ingreso registrado","success"); 
+                        Redireccionar("ingresos.html"); parent.lstConceptosPago = {}; 
+                    } 
+                } 
+                else{ 
+                    MostrarMensajePrincipal("Error al registrar, vuelve intentarlo","danger"); 
+                } 
+            } 
+            $(".dvLoader").hide(); return false; 
+        });
+    
     $(".btnAcceptCheckout").on("click", async function (e) {
         e.preventDefault();
 
