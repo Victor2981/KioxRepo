@@ -178,7 +178,9 @@ $(document).ready(function(){
         return false;
     });
     
-    $(".btnAcceptCheckout1").click(async function () {
+
+
+    $(".btnAcceptCheckout").click(async function () {
         QuitarMensaje();
         $(".dvLoader").show();
         operacionIngresos = 0; var formaPago = 0; var Mensualidades = 1; var deposito = 0; var TotalFactura = 0; var banPagado = false; var banValidacion = true; banValidacion = Validador($(".ddlFormaPago"), "forma de pago", $(".ddlFormaPago").val(), 1, '', false); if (banValidacion == true) {
@@ -287,7 +289,7 @@ $(document).ready(function(){
             $(".dvLoader").hide(); return false; 
         });
     
-    $(".btnAcceptCheckout").on("click", async function (e) {
+    $(".btnAcceptCheckout1").on("click", async function (e) {
         e.preventDefault();
 
         const $btn = $(this);
