@@ -186,43 +186,45 @@ $(document).ready(function(){
         );
     }
 
-    async function agregarConceptosCobroOptimizado(conceptoCobro) {
-
-        parent.lstConceptosPago = {};
-
-        const Servicio = conceptoCobro.Service;
-
-        let precio = parseFloat(Servicio.Price);
-
-        // 🔥 Consulta directa con limit
-        const snapshot = await db.collection("SpecialPrice")
-            .where("IdPatient", "==", selIdPatientGlobal)
-            .where("IdService", "==", Servicio.IdService)
-            .limit(1)
-            .get();
-
-        if (!snapshot.empty) {
-            precio = parseFloat(snapshot.docs[0].data().Price);
-        }
-
-        const dato = {
-            Price: precio,
-            IsPack: false,
-            IsPackCompleted: false,
-            IdService: Servicio.IdService,
-            Service: Servicio,
-            IdCategory: Servicio.idCategory,
-            Category: conceptoCobro.Category,
-            NumbreSesions: 1,
-            IdBranch: conceptoCobro.IdBranch,
-            datePayOff: new Date()
-        };
-
-        const idProducto = crypto.randomUUID(); // 🔥 mejor que Date.now()
-
-        parent.lstConceptosPago[idProducto] = dato;
-    }
+   
 });
+
+async function agregarConceptosCobroOptimizado(conceptoCobro) {
+
+    parent.lstConceptosPago = {};
+
+    const Servicio = conceptoCobro.Service;
+
+    let precio = parseFloat(Servicio.Price);
+
+    // 🔥 Consulta directa con limit
+    const snapshot = await db.collection("SpecialPrice")
+        .where("IdPatient", "==", selIdPatientGlobal)
+        .where("IdService", "==", Servicio.IdService)
+        .limit(1)
+        .get();
+
+    if (!snapshot.empty) {
+        precio = parseFloat(snapshot.docs[0].data().Price);
+    }
+
+    const dato = {
+        Price: precio,
+        IsPack: false,
+        IsPackCompleted: false,
+        IdService: Servicio.IdService,
+        Service: Servicio,
+        IdCategory: Servicio.idCategory,
+        Category: conceptoCobro.Category,
+        NumbreSesions: 1,
+        IdBranch: conceptoCobro.IdBranch,
+        datePayOff: new Date()
+    };
+
+    const idProducto = crypto.randomUUID(); // 🔥 mejor que Date.now()
+
+    parent.lstConceptosPago[idProducto] = dato;
+}
 
 async function agregarConceptosCobro(conceptoCobro){
     parent.lstConceptosPago = {};

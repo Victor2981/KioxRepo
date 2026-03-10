@@ -212,7 +212,7 @@ $(document).ready(function(){
                             await GuardarDatosPaquete($(".btnStartAppointment"),datosPaquete,1,obj.docs[0].id);    
                         }
                         else{
-                            agregarConceptosCobro(datos);
+                            await agregarConceptosCobroOptimizado(datos);
                         }
                     });            
                     Redireccionar("/views/IngresosEgresos/validacionPago.html?idPacientePago=" + selIdPatientGlobal + "&idCita=" + selIdAppointmentGlobal);
@@ -223,31 +223,69 @@ $(document).ready(function(){
         }
     });
     
-    $(".btnPaidAppointment").click(async function(){
-        //await UpdateStatusAppointment(selIdAppointmen,StatusAppointment.Pagado);
-        $('.modalNewDate').modal('toggle');
-        MostrarMensajePrincipal("Serás enviado a el pago","success");
-        selIdAppointmentGlobal = selIdAppointmen;
-        selIdPatientGlobal = idPatientSelected;
-        parent.tipoConceptoCobro = 1;
-        var datos = await selectDb(urlCitasGlobal,selIdAppointmentGlobal);
-        if (datos != null) {
-            await db.collection(urlPackagesGlobal).where("IdPatient","==",selIdPatientGlobal).where("IdService","==",selIdServiceGlobal).where("IsPack","==",true).where("IsPackCompleted","==",false).get().then(async (obj)=>{
-                if (obj.docs.length > 0) {
-                    var datosPaquete = obj.docs[0].data();
-                    datosPaquete.TakenNumbreSesions += 1;
-                    if (datosPaquete.NumbreSesions == datosPaquete.TakenNumbreSesions) {
-                        datosPaquete.IsPackCompleted = true;
-                    }                    
-                    await GuardarDatosPaquete($(".btnPaidAppointment"),datosPaquete,1,obj.docs[0].id);    
+    $(".btnPaidAppointment").on("click", async function () {
+        const $btn = $(this);
+    
+        try {
+            // Evita doble clic
+            $btn.prop("disabled", true);
+    
+            $('.modalNewDate').modal('toggle');
+            MostrarMensajePrincipal("Serás enviado al pago", "success");
+    
+            selIdAppointmentGlobal = selIdAppointmen;
+            selIdPatientGlobal = idPatientSelected;
+            parent.tipoConceptoCobro = 1;
+    
+            // Obtener datos de la cita
+            const datos = await selectDb(urlCitasGlobal, selIdAppointmentGlobal);
+            if (!datos) return;
+    
+            // Buscar paquete activo del paciente para ese servicio
+            const snapshot = await db.collection(urlPackagesGlobal)
+                .where("IdPatient", "==", selIdPatientGlobal)
+                .where("IdService", "==", selIdServiceGlobal)
+                .where("IsPack", "==", true)
+                .where("IsPackCompleted", "==", false)
+                .limit(1)
+                .get();
+    
+            // Si existe paquete activo
+            if (!snapshot.empty) {
+                const doc = snapshot.docs[0];
+                const datosPaquete = doc.data();
+    
+                datosPaquete.TakenNumbreSesions += 1;
+    
+                if (datosPaquete.NumbreSesions === datosPaquete.TakenNumbreSesions) {
+                    datosPaquete.IsPackCompleted = true;
                 }
-                else{
-                    agregarConceptosCobro(datos);
-                }
-            });            
-            Redireccionar("/views/IngresosEgresos/validacionPago.html?idPacientePago=" + selIdPatientGlobal + "&idCita=" + selIdAppointmentGlobal);
+    
+                await GuardarDatosPaquete(
+                    $btn,
+                    datosPaquete,
+                    1,
+                    doc.id
+                );
+            } 
+            // Si NO hay paquete → cobrar normal
+            else {
+                await agregarConceptosCobroOptimizado(datos);
+            }
+    
+            // Redirigir a pago
+            Redireccionar(
+                "/views/IngresosEgresos/validacionPago.html" +
+                "?idPacientePago=" + selIdPatientGlobal +
+                "&idCita=" + selIdAppointmentGlobal
+            );
+    
+        } catch (error) {
+            console.error("Error al procesar pago:", error);
+            MostrarMensajePrincipal("Ocurrió un error al procesar el pago", "error");
+        } finally {
+            $btn.prop("disabled", false);
         }
-        
     });
     
     
