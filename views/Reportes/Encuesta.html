@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Encuesta de Satisfacción</title>
+
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 24px;
+      background: #f7f7f7;
+      color: #222;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin: 16px 0;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 0;
+      background: #0b57d0;
+      color: white;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .secondary {
+      background: #555;
+    }
+
+    .success {
+      background: #15803d;
+    }
+
+    .warning {
+      background: #b45309;
+    }
+
+    #status {
+      background: white;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      white-space: pre-line;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      background: white;
+      border-radius: 10px;
+      padding: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1200px;
+    }
+
+    th, td {
+      border-bottom: 1px solid #e5e5e5;
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #fafafa;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .tag-ok {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .tag-no {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .muted {
+      color: #666;
+      font-size: 12px;
+    }
+
+    a {
+      color: #0b57d0;
+      text-decoration: none;
+    }
+
+    .row-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .small-btn {
+      padding: 8px 10px;
+      font-size: 12px;
+      border-radius: 6px;
+    }
+
+    .filters {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    input[type="text"] {
+      padding: 9px 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      min-width: 250px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Encuesta de satisfacción</h1>
+  <div class="muted">
+    Genera pacientes del último mes, evita reenvíos y registra a quién ya se le mandó la encuesta.
+  </div>
+
+  <div class="actions">
+    <button id="btnCargar">Cargar pacientes</button>
+    <button id="btnExcel" class="secondary" disabled>Descargar Excel</button>
+  </div>
+
+  <div class="filters">
+    <input type="text" id="searchInput" placeholder="Buscar por nombre, celular o IdPatient" />
+  </div>
+
+  <div id="status">Listo.</div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>IdPatient</th>
+          <th>Nombre</th>
+          <th>Celular</th>
+          <th>Sesiones</th>
+          <th>Primera cita</th>
+          <th>Última cita</th>
+          <th>Encuesta enviada</th>
+          <th>Fecha envío</th>
+          <th>Link WhatsApp</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr>
+          <td colspan="10">Sin datos.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      getDocs,
+      query,
+      where,
+      doc,
+      getDoc,
+      setDoc,
+      Timestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    // =========================================================
+    // CONFIGURA AQUI TU FIREBASE
+    // =========================================================
+const firebaseConfig = {
+    apiKey: "AIzaSyDFlvXXq0Kdu1CAyjslc2gChlLu0SILn7s",
+    authDomain: "fior-a4273.firebaseapp.com",
+    projectId: "fior-a4273",
+    storageBucket: "fior-a4273.appspot.com",
+    messagingSenderId: "735779644274",
+    appId: "1:735779644274:web:79fa30cc8ce9bbb7db33eb",
+    measurementId: "G-L6BS8GTYS4"
+};
+
+    // =========================================================
+    // CONFIGURACION GENERAL
+    // =========================================================
+    const FORM_LINK = "https://forms.gle/p2VvmwREGcFxfNyPA";
+    const COUNTRY_CODE = "52";
+    const DAYS_BACK = 30;
+
+    // Nombre de la coleccion para registrar envios
+    const LOG_COLLECTION = "SurveySatisfactionLog";
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const btnCargar = document.getElementById("btnCargar");
+    const btnExcel = document.getElementById("btnExcel");
+    const statusEl = document.getElementById("status");
+    const tableBody = document.getElementById("tableBody");
+    const searchInput = document.getElementById("searchInput");
+
+    let currentRows = [];
+
+    function setStatus(text) {
+      statusEl.textContent = text;
+      console.log(text);
+    }
+
+    function normalizePhone(phone) {
+      if (!phone) return "";
+      let cleaned = String(phone).replace(/\D/g, "");
+      if (!cleaned) return "";
+
+      if (cleaned.startsWith(COUNTRY_CODE)) {
+        return cleaned;
+      }
+
+      return COUNTRY_CODE + cleaned;
+    }
+
+    function buildMessage(name) {
+      return `Hola ${name}, esperamos que te encuentres muy bien.\n\n` +
+        `Queremos invitarte a responder una breve encuesta de satisfacción sobre tu atención. Tu opinión es muy importante para nosotros y nos ayuda a seguir mejorando.\n` +
+        `Nos ayudaría mucho que la respondieras: ${FORM_LINK}`+
+        `\n\n¡Muchas gracias!`;
+    }
+     
+
+    function buildWhatsappLink(name, phone) {
+      const normalizedPhone = normalizePhone(phone);
+      if (!normalizedPhone) return "";
+
+      const message = buildMessage(name);
+      return `https://wa.me/${normalizedPhone}?text=${encodeURIComponent(message)}`;
+    }
+
+    function getPatientName(patientData) {
+      if (!patientData) return "";
+
+      if (patientData.FullName) return patientData.FullName;
+      if (patientData.Name) return patientData.Name;
+      if (patientData.PatientName) return patientData.PatientName;
+
+      const firstName = patientData.FirstName || patientData.Nombre || "";
+      const lastName = patientData.LastName || patientData.Apellidos || "";
+
+      return `${firstName} ${lastName}`.trim();
+    }
+
+    function getPatientPhone(patientData) {
+      if (!patientData) return "";
+
+      return (
+        patientData.CellPhone ||
+        patientData.Phone ||
+        patientData.Mobile ||
+        patientData.Celular ||
+        patientData.Telefono ||
+        ""
+      );
+    }
+
+    function toDate(value) {
+      if (!value) return null;
+
+      if (typeof value.toDate === "function") {
+        return value.toDate();
+      }
+
+      if (value instanceof Date) {
+        return value;
+      }
+
+      const parsed = new Date(value);
+      return isNaN(parsed.getTime()) ? null : parsed;
+    }
+
+    function formatDate(date) {
+      if (!date) return "";
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth() + 1).padStart(2, "0");
+      const dd = String(date.getDate()).padStart(2, "0");
+      const hh = String(date.getHours()).padStart(2, "0");
+      const mi = String(date.getMinutes()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd} ${hh}:${mi}`;
+    }
+
+    async function getPatientData(idPatient) {
+      try {
+        const byDocIdRef = doc(db, "Patients", String(idPatient));
+        const byDocIdSnap = await getDoc(byDocIdRef);
+
+        if (byDocIdSnap.exists()) {
+          return byDocIdSnap.data();
+        }
+
+        const q = query(
+          collection(db, "Patients"),
+          where("IdPatient", "==", idPatient)
+        );
+
+        const snap = await getDocs(q);
+
+        if (!snap.empty) {
+          return snap.docs[0].data();
+        }
+
+        return null;
+      } catch (error) {
+        console.error("Error obteniendo paciente", idPatient, error);
+        return null;
+      }
+    }
+
+    async function getSentLog(idPatient) {
+      try {
+        const logRef = doc(db, LOG_COLLECTION, String(idPatient));
+        const logSnap = await getDoc(logRef);
+
+        if (!logSnap.exists()) return null;
+        return logSnap.data();
+      } catch (error) {
+        console.error("Error leyendo log", idPatient, error);
+        return null;
+      }
+    }
+
+    async function registerSurveySent(row) {
+      const logRef = doc(db, LOG_COLLECTION, String(row.IdPatient));
+
+      const payload = {
+        IdPatient: row.IdPatient,
+        NombrePaciente: row.NombrePaciente || "",
+        Celular: row.Celular || "",
+        SentAt: Timestamp.now(),
+        FormLink: FORM_LINK,
+        Message: buildMessage(row.NombrePaciente || "Paciente"),
+        Source: "manual_whatsapp_from_html",
+        LastAppointmentDate: row.UltimaCitaPeriodoDate
+          ? Timestamp.fromDate(row.UltimaCitaPeriodoDate)
+          : null,
+        NumeroSesiones: row.NumeroSesiones || 0
+      };
+
+      await setDoc(logRef, payload, { merge: true });
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function renderTable(rows) {
+      if (!rows.length) {
+        tableBody.innerHTML = `<tr><td colspan="10">No hay resultados.</td></tr>`;
+        return;
+      }
+
+      const searchText = searchInput.value.trim().toLowerCase();
+
+      const filtered = rows.filter(row => {
+        if (!searchText) return true;
+
+        return (
+          String(row.IdPatient || "").toLowerCase().includes(searchText) ||
+          String(row.NombrePaciente || "").toLowerCase().includes(searchText) ||
+          String(row.Celular || "").toLowerCase().includes(searchText)
+        );
+      });
+
+      if (!filtered.length) {
+        tableBody.innerHTML = `<tr><td colspan="10">No hay coincidencias.</td></tr>`;
+        return;
+      }
+
+      tableBody.innerHTML = filtered.map((row, index) => {
+        const sentTag = row.EncuestaEnviada
+          ? `<span class="tag tag-ok">Sí</span>`
+          : `<span class="tag tag-no">No</span>`;
+
+        const whatsappCell = row.LinkWhatsApp
+          ? `<a href="${escapeHtml(row.LinkWhatsApp)}" target="_blank">Abrir WhatsApp</a>`
+          : `<span class="muted">Sin celular</span>`;
+
+        const sendButton = row.EncuestaEnviada
+          ? `<button class="small-btn warning" disabled>Ya enviada</button>`
+          : `<button class="small-btn success" data-index="${index}" data-action="send">Enviar y registrar</button>`;
+
+        return `
+          <tr>
+            <td>${escapeHtml(row.IdPatient)}</td>
+            <td>${escapeHtml(row.NombrePaciente)}</td>
+            <td>${escapeHtml(row.Celular)}</td>
+            <td>${escapeHtml(row.NumeroSesiones)}</td>
+            <td>${escapeHtml(row.PrimeraCitaPeriodo)}</td>
+            <td>${escapeHtml(row.UltimaCitaPeriodo)}</td>
+            <td>${sentTag}</td>
+            <td>${escapeHtml(row.FechaEnvio || "")}</td>
+            <td>${whatsappCell}</td>
+            <td>
+              <div class="row-actions">
+                ${sendButton}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    async function loadPatients() {
+      btnCargar.disabled = true;
+      btnExcel.disabled = true;
+
+      try {
+        setStatus("Consultando citas del último mes...");
+
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - DAYS_BACK);
+
+        const appointmentsRef = collection(db, "Appointment");
+        const appointmentsQuery = query(
+          appointmentsRef,
+          where("AppointmentDateStart", ">=", startDate),
+          where("Status", ">", 1)
+        );
+
+        const appointmentSnapshot = await getDocs(appointmentsQuery);
+
+        setStatus(
+          `Citas encontradas: ${appointmentSnapshot.size}\nAgrupando por paciente...`
+        );
+
+        const sessionsByPatient = new Map();
+
+        appointmentSnapshot.forEach((docSnap) => {
+          const appt = docSnap.data();
+          const patientId = appt.IdPatient;
+          const appointmentDate = toDate(appt.AppointmentDateStart);
+
+          if (!patientId || !appointmentDate) return;
+
+          if (!sessionsByPatient.has(patientId)) {
+            sessionsByPatient.set(patientId, {
+              IdPatient: patientId,
+              NumeroSesiones: 0,
+              PrimeraCitaPeriodoDate: appointmentDate,
+              UltimaCitaPeriodoDate: appointmentDate
+            });
+          }
+
+          const current = sessionsByPatient.get(patientId);
+          current.NumeroSesiones += 1;
+
+          if (appointmentDate < current.PrimeraCitaPeriodoDate) {
+            current.PrimeraCitaPeriodoDate = appointmentDate;
+          }
+
+          if (appointmentDate > current.UltimaCitaPeriodoDate) {
+            current.UltimaCitaPeriodoDate = appointmentDate;
+          }
+        });
+
+        const grouped = [...sessionsByPatient.values()].filter(
+          item => item.NumeroSesiones > 1
+        );
+
+        setStatus(
+          `Citas encontradas: ${appointmentSnapshot.size}\n` +
+          `Pacientes con más de 1 sesión: ${grouped.length}\n` +
+          `Leyendo datos de Patients y revisando envíos previos...`
+        );
+
+        const results = [];
+
+        for (const item of grouped) {
+          const patientData = await getPatientData(item.IdPatient);
+          const sentLog = await getSentLog(item.IdPatient);
+
+          const nombre = getPatientName(patientData) || "Sin nombre";
+          const celular = getPatientPhone(patientData) || "";
+          const linkWhatsApp = buildWhatsappLink(nombre, celular);
+
+          results.push({
+            IdPatient: item.IdPatient,
+            NombrePaciente: nombre,
+            Celular: celular,
+            NumeroSesiones: item.NumeroSesiones,
+            PrimeraCitaPeriodoDate: item.PrimeraCitaPeriodoDate,
+            UltimaCitaPeriodoDate: item.UltimaCitaPeriodoDate,
+            PrimeraCitaPeriodo: formatDate(item.PrimeraCitaPeriodoDate),
+            UltimaCitaPeriodo: formatDate(item.UltimaCitaPeriodoDate),
+            LinkWhatsApp: linkWhatsApp,
+            EncuestaEnviada: !!sentLog,
+            FechaEnvio: sentLog?.SentAt ? formatDate(sentLog.SentAt.toDate()) : ""
+          });
+        }
+
+        results.sort((a, b) => {
+          if (a.EncuestaEnviada !== b.EncuestaEnviada) {
+            return a.EncuestaEnviada - b.EncuestaEnviada;
+          }
+
+          if (b.NumeroSesiones !== a.NumeroSesiones) {
+            return b.NumeroSesiones - a.NumeroSesiones;
+          }
+
+          return a.NombrePaciente.localeCompare(b.NombrePaciente, "es");
+        });
+
+        currentRows = results;
+        renderTable(currentRows);
+        btnExcel.disabled = false;
+
+        const enviados = results.filter(x => x.EncuestaEnviada).length;
+        const pendientes = results.length - enviados;
+
+        setStatus(
+          `Pacientes procesados: ${results.length}\n` +
+          `Ya enviados: ${enviados}\n` +
+          `Pendientes: ${pendientes}`
+        );
+      } catch (error) {
+        console.error(error);
+        setStatus("Error:\n" + error.message);
+      } finally {
+        btnCargar.disabled = false;
+      }
+    }
+
+    async function handleSend(index) {
+      const pendingRows = currentRows.filter(row => {
+        const searchText = searchInput.value.trim().toLowerCase();
+        if (!searchText) return true;
+
+        return (
+          String(row.IdPatient || "").toLowerCase().includes(searchText) ||
+          String(row.NombrePaciente || "").toLowerCase().includes(searchText) ||
+          String(row.Celular || "").toLowerCase().includes(searchText)
+        );
+      });
+
+      const row = pendingRows[index];
+      if (!row) return;
+
+      if (row.EncuestaEnviada) {
+        alert("Esta encuesta ya fue registrada como enviada.");
+        return;
+      }
+
+      if (!row.Celular) {
+        alert("Este paciente no tiene celular.");
+        return;
+      }
+
+      const confirmText =
+        `Se registrará el envío para:\n\n` +
+        `${row.NombrePaciente}\n` +
+        `Celular: ${row.Celular}\n\n` +
+        `Después se abrirá WhatsApp.\n\n` +
+        `¿Continuar?`;
+
+      const confirmed = window.confirm(confirmText);
+      if (!confirmed) return;
+
+      try {
+        await registerSurveySent(row);
+
+        row.EncuestaEnviada = true;
+        row.FechaEnvio = formatDate(new Date());
+
+        const target = currentRows.find(x => String(x.IdPatient) === String(row.IdPatient));
+        if (target) {
+          target.EncuestaEnviada = true;
+          target.FechaEnvio = row.FechaEnvio;
+        }
+
+        renderTable(currentRows);
+        window.open(row.LinkWhatsApp, "_blank");
+
+        const enviados = currentRows.filter(x => x.EncuestaEnviada).length;
+        const pendientes = currentRows.length - enviados;
+
+        setStatus(
+          `Envío registrado para ${row.NombrePaciente}\n` +
+          `Ya enviados: ${enviados}\n` +
+          `Pendientes: ${pendientes}`
+        );
+      } catch (error) {
+        console.error(error);
+        alert("No se pudo registrar el envío: " + error.message);
+      }
+    }
+
+    function exportToExcel(rows) {
+      const data = rows.map(row => ({
+        IdPatient: row.IdPatient,
+        NombrePaciente: row.NombrePaciente,
+        Celular: row.Celular,
+        NumeroSesiones: row.NumeroSesiones,
+        PrimeraCitaPeriodo: row.PrimeraCitaPeriodo,
+        UltimaCitaPeriodo: row.UltimaCitaPeriodo,
+        EncuestaEnviada: row.EncuestaEnviada ? "Sí" : "No",
+        FechaEnvio: row.FechaEnvio || "",
+        LinkWhatsApp: row.LinkWhatsApp
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(data);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Encuesta");
+
+      XLSX.writeFile(workbook, "reporte_encuesta_satisfaccion.xlsx");
+    }
+
+    btnCargar.addEventListener("click", loadPatients);
+
+    btnExcel.addEventListener("click", () => {
+      if (!currentRows.length) {
+        alert("Primero carga los pacientes.");
+        return;
+      }
+      exportToExcel(currentRows);
+    });
+
+    searchInput.addEventListener("input", () => {
+      renderTable(currentRows);
+    });
+
+    tableBody.addEventListener("click", async (event) => {
+      const button = event.target.closest("button[data-action='send']");
+      if (!button) return;
+
+      const index = Number(button.dataset.index);
+      await handleSend(index);
+    });
+  </script>
+</body>
+</html>
