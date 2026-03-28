@@ -9,7 +9,6 @@
     
         <!-- Custom fonts for this template-->
         <link href="../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
         <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css"> -->
         <link
             href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
@@ -91,31 +90,6 @@
 .fc-col-header-cell-cushion {
     color: #fff !important;
 }
-
-.dvCitasFisio {
-  position: relative;
-  transform: translateX(200px);
-  position: absolute;
-  width: 200px;
-  top: 50px;
-  background-color: #f8ad1a;
-  color: white;
-  z-index: 1;
-  right: 0px;
-}
-
-.dvCitasFisio::after{
-    content: "\f500"; /* código del ícono check */
-    font-family: "Font Awesome 6 Free";
-    font-weight: 900;
-    width: 20px;
-    height: 20px;
-    background-color: #006eff;
-    border-radius: 3px;
-    left: -20px;
-    position: absolute;
-    top: 0px;
-}
           </style>
         
     </head>
@@ -133,13 +107,6 @@
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Citas</h1>              
     </div>
-    <div>
-        <div class="dvCitasFisio">
-            <ul class="ListaEmpleadosCitas" style="list-style: none;margin: 0;padding: 10px;">            
-            </ul>
-        </div>
-    </div>
-    
     <div class="card shadow mb-4">
         <div id='calendar-container'>
               <div class="rowSucursal align-items-center justify-content-between mb-4">
@@ -150,14 +117,6 @@
                             <option value="" selected>Ambas</option>
                             <option value="WbZ7Uj46y6wP2MEox6p1">Kiox del valle</option> 
                             <option value="2E6EoRBZYkZWxBTZH6Wp">Kiox Lindavista</option>                                               
-                        </select>
-                    </div>
-                </div>
-                <div class="rowSucursal align-items-center justify-content-between mb-4">
-                <div class="row">
-                    <div class="col-auto">
-                        <label>Fisioterapeuta:</label>
-                        <select class="ddlFisioterapeutaFiltro" id="ddlFisioterapeutaFiltro">
                         </select>
                     </div>
                 </div>

@@ -201,15 +201,18 @@ const SeleccionarDatosEmpleados = async function(tipoControl){
 
 function llenarDropDownEmployee(datosEmployees){
     $(".ddlEmpleados").empty();
+    $(".ddlFisioterapeutaFiltro").empty();
     const lstEmployees = JSON.parse(JSON.stringify(datosEmployees));
     let lstButtons = {};
     if (Object.keys(lstEmployees).length > 0) {
         $(".ddlEmpleados").append("<option value=''></option>");
+        $(".ddlFisioterapeutaFiltro").append("<option value=''></option>");
         for (const ap in lstEmployees) {         
             var idEmployee = ap;   
             var datos = lstEmployees[idEmployee];
             var tbl = "<option value='" + idEmployee + "'>" + datos.Name + " " + datos.LastName + " " + datos.SecondLastName + "</option>";
             $(".ddlEmpleados").append(tbl);
+            $(".ddlFisioterapeutaFiltro").append(tbl);
         }
     }
     $(".dvLoader").hide();

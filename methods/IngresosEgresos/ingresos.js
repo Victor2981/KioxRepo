@@ -689,7 +689,8 @@ function llenarControles() {
 
 function calcularCostoPorSesion(idServicio,costo,sesiones){
     var cost = costo * sesiones;
-    if (idServicio == "q7ZcmRvq0Hlg1k07zy8U" || idServicio == "2kwRyDvUpfTDSeA3n6FW") {
+    var arregloServiciosPaquete = ["q7ZcmRvq0Hlg1k07zy8U","2kwRyDvUpfTDSeA3n6FW","ufTlPtQbyTo96kom1dlI","bu6SNfhtfBSoR78qh3sH","LWmtdB1oWYb0RfA2JqKX"];
+    if ( arregloServiciosPaquete.includes(idServicio)) {
         if (sesiones >= 2 && sesiones <= 6) {
             cost = cost - (sesiones * 50);
         }

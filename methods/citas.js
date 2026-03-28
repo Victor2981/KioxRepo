@@ -10,6 +10,8 @@ let selIdPacienteFiltro = "";
 
 var lstCitasPorConfirmar = [];
 var calendar;
+var lstCitasPorFisioterapeuta = [];
+let abierto = false;
 
 $(document).ready(function(){        
     $(".rowSucursal").hide();
@@ -337,6 +339,23 @@ $(document).ready(function(){
     $(".ddlSucursalFiltro").change(function() {
         generarCalendario();
     });
+
+    $(".ddlFisioterapeutaFiltro").change(function() {
+        SeleccionarDatosCitas();
+    });
+
+    $(".dvCitasFisio").on("click", function () {
+        const abierto = $(this).data("abierto");
+
+        $(this).css({
+            transition: "transform 0.3s ease",
+            transform: abierto ? "translateX(0px)" : "translateX(200px)"
+        });
+
+        $(this).data("abierto", !abierto);
+    });
+
+    
 });
 
 function enviarMensaje(element) {
@@ -393,19 +412,23 @@ const SeleccionarDatosCitas = async function(){
     $(".dvLoader").show();
     parent.lstAppointmentsGlobal = {};
     var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);
-    let consultadb;
+    let consultadb = db.collection(urlCitasGlobal).where("Status", ">",StatusAppointment.Cancelado);
     if (selIdPacienteFiltro != "") {
-        consultadb = db.collection(urlCitasGlobal).where("IdPatient", "==", selIdPacienteFiltro);
+        consultadb = consultadb.where("IdPatient", "==", selIdPacienteFiltro);
     }
     else{
-        consultadb =db.collection(urlCitasGlobal).where("Status", ">",StatusAppointment.Cancelado);
         //datosCuentaUsusario.Position = parseInt(KioxPositions.Recepcion);
         if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Fisioterapeuta)) {
-        consultadb = db.collection(urlCitasGlobal).where("Status", ">",StatusAppointment.Cancelado).where("IdEmployee", "==", datosCuentaUsusario.uId);
+            consultadb = consultadb.where("IdEmployee", "==", datosCuentaUsusario.uId);
         }   
         else if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Recepcion)) {
-        var fechaInicio = new Date(new Date().getFullYear(),(new Date().getMonth()),new Date().getDate(),6,0,0);
-        consultadb = db.collection(urlCitasGlobal).where("Status", "==",StatusAppointment.Registrado).where('AppointmentDateStart', '>=', fechaInicio);
+            var fechaInicio = new Date(new Date().getFullYear(),(new Date().getMonth()),new Date().getDate(),6,0,0);
+            consultadb = consultadb.where('AppointmentDateStart', '>=', fechaInicio);
+        }
+        else if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Administrador)) {
+            if ($(".ddlFisioterapeutaFiltro").val() != "" && $(".ddlFisioterapeutaFiltro").val() != null) {
+                consultadb = consultadb.where("IdEmployee", "==", $(".ddlFisioterapeutaFiltro").val());        
+            }
         }
     }
 
@@ -525,14 +548,19 @@ function llenarEventos(){
                 }
             }
             if ($(".ddlSucursalFiltro").val() == "" || AppoitmentData.IdBranch == $(".ddlSucursalFiltro").val()) {
+                var colorCita = AppoitmentData.Category.Color;
+                var arregloServiciosDomicilio = ["ufTlPtQbyTo96kom1dlI","bu6SNfhtfBSoR78qh3sH","LWmtdB1oWYb0RfA2JqKX"];
+                if (arregloServiciosDomicilio.includes(AppoitmentData.Service.IdService)) {
+                    colorCita = "#396680"; // Azul para servicios de domicilio
+                }
                 appointments.push({
                     id: idAppoitment,
                     title: tituloCita,
                     start: AppoitmentData.AppointmentDateStart.toDate(),
                     end: AppoitmentData.AppointmentDateEnd.toDate(),
                     editable:Editable,
-                    backgroundColor: AppoitmentData.Category.Color,
-                    borderColor: AppoitmentData.Category.Color,
+                    backgroundColor: colorCita,
+                    borderColor: colorCita,
                     classNames:ClassAppointment + " " + branchClass                    
                 });     
             }
@@ -640,6 +668,7 @@ function generarCalendario() {
         }
     }
 
+    lstCitasPorFisioterapeuta = [];
     calendar = new FullCalendar.Calendar(calendarEl, {
         themeSystem: 'bootstrap5', // importante
         initialView: 'dayGridMonth',
@@ -844,26 +873,82 @@ function generarCalendario() {
     },
     eventDidMount: function(info) {
 
-        // Tomamos el color real del evento
         const bgColor = info.event.backgroundColor;
-    
+
         if (info.el.classList.contains("BranchV")) {
             info.el.setAttribute("data-branch", "V");
         }
-    
+
         if (info.el.classList.contains("BranchL")) {
             info.el.setAttribute("data-branch", "L");
         }
-    
-        // Convertimos el color HEX a RGBA con transparencia
+
         if (bgColor) {
             const rgbaColor = hexToRGBA(bgColor, 0.18);
             info.el.style.setProperty('--watermark-color', rgbaColor);
         }
+    },
+    eventsSet: function(events) {
+        const vistaActual = this.view.type;
+        // 🧹 Resetear contador
+        lstCitasPorFisioterapeuta = {};
+
+        const inicioVista = this.view.activeStart;
+        const finVista    = this.view.activeEnd;
+
+        // 🔁 Solo eventos visibles en la vista actual
+        events.forEach(ev => {
+
+            // Si el evento NO está en el rango visible → saltar
+            if (ev.start >= finVista || ev.end <= inicioVista) return;
+
+            var AppointmentData = parent.lstAppointmentsGlobal[ev.id];
+            var idEmp = AppointmentData.IdEmployee;
+            var nombreEmp = AppointmentData.EmployeeName;
+
+            if (!lstCitasPorFisioterapeuta[idEmp]) {
+                lstCitasPorFisioterapeuta[idEmp] = {
+                    id: idEmp,
+                    nombre: nombreEmp,
+                    totalCitas: 0
+                };
+            }
+
+            lstCitasPorFisioterapeuta[idEmp].totalCitas++;
+        });
+
+        llenarCitasPorFisioterapeuta(vistaActual);
     }
     });
     calendar.render();
+    
 };
+
+function llenarCitasPorFisioterapeuta(vistaActual) {
+    $(".ListaEmpleadosCitas").empty();
+    var numeroCitasTiempo = 0;
+    switch (vistaActual) {
+        case 'timeGridDay':
+            numeroCitasTiempo = 8;
+        break;
+        case 'timeGridWeek':
+            numeroCitasTiempo = 48;
+        break;
+        case 'dayGridMonth':
+            numeroCitasTiempo = 224; // Lógica para vista mensual
+        break;
+        default:
+            break;
+    }
+
+    for (const idEmp in lstCitasPorFisioterapeuta) {
+        const fisio = lstCitasPorFisioterapeuta[idEmp];
+        $(".ListaEmpleadosCitas").append(
+            `<li class="itemEmpleadoCitas"><b>${obtenerTresIniciales(fisio.nombre)} | ${fisio.totalCitas} / ${numeroCitasTiempo}
+            </b></li>`
+        );
+    }
+}
 
 function hexToRGBA(hex, alpha) {
     let r = 0, g = 0, b = 0;

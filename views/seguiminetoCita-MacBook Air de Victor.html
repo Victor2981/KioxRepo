@@ -83,17 +83,9 @@
             <div class="row">
                 <div class="col">
                     <button type="button" class="btn btn-primary btnGuardarHistorial float-right">Guardar</button>
-                    <button type="button" class="btn btn-info btnFinishAppointmentMedicalDischarge float-right">Finalizar con alta</button>
                     <button type="button" class="btn btn-danger btnFinishAppointment float-right">Finalizar cita</button>
                 </div>
             </div>        
-            <div class="row rowDiagnostico">
-                <div class="col">
-                    <label>Diagnóstico:</label>
-                    <select class="form-control ddlDiagnostico"></select>
-                    </select>
-                </div>
-            </div>
             <div class="row">
                 <div class="col">
                     <label>Nota de evolución:</label>
@@ -125,9 +117,6 @@
     <script src="../methods/IngresosEgresos/ingresos.js?kvs=6.30"></script>
     <script src="../methods/IngresosEgresos/paquetes.js?kvs=6.30"></script>
     <script src="../methods/empleados.js?kvs=6.30"></script>
-    <script src="../methods/padecimientos.js?kvs=6.30"></script>
-    <script src="../methods/padecimientos.js?kvs=6.30"></script>
-    <script src="../methods/registrosMedicos.js?kvs=6.30"></script>
     <script src="../methods/seguimientoCita.js?kvs=6.30"></script>
     <script src="../methods/utilidades.js?kvs=6.30"></script>
     <script src="../methods/dbManager.js?kvs=6.30"></script>
@@ -135,7 +124,6 @@
             
         $(document).ready(async function(){        
            await SeleccionarDatosPacientes();
-           await SeleccionarPadecimiento();
        });                           
    </script>
 </body>    

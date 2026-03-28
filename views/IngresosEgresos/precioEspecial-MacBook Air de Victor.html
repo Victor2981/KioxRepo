@@ -10,16 +10,16 @@
         <title>SB Admin 2 - Dashboard</title>
     
         <!-- Custom fonts for this template-->
-        <link href="../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+        <link href="../../../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
         <link
             href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
             rel="stylesheet">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
         <!-- Custom styles for this template-->
-        <link href="../css/sb-admin-2.css?kvs=6.30" rel="stylesheet">
-        <link href="../css/custom.css?kvs=6.30" rel="stylesheet">
-        <link href="../vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+        <link href="../../../css/sb-admin-2.css?kvs=6.30" rel="stylesheet">
+        <link href="../../../css/custom.css?kvs=6.30" rel="stylesheet">
+        <link href="../../../vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
     <style>
       
     </style>
@@ -34,7 +34,7 @@
     </div>
     <!-- Page Heading -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Lista de pacientes</h1>
+        <h1 class="h3 mb-0 text-gray-800">Lista de paquetes</h1>
     </div>
     <div class="card shadow mb-4">
         <div class="card-header py-3">
@@ -48,7 +48,7 @@
         </div>
         <div class="card-body">
             <div class="table-responsive">                                
-                <table class="table table-bordered tblPacientes" id="dataTable" width="100%" cellspacing="0">
+                <table class="table table-bordered tblPrecioEspecial" id="dataTable" width="100%" cellspacing="0">
                 </table>
             </div>
         </div>
@@ -60,14 +60,14 @@
     <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-analytics.js"></script>
-    <script src="../methods/Globals.js"></script>
-    <script src="../methods/conexiones.js?kvs=6.30"></script>
-    <script src="../methods/Pacientes.js?kvs=6.30"></script>
-    <script src="../methods/utilidades.js?kvs=6.30"></script>
-    <script src="../methods/dbManager.js?kvs=6.30"></script>
+    <script src="../../../methods/conexiones.js?kvs=6.30"></script>
+    <script src="../../../methods/Globals.js?kvs=6.30"></script>
+    <script src="../../../methods/IngresosEgresos/precioEspecial.js?kvs=6.30"></script>
+    <script src="../../../methods/utilidades.js?kvs=6.30"></script>
+    <script src="../../../methods/dbManager.js?kvs=6.30"></script>
     <script>
-        $(document).ready(function(){        
-            SeleccionarDatosPacientes();
+        $(document).ready(function(){    
+            SeleccionarDatosPaquetes("tabla");
         });
     </script>
 </body>    
