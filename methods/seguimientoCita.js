@@ -529,35 +529,37 @@ if (input != undefined) {
 
 // ➕ CHIP CON COLOR
 function agregarChip(d,sinEliminar = false) {
-    if (lstPadecimientosSeleccionados.find(x => x.Name === d.Name)) return;
+    if (d != undefined) {
+        if (lstPadecimientosSeleccionados.find(x => x.Name === d.Name)) return;
+        lstPadecimientosSeleccionados.push(d);
 
-    lstPadecimientosSeleccionados.push(d);
+        const chip = document.createElement("div");
+        chip.className = "chip";
 
-    const chip = document.createElement("div");
-    chip.className = "chip";
+        const color = coloresCategoria[d.Category] || "#333";
+        chip.style.background = color;
 
-    const color = coloresCategoria[d.Category] || "#333";
-    chip.style.background = color;
+        chip.innerHTML = `
+            ${d.Name}
+            <span>&times;</span>
+        `;
 
-    chip.innerHTML = `
-        ${d.Name}
-        <span>&times;</span>
-    `;
+        $(".dvAltaDiagnosticos").append('<label><input type="checkbox" name="diagnostico" value="' + d.id + '"> ' + d.Name + '</label><br>');
 
-    $(".dvAltaDiagnosticos").append('<label><input type="checkbox" name="diagnostico" value="' + d.id + '"> ' + d.Name + '</label><br>');
+        if (!sinEliminar) {
+            chip.querySelector("span").onclick = () => {
+                lstPadecimientosSeleccionados = lstPadecimientosSeleccionados.filter(x => x.Name !== d.Name);
+                chip.remove();
+            };
+        }
+        else{
+            chip.querySelector("span").remove();
+        }
 
-    if (!sinEliminar) {
-        chip.querySelector("span").onclick = () => {
-            lstPadecimientosSeleccionados = lstPadecimientosSeleccionados.filter(x => x.Name !== d.Name);
-            chip.remove();
-        };
+        chipsContainer.appendChild(chip);
+
+        input.value = "";
+        list.innerHTML = "";
     }
-    else{
-        chip.querySelector("span").remove();
-    }
-
-    chipsContainer.appendChild(chip);
-
-    input.value = "";
-    list.innerHTML = "";
+    
 }
