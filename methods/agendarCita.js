@@ -85,6 +85,9 @@ $(document).ready(function(){
             var banValidacion = true;
             var motivoNoReagendar = parseInt($(".ddlMotivoNoReagendar").val());
             var comentariosNoReagendar = $(".txtComentariosNoReagendar").val();
+            var datos = await selectDb(urlCitasGlobal,selIdAppointmentGlobal);
+            var datosPaciente = parent.lstPatientsGlobal[datos.IdPatient];
+            selIdPatientAgendarGlobal = datos.IdPatient;
             if(banValidacion == true){banValidacion = Validador($(".ddlMotivoNoReagendar"),"motivo",motivoNoReagendar,2,'',false)};
             if (motivoNoReagendar != "" && motivoNoReagendar != null) {
                 if (motivoNoReagendar == 5) {
