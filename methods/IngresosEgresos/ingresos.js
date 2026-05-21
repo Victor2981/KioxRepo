@@ -70,7 +70,7 @@ $(document).ready(function(){
         }
         $(".tblIngresosDetalle").empty();
         parent.lstIngresosGlobal = {};
-        SeleccionarDatosIngresos("tabla",fechaInicio,fechafin,$(".ddlSucursal").val());
+        SeleccionarDatosIngresos("tabla",fechaInicio,fechafin,$(".ddlSucursal").val(),$(".ddlFisioterapeuta").val());
     });
     
     $(".btnAgregarIngresos").click(async function (){        
@@ -673,6 +673,7 @@ function generarDatosIngresos(obj,TitulosDatos,datos,Buttons){
 function llenarControles() {
     $(".ddlFormaPago").empty();
     $(".ddlMensualidades").empty();
+    $(".ddlFisioterapeuta").empty();
     $(".colMensualidades").hide();
     $(".ddlMensualidades").append("<option value=''></option>" );
     for (let mensualidades = 1; mensualidades <= 12; mensualidades++) {
@@ -684,6 +685,10 @@ function llenarControles() {
     $(".ddlFormaPago").append("<option value=" + PaymentType.Transferencia +">Transferencia</option>" );
     $(".ddlFormaPago").append("<option value=" + PaymentType.Tarjeta +">Tarjeta</option>" );
     
+    $(".ddlFisioterapeuta").append("<option value=''></option>" );
+    Object.entries(parent.lstEmployeesGlobal).forEach(function(employee){
+        $(".ddlFisioterapeuta").append("<option value=" + employee[1].uId +">" + employee[1].Name + " " + employee[1].LastName + " " + employee[1].SecondLastName +"</option>" );
+    });
 }
 
 
@@ -727,7 +732,7 @@ const SeleccionarDatosIngresosPorId = async function(arrayIdEarnings){
     })});
 };
 
-const SeleccionarDatosIngresos = async function(tipoControl,fechaInicio,fechafin,idBranch){
+const SeleccionarDatosIngresos = async function(tipoControl,fechaInicio,fechafin,idBranch,idEmployee){
     $(".dvLoader").show();    
     parent.lstIngresosGlobal = {};
     //var FechaI = new Date(new Date(fechaInicio).getFullYear(),new Date(fechaInicio).getMonth() - 1 ,new Date(fechaInicio).getDate(),0,0,0);
@@ -745,6 +750,9 @@ const SeleccionarDatosIngresos = async function(tipoControl,fechaInicio,fechafin
     if (idBranch != undefined && idBranch != "") {
         consultadb = consultadb.where("IdBranch", "==",idBranch);
     }   
+    if (idEmployee != undefined && idEmployee != "") {
+        consultadb = consultadb.where("IdEmployeRegister", "==",idEmployee);
+    }
 
     await consultadb.onSnapshot(function(snapshot) {
         snapshot.docChanges().forEach(function(change) {
@@ -799,7 +807,8 @@ function llenarTablaIngresosDetalle(datosIngresos){
             else{
                 datos.IsPayed = "No"    
             }   
-            datos.NameComplete = datos.Patient.Name + " " + datos.Patient.LastName + " " + datos.Patient.SecondLastName;
+            var nomEmpleado = parent.lstEmployeesGlobal[datos.IdEmployeRegister].Name + " " + parent.lstEmployeesGlobal[datos.IdEmployeRegister].LastName + " " + parent.lstEmployeesGlobal[datos.IdEmployeRegister].SecondLastName
+            datos.NameComplete = datos.Patient.Name + " " + datos.Patient.LastName + " " + datos.Patient.SecondLastName + "(" + obtenerTresIniciales(nomEmpleado) + ")";
             datos.PaymentTypeText = TipoPagoTexto(datos.PaymentType);
 
             switch (datos.PaymentType) {

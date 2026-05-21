@@ -166,11 +166,11 @@ function obtenerPadecimientoActivoPorPaciente(idPatient) {
     .get()
     .then(function(querySnapshot) {
       if (querySnapshot.docs.length > 0) {
-       return querySnapshot.docs[0].data().IdMedicalCondition;
+       return querySnapshot.docs;
       }
-      return null;
+      return [];
     })
     .catch(function(error) {
-      return null
+      return [];
     });
 }

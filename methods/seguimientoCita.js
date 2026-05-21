@@ -3,6 +3,18 @@ var selIdAppointmentGlobal = "";
 var selIdPatientGlobal = "";
 var selIdServiceGlobal = "";
 var arregloServiciosTerapia = ["q7ZcmRvq0Hlg1k07zy8U","2kwRyDvUpfTDSeA3n6FW","ufTlPtQbyTo96kom1dlI","bu6SNfhtfBSoR78qh3sH","LWmtdB1oWYb0RfA2JqKX"];
+let lstPadecimientos = [];
+let lstPadecimientosSeleccionados = [];
+const coloresCategoria = {
+    "Columna": "#007bff",
+    "Miembro inferior": "#28a745",
+    "Miembro superior": "#ffc107",
+    "Neurológico": "#6f42c1",
+    "Deportivo": "#fd7e14",
+    "Postquirúrgico": "#dc3545",
+    "Estético": "#e83e8c",
+    "General": "#6c757d"
+};
 $(document).ready(function(){        
     const urlQueryString = new URLSearchParams(window.location.search);
     const idAppointmentQuery = urlQueryString.get('idAppointment');
@@ -21,17 +33,6 @@ $(document).ready(function(){
             $(".btnFinishAppointment").show();
         }
     }
-
-    $(".ddlDiagnostico").change(function(){
-        $(".btnFinishAppointmentMedicalDischarge").hide();  
-        if ($(this).val() != "") {
-            obtenerPorPacientePorServicioActivo(selIdPatientGlobal, $(this).val()).then(function(datos){
-                if (datos != null) {
-                    $(".btnFinishAppointmentMedicalDischarge").show();  
-                }
-            });
-        }
-    });
 
     $(".rblTratamiento").click(function() {
         $(".dvTratamiento").hide();
@@ -53,9 +54,13 @@ $(document).ready(function(){
             await UpdateAppointmentMonitoring($(".btnGuardarHistorial"),selIdAppointmentGlobal,observations,recommendations,StatusAppointment.Finalizado);
             if (datosPaciente.NewPatient) {
                 var datosRegistro = datosPaciente;
+                var lstPadecimientos = [];
+                lstPadecimientosSeleccionados.forEach(function(padecimiento){
+                   lstPadecimientos.push(padecimiento.id);
+                });
                 var historial = {
                     BloodType: $(".ddlTipoSangre").val(),
-                    Ailments: $(".txtPadecimientos").val(),
+                    Ailments: lstPadecimientos,
                     Allergies: $(".txtAlergias").val(),
                     Surgeries: $(".txtOperaciones").val(),
                     FamilyAilments: $(".txtAntecedentesFamiliares").val(),
@@ -70,7 +75,7 @@ $(document).ready(function(){
         }
     });
 
-    $(".btnFinishAppointmentMedicalDischarge").on("click", async function (e) {
+    $(".btnAceptarAltaDiagnostico").on("click", async function (e) {
             e.preventDefault();
 
             const $btn = $(this);
@@ -85,14 +90,23 @@ $(document).ready(function(){
                 const recommendations = $(".txtRecomendaciones").val();
                 const appointment = await selectDb(urlCitasGlobal, selIdAppointmentGlobal);
                 if (arregloServiciosTerapia.includes(appointment.Service.IdService)) {
-                    if(banValidacion == true){banValidacion = Validador($(".ddlDiagnostico"),"diagnóstico",$(".ddlDiagnostico").val(),1,'')};
+                    if(banValidacion == true){banValidacion = Validador($(".ddlDiagnostico"),"diagnóstico",lstPadecimientosSeleccionados.length,3,'')};
                 }
                 if (!appointment) {
                     MostrarMensajePrincipal("No se encontró la cita", "danger");
                     return;
                 }
                 if(banValidacion){
-                    var idMedicalCondition = $(".ddlDiagnostico").val();
+                    var lstPadecimientos = [];
+                    var valoresSeleccionados = $('input[name="diagnostico"]:checked').map(function() {
+                        return $(this).val();
+                    }).get(); 
+                    lstPadecimientosSeleccionados.forEach(function(padecimiento){
+                        if (valoresSeleccionados.includes(padecimiento.id)) {
+                            lstPadecimientos.push(padecimiento.id);
+                        }
+                    });
+                    const idMedicalCondition = lstPadecimientos;
                     var isMedicalDischarge = true;
                     await finishAppointmentFlow($(".btnFinishAppointmentMedicalDischarge"),appointment,observations,recommendations,idMedicalCondition,isMedicalDischarge);
                     //await updateDb(urlCategoriesGlobal,idCategory,Category);
@@ -121,14 +135,18 @@ $(document).ready(function(){
             const recommendations = $(".txtRecomendaciones").val();
             const appointment = await selectDb(urlCitasGlobal, selIdAppointmentGlobal);
             if (arregloServiciosTerapia.includes(appointment.Service.IdService)) {
-                if(banValidacion == true){banValidacion = Validador($(".ddlDiagnostico"),"diagnóstico",$(".ddlDiagnostico").val(),1,'')};
+                if(banValidacion == true){banValidacion = Validador($(".ddlDiagnostico"),"diagnóstico",lstPadecimientosSeleccionados.length,3,'')};
             }
             if (!appointment) {
                 MostrarMensajePrincipal("No se encontró la cita", "danger");
                 return;
             }
             if(banValidacion){
-                const idMedicalCondition = $(".ddlDiagnostico").val();
+                var lstPadecimientos = [];
+                lstPadecimientosSeleccionados.forEach(function(padecimiento){
+                   lstPadecimientos.push(padecimiento.id);
+                });
+                const idMedicalCondition = lstPadecimientos;
                 const isMedicalDischarge = false;
                 await finishAppointmentFlow($(".btnFinishAppointment"),
                     appointment,
@@ -147,39 +165,41 @@ $(document).ready(function(){
         }
     });    
 
-    async function finishAppointmentFlow(ctrl,appointment, observations, recommendations,IdMedicalCondition, isMedicalDischarge) {
+    async function finishAppointmentFlow(ctrl,appointment, observations, recommendations,LstIdMedicalCondition, isMedicalDischarge) {
         var idMedicalRecord = "";
         if (arregloServiciosTerapia.includes(selIdServiceGlobal)) {
-            obtenerPorPacientePorServicioActivo(selIdPatientGlobal, IdMedicalCondition).then(async function (datos) {
-                if (datos == null) {
-                    idMedicalRecord = await insertarMedicalRecord({
-                        IdPatient: selIdPatientGlobal,
-                        IdService: selIdServiceGlobal,
-                        IdMedicalCondition: IdMedicalCondition,
-                        dateStart: new Date(),
-                        dateFinish: null,
-                        MedicalDischarge: false
-                    });
-                }
-                else {
-                    var datosExp = datos;
-                    if (datosExp != null) {
-                        var datosExpediente = datosExp.data();
-                        datosExpediente.MedicalDischarge = isMedicalDischarge;
-                        datosExpediente.dateFinish = new Date();
-                        await updateDb(ctrl,"MedicalRecords", datosExp.id, datosExpediente);      
+            LstIdMedicalCondition.forEach(function(IdMedicalCondition){
+                obtenerPorPacientePorServicioActivo(selIdPatientGlobal, IdMedicalCondition).then(async function (datos) {
+                    if (datos == null) {
+                        idMedicalRecord = await insertarMedicalRecord({
+                            IdPatient: selIdPatientGlobal,
+                            IdService: selIdServiceGlobal,
+                            IdMedicalCondition: IdMedicalCondition,
+                            dateStart: new Date(),
+                            dateFinish: null,
+                            MedicalDischarge: false
+                        });
                     }
-                }
+                    else {
+                        var datosExp = datos;
+                        if (datosExp != null) {
+                            var datosExpediente = datosExp.data();
+                            datosExpediente.MedicalDischarge = isMedicalDischarge;
+                            datosExpediente.dateFinish = new Date();
+                            await updateDb(ctrl,"MedicalRecords", datosExp.id, datosExpediente);      
+                        }
+                    }
+                });
             });
         }
         appointment.IdMedicalRecord = idMedicalRecord;
-        // 🔹 Actualizar cita a Finalizado
+        // 🔹 Actualizar cita a Reagendar
         await UpdateAppointmentMonitoring(
             $(".btnFinishAppointment"),
             selIdAppointmentGlobal,
             observations,
             recommendations,
-            StatusAppointment.Finalizado
+            StatusAppointment.Reagendar
         );
 
         // 🔹 Buscar paquete activo del paciente
@@ -255,15 +275,73 @@ $(document).ready(function(){
         parent.tipoConceptoCobro = 1;
 
         Redireccionar(
-            "/views/IngresosEgresos/validacionPago.html?idPacientePago=" +
+            "/views/agendaCita.html?idPacientePago=" +
             selIdPatientGlobal +
             "&idCita=" +
             selIdAppointmentGlobal
         );
     }
-
-   
 });
+
+ // 🔥 AUTOCOMPLETE
+//  document.getElementById("txtPadecimiento").addEventListener("keyup", function () {
+
+//     const input = this;
+//     const texto = input.value.toLowerCase();
+
+//     // limpiar anteriores
+//     closeList();
+
+//     if (!texto) return;
+
+//     const contenedor = document.createElement("DIV");
+//     contenedor.setAttribute("class", "autocomplete-items");
+//     input.parentNode.appendChild(contenedor);
+
+//     const resultados = lstPadecimientos
+//         .filter(x => x.name.toLowerCase().includes(texto))
+//         .slice(0, 10); // 🔥 limitamos a 10
+
+//     resultados.forEach(item => {
+//         const div = document.createElement("DIV");
+//         div.innerHTML = "<strong>" + item.name + "</strong>";
+
+//         div.addEventListener("click", function () {
+//             input.value = item.id;
+//             document.getElementById("txtPadecimiento").innerText = item.name + " (" + item.id + ")";
+//             closeList();
+//         });
+
+//         contenedor.appendChild(div);
+//     });
+// });
+
+// function closeList() {
+//     const items = document.querySelectorAll(".autocomplete-items");
+//     items.forEach(el => el.remove());
+// }
+
+// document.addEventListener("click", function (e) {
+//     if (e.target.id !== "txtPadecimiento") {
+//         alert(e.target.id);
+//         closeList();
+//     }
+// });
+
+async function cargarPadecimientos() {
+    const snapshot = await db.collection("MedicalConditions")
+        .where("Status", "==", 2)
+        .get();
+
+    snapshot.forEach(doc => {
+        // lstPadecimientos.push({[doc.id]:doc.data()});
+        var datos = doc.data();
+        datos.id = doc.id;
+        lstPadecimientos.push(datos);
+    });
+
+    console.log("Padecimientos cargados:", lstPadecimientos.length);
+}
 
 async function SeleccionarPadecimiento() {
     $(".ddlDiagnostico").empty();
@@ -346,8 +424,11 @@ async function populateAppointmentData(idAppointment) {
     $(".dvLoader").show();    
     var datos = await selectDb(urlCitasGlobal,idAppointment);
     if (datos != null) {        
-        var idMedicalCondition = await obtenerPadecimientoActivoPorPaciente(datos.IdPatient);
-        $(".ddlDiagnostico").val(idMedicalCondition);
+        var LstMedicalCondition = await obtenerPadecimientoActivoPorPaciente(datos.IdPatient);
+        //$(".ddlDiagnostico").val(idMedicalCondition);
+        LstMedicalCondition.forEach(function(padecimiento){
+            agregarChip(lstPadecimientos.find(u => u.id === padecimiento.data().IdMedicalCondition),true);
+        });
         var datosPaciente = parent.lstPatientsGlobal[datos.IdPatient];
         selIdPatientGlobal = datos.IdPatient;
         selIdServiceGlobal = datos.Service.IdService;
@@ -382,7 +463,7 @@ async function populateAppointmentData(idAppointment) {
         $(".txtRecomendaciones").text(datos.Recommendations);        
         if (arregloServiciosTerapia.includes(datos.Service.IdService)) {
             $(".rowDiagnostico").show();
-            if (idMedicalCondition != null) {
+            if (LstMedicalCondition.length > 0) {
                 $(".btnFinishAppointmentMedicalDischarge").show();
             }
         }
@@ -410,4 +491,73 @@ async function UpdateAppointmentMonitoring(ctrl,idAppoitment,observations,recomm
     Appointment.Status = Status;
     Appointment.IdEmployeeAttended = parent.idUsuarioSistema;
     await updateDb(ctrl,urlCitasGlobal,idAppoitment,Appointment);    
+}
+
+
+const input = document.getElementById("inputDiagnostico");
+const list = document.getElementById("autocomplete-list");
+const chipsContainer = document.getElementById("chipsContainer");
+
+
+// 🔍 AUTOCOMPLETE
+if (input != undefined) {
+    input.addEventListener("keyup", function() {
+        const val = this.value.toLowerCase();
+        list.innerHTML = "";
+
+        if (!val) return;
+
+        const filtrados = lstPadecimientos.filter(d =>
+            d.Name.toLowerCase().includes(val)
+        );
+
+        filtrados.forEach(d => {
+            const div = document.createElement("div");
+            div.innerHTML = `
+                <strong>${d.Name}</strong>
+                <span class="tagCategoria">(${d.Category})</span>
+            `;
+
+            div.onclick = () => agregarChip(d);
+
+            list.appendChild(div);
+        });
+    });
+}
+
+
+
+// ➕ CHIP CON COLOR
+function agregarChip(d,sinEliminar = false) {
+    if (lstPadecimientosSeleccionados.find(x => x.Name === d.Name)) return;
+
+    lstPadecimientosSeleccionados.push(d);
+
+    const chip = document.createElement("div");
+    chip.className = "chip";
+
+    const color = coloresCategoria[d.Category] || "#333";
+    chip.style.background = color;
+
+    chip.innerHTML = `
+        ${d.Name}
+        <span>&times;</span>
+    `;
+
+    $(".dvAltaDiagnosticos").append('<label><input type="checkbox" name="diagnostico" value="' + d.id + '"> ' + d.Name + '</label><br>');
+
+    if (!sinEliminar) {
+        chip.querySelector("span").onclick = () => {
+            lstPadecimientosSeleccionados = lstPadecimientosSeleccionados.filter(x => x.Name !== d.Name);
+            chip.remove();
+        };
+    }
+    else{
+        chip.querySelector("span").remove();
+    }
+
+    chipsContainer.appendChild(chip);
+
+    input.value = "";
+    list.innerHTML = "";
 }

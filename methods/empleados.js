@@ -101,20 +101,15 @@ $(document).ready(function(){
                 });
             }
             else{
-                var dato={
-                    Name: nombre,
-                    LastName: primerApellido,
-                    SecondLastName: segundoApellido,
-                    Email: correo,
-                    Phone: telefono,
-                    Position : puesto,
-                    Status: 1,                    
-                    Available: true,
-                    IdBranch: sucursal,
-                    UserId: selEmployeeGlobal,
-                    uId: selEmployeeGlobal
-                }
-                await GuardarDatosEmpleado($(".btnGuardarEmpleado"),dato,operacionEmpleado,selEmployeeGlobal);
+                var Employee = await selectDb(urlEmployeesGlobal,selEmployeeGlobal);
+                Employee.Name = nombre;
+                Employee.LastName = primerApellido;
+                Employee.SecondLastName = segundoApellido;
+                Employee.Email = correo;
+                Employee.Phone = telefono;
+                Employee.Position = puesto;
+                Employee.IdBranch = sucursal;              
+                await GuardarDatosEmpleado($(".btnGuardarEmpleado"),Employee,operacionEmpleado,selEmployeeGlobal);
                 MostrarMensajePrincipal("El empleado se actualizó correctamente","success");
                 $(".dvLoader").hide();  
             }
@@ -146,6 +141,7 @@ async function populateEmployeesData(idEmployee){
         $(".txtTelefono").val(Employee.Phone);
         $(".txtCorreo").val(Employee.Email);
         $(".ddlPuesto").val(Employee.Position);
+        $(".ddlSucursal").val(Employee.IdBranch);
     }
 }
 

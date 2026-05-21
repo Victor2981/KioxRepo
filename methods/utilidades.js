@@ -567,3 +567,18 @@ function fechaLocal(dateString, endOfDay = false){
     }
     return new Date(year, month-1, day, 0, 0, 0);
 }
+
+function obtenerTresIniciales(nombreCompleto) {
+    if (!nombreCompleto) return "";
+  
+    // Divide el nombre por espacios, filtra elementos vacíos
+    const palabras = nombreCompleto.trim().split(/\s+/);
+    
+    // Toma las primeras 3 palabras, obtiene la primera letra y une
+    const iniciales = palabras
+      .slice(0, 3)
+      .map(palabra => palabra.charAt(0).toUpperCase())
+      .join("");
+  
+    return iniciales;
+}

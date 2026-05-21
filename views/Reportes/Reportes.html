@@ -1,0 +1,329 @@
+<html>
+    <head>
+        <script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-analytics.js"></script>
+    <script src="../../../methods/conexiones.js?kvs=7"></script>
+    <script src="../../../methods/Globals.js?kvs=7"></script>
+        <script>
+            import {
+                collection,
+                query,
+                where,
+                getDocs,
+                getDoc,
+                writeBatch,
+                doc,
+                Timestamp
+                } from "firebase/firestore";
+
+                async function rebuildMetrics(db, force = false) {
+
+                const now = new Date();
+                const currentYear = now.getFullYear();
+                const currentMonth = now.getMonth() + 1;
+
+                const startYear = currentYear - 1;
+
+                for (let year = startYear; year <= currentYear; year++) {
+
+                    let maxMonth;
+
+                    if (year === currentYear) {
+                    maxMonth = currentMonth - 1; // 🔒 solo meses cerrados
+                    } else {
+                    maxMonth = 12;
+                    }
+
+                    for (let month = 1; month <= maxMonth; month++) {
+
+                    const startDate = new Date(year, month - 1, 1);
+                    const endDate = new Date(year, month, 1);
+
+                    // ===============================
+                    // 🔎 VALIDAR SI YA EXISTE
+                    // ===============================
+
+                    const validationRef = doc(
+                        db,
+                        "monthlyNewPatientsTotal",
+                        `${year}_${month}`
+                    );
+
+                    const validationSnap = await getDoc(validationRef);
+
+                    if (validationSnap.exists() && !force) {
+                        console.log(`⏭ ${year}-${month} ya procesado`);
+                        continue;
+                    }
+
+                    console.log(`🚀 Procesando ${year}-${month}`);
+
+                    // ===============================
+                    // 1️⃣ PACIENTES NUEVOS DEL MES
+                    // ===============================
+
+                    const patientsQuery = query(
+                        collection(db, "Patients"),
+                        where("RegistrationDate", ">=", startDate),
+                        where("RegistrationDate", "<", endDate)
+                    );
+
+                    const patientsSnap = await getDocs(patientsQuery);
+
+                    const newPatientsMap = new Map();
+
+                    patientsSnap.forEach(docSnap => {
+                        newPatientsMap.set(docSnap.id, true);
+                    });
+
+                    const totalNewPatientsMonth = newPatientsMap.size;
+
+                    // ===============================
+                    // 2️⃣ CITAS COMPLETADAS DEL MES
+                    // ===============================
+
+                    const appointmentsQuery = query(
+                        collection(db, "Appointment"),
+                        where("AppointmentDateStart", ">=", startDate),
+                        where("AppointmentDateStart", "<", endDate),
+                        where("Status", "in", [5, 6])
+                    );
+
+                    const appointmentsSnap = await getDocs(appointmentsQuery);
+
+                    // ===============================
+                    // 🧠 TRAER HISTORIAL COMPLETO UNA VEZ
+                    // ===============================
+
+                    const allAppointmentsQuery = query(
+                        collection(db, "Appointment"),
+                        where("Status", "in", [5, 6])
+                    );
+
+                    const allAppointmentsSnap = await getDocs(allAppointmentsQuery);
+
+                    const patientAppointmentCount = {};
+
+                    allAppointmentsSnap.forEach(docSnap => {
+                        const data = docSnap.data();
+                        const patientId = data.IdPatient;
+
+                        if (!patientId) return;
+
+                        if (!patientAppointmentCount[patientId]) {
+                        patientAppointmentCount[patientId] = 0;
+                        }
+
+                        patientAppointmentCount[patientId]++;
+                    });
+
+                    // ===============================
+                    // 📊 ESTRUCTURAS DE MÉTRICAS
+                    // ===============================
+
+                    const newByServiceBranch = {};
+                    const retentionByTherapist = {};
+                    const totalPatientsMonthSet = new Set();
+                    const totalPatientsByBranch = {};
+
+                    appointmentsSnap.forEach(docSnap => {
+
+                        const data = docSnap.data();
+                        const patientId = data.IdPatient;
+                        const branchId = data.IdBranch;
+                        const serviceId = data.Service?.IdService;
+                        const therapistId = data.IdEmployee;
+
+                        if (!patientId) return;
+
+                        // 🟣 TOTAL PACIENTES DEL MES
+                        totalPatientsMonthSet.add(patientId);
+
+                        if (branchId) {
+                        if (!totalPatientsByBranch[branchId]) {
+                            totalPatientsByBranch[branchId] = new Set();
+                        }
+                        totalPatientsByBranch[branchId].add(patientId);
+                        }
+
+                        // 🟢 NUEVOS POR SERVICIO + SUCURSAL
+                        if (newPatientsMap.has(patientId)) {
+
+                        if (branchId && serviceId) {
+
+                            const key = `${branchId}_${serviceId}`;
+
+                            if (!newByServiceBranch[key]) {
+                            newByServiceBranch[key] = {
+                                branchId,
+                                serviceId,
+                                patients: new Set()
+                            };
+                            }
+
+                            newByServiceBranch[key].patients.add(patientId);
+                        }
+                        }
+
+                        // 🔵 RETENCIÓN OPTIMIZADA
+                        if (therapistId) {
+
+                        if (!retentionByTherapist[therapistId]) {
+                            retentionByTherapist[therapistId] = {
+                            totalPatients: new Set(),
+                            returningPatients: new Set()
+                            };
+                        }
+
+                        retentionByTherapist[therapistId].totalPatients.add(patientId);
+
+                        if (patientAppointmentCount[patientId] >= 2) {
+                            retentionByTherapist[therapistId].returningPatients.add(patientId);
+                        }
+                        }
+                    });
+
+                    // ===============================
+                    // 💾 GUARDAR EN BATCH
+                    // ===============================
+
+                    let batch = writeBatch(db);
+                    let operationCount = 0;
+
+                    // 🔹 NUEVOS TOTAL MES
+                    batch.set(validationRef, {
+                        year,
+                        month,
+                        totalNewPatients: totalNewPatientsMonth,
+                        updatedAt: Timestamp.now()
+                    });
+                    operationCount++;
+
+                    // 🔹 TOTAL PACIENTES MES
+                    const totalPatientsRef = doc(
+                        db,
+                        "monthlyTotalPatients",
+                        `${year}_${month}`
+                    );
+
+                    batch.set(totalPatientsRef, {
+                        year,
+                        month,
+                        totalPatients: totalPatientsMonthSet.size,
+                        updatedAt: Timestamp.now()
+                    });
+                    operationCount++;
+
+                    // 🔹 TOTAL PACIENTES POR SUCURSAL
+                    for (const branchId in totalPatientsByBranch) {
+
+                        const ref = doc(
+                        db,
+                        "monthlyTotalPatientsByBranch",
+                        `${year}_${month}_${branchId}`
+                        );
+
+                        batch.set(ref, {
+                        year,
+                        month,
+                        branchId,
+                        totalPatients: totalPatientsByBranch[branchId].size,
+                        updatedAt: Timestamp.now()
+                        });
+
+                        operationCount++;
+
+                        if (operationCount === 500) {
+                        await batch.commit();
+                        batch = writeBatch(db);
+                        operationCount = 0;
+                        }
+                    }
+
+                    // 🔹 NUEVOS POR SERVICIO + SUCURSAL
+                    for (const key in newByServiceBranch) {
+
+                        const metric = newByServiceBranch[key];
+
+                        const ref = doc(
+                        db,
+                        "monthlyNewPatientsByServiceBranch",
+                        `${year}_${month}_${metric.branchId}_${metric.serviceId}`
+                        );
+
+                        batch.set(ref, {
+                        year,
+                        month,
+                        branchId: metric.branchId,
+                        serviceId: metric.serviceId,
+                        totalNewPatients: metric.patients.size,
+                        updatedAt: Timestamp.now()
+                        });
+
+                        operationCount++;
+
+                        if (operationCount === 500) {
+                        await batch.commit();
+                        batch = writeBatch(db);
+                        operationCount = 0;
+                        }
+                    }
+
+                    // 🔹 RETENCIÓN POR TERAPEUTA
+                    for (const therapistId in retentionByTherapist) {
+
+                        const totalPatients =
+                        retentionByTherapist[therapistId].totalPatients.size;
+
+                        const returningPatients =
+                        retentionByTherapist[therapistId].returningPatients.size;
+
+                        const retentionRate =
+                        totalPatients > 0
+                            ? (returningPatients / totalPatients) * 100
+                            : 0;
+
+                        const ref = doc(
+                        db,
+                        "monthlyRetentionByTherapist",
+                        `${year}_${month}_${therapistId}`
+                        );
+
+                        batch.set(ref, {
+                        year,
+                        month,
+                        therapistId,
+                        totalPatients,
+                        returningPatients,
+                        retentionRate,
+                        updatedAt: Timestamp.now()
+                        });
+
+                        operationCount++;
+
+                        if (operationCount === 500) {
+                        await batch.commit();
+                        batch = writeBatch(db);
+                        operationCount = 0;
+                        }
+                    }
+
+                    if (operationCount > 0) {
+                        await batch.commit();
+                    }
+
+                    console.log(`✅ ${year}-${month} guardado correctamente`);
+                    }
+                }
+
+                console.log("🎯 Proceso terminado completamente");
+                }
+        </script>
+    </head>
+    <body id="page-top"></body>
+</html>

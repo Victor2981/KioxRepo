@@ -12,6 +12,7 @@ var lstEgresosGlobal = {};
 var lstQrGlobal = {};
 var lstAppointmentsHistoryGlobal = {};
 var lstIngresosGlobal = {};
+var lstSucursalesGlobal = {};
 var idSucursal = "DelValle";
 var urlGlobal = "/Kiox/"+ parent.idSucursal
 var idUsuarioSistema = "";

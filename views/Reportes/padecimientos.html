@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Diagnósticos Fisioterapia</title>
+
+<style>
+body { font-family: Arial; padding: 20px; }
+input { width: 300px; padding: 10px; margin-bottom: 10px; }
+.autocomplete-items {
+    border: 1px solid #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+}
+.autocomplete-items div {
+    padding: 8px;
+    cursor: pointer;
+}
+.autocomplete-items div:hover {
+    background: #f0f0f0;
+}
+button {
+    padding: 10px 15px;
+    margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Diagnósticos Fisioterapia</h2>
+
+<input type="text" id="search" placeholder="Buscar diagnóstico...">
+<div id="autocomplete-list" class="autocomplete-items"></div>
+
+<br>
+<button onclick="insertarDiagnosticos()">Insertar Diagnósticos</button>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+<script>
+// 🔥 CONFIGURA TU FIREBASE
+const firebaseConfig = {
+    apiKey: "AIzaSyDFlvXXq0Kdu1CAyjslc2gChlLu0SILn7s",
+    authDomain: "fior-a4273.firebaseapp.com",
+    projectId: "fior-a4273",
+    storageBucket: "fior-a4273.appspot.com",
+    messagingSenderId: "735779644274",
+    appId: "1:735779644274:web:79fa30cc8ce9bbb7db33eb",
+    measurementId: "G-L6BS8GTYS4"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+
+// 🚀 LISTA COMPLETA (ejemplo base + puedes expandir)
+const diagnosticos = [
+
+/* =========================
+🦴 COLUMNA
+========================= */
+{ Name: "Lumbalgia", Category: "Columna", Subcategory: "Lumbar" },
+{ Name: "Lumbalgia mecánica", Category: "Columna", Subcategory: "Lumbar" },
+{ Name: "Lumbalgia crónica", Category: "Columna", Subcategory: "Lumbar" },
+{ Name: "Lumbalgia aguda", Category: "Columna", Subcategory: "Lumbar" },
+{ Name: "Cervicalgia", Category: "Columna", Subcategory: "Cervical" },
+{ Name: "Cervicalgia crónica", Category: "Columna", Subcategory: "Cervical" },
+{ Name: "Dorsalgia", Category: "Columna", Subcategory: "Torácica" },
+{ Name: "Rectificación cervical", Category: "Columna", Subcategory: "Cervical" },
+{ Name: "Rectificación lumbar", Category: "Columna", Subcategory: "Lumbar" },
+{ Name: "Inversión de curvatura cervical", Category: "Columna", Subcategory: "Cervical" },
+{ Name: "Hipercifosis", Category: "Columna", Subcategory: "Torácica" },
+{ Name: "Hiperlordosis", Category: "Columna", Subcategory: "Lumbar" },
+{ Name: "Escoliosis", Category: "Columna", Subcategory: "Estructural" },
+{ Name: "Escoliosis idiopática", Category: "Columna", Subcategory: "Estructural" },
+{ Name: "Escoliosis funcional", Category: "Columna", Subcategory: "Funcional" },
+{ Name: "Hernia discal lumbar", Category: "Columna", Subcategory: "Lumbar" },
+{ Name: "Hernia discal cervical", Category: "Columna", Subcategory: "Cervical" },
+{ Name: "Protrusión discal", Category: "Columna", Subcategory: "Discal" },
+{ Name: "Degeneración discal", Category: "Columna", Subcategory: "Discal" },
+{ Name: "Discopatía lumbar", Category: "Columna", Subcategory: "Lumbar" },
+{ Name: "Discopatía cervical", Category: "Columna", Subcategory: "Cervical" },
+{ Name: "Radiculopatía lumbar", Category: "Columna", Subcategory: "Lumbar" },
+{ Name: "Radiculopatía cervical", Category: "Columna", Subcategory: "Cervical" },
+{ Name: "Ciática", Category: "Columna", Subcategory: "Lumbar" },
+{ Name: "Síndrome facetario", Category: "Columna", Subcategory: "Lumbar" },
+{ Name: "Bloqueo vertebral", Category: "Columna", Subcategory: "General" },
+{ Name: "Espondilolistesis", Category: "Columna", Subcategory: "Lumbar" },
+{ Name: "Espondilosis", Category: "Columna", Subcategory: "Degenerativo" },
+{ Name: "Estenosis espinal", Category: "Columna", Subcategory: "Lumbar" },
+{ Name: "Inestabilidad lumbar", Category: "Columna", Subcategory: "Lumbar" },
+{ Name: "Inestabilidad cervical", Category: "Columna", Subcategory: "Cervical" },
+{ Name: "Disfunción sacroilíaca", Category: "Columna", Subcategory: "Sacroilíaca" },
+{ Name: "Dolor sacroilíaco", Category: "Columna", Subcategory: "Sacroilíaca" },
+{ Name: "Hipomovilidad vertebral", Category: "Columna", Subcategory: "General" },
+{ Name: "Hipermovilidad vertebral", Category: "Columna", Subcategory: "General" },
+{ Name: "Síndrome cruzado superior", Category: "Columna", Subcategory: "Postural" },
+{ Name: "Síndrome cruzado inferior", Category: "Columna", Subcategory: "Postural" },
+{ Name: "Alteraciones posturales", Category: "Columna", Subcategory: "Postural" },
+{ Name: "Dolor lumbar inespecífico", Category: "Columna", Subcategory: "Lumbar" },
+{ Name: "Dolor cervical inespecífico", Category: "Columna", Subcategory: "Cervical" },
+{ Name: "Dolor torácico musculoesquelético", Category: "Columna", Subcategory: "Torácica" },
+{ Name: "Latigazo cervical", Category: "Columna", Subcategory: "Cervical" },
+{ Name: "Esguince cervical", Category: "Columna", Subcategory: "Cervical" },
+{ Name: "Rigidez lumbar", Category: "Columna", Subcategory: "Lumbar" },
+{ Name: "Rigidez cervical", Category: "Columna", Subcategory: "Cervical" },
+
+/* =========================
+🦵 MIEMBRO INFERIOR
+========================= */
+{ Name: "Gonartrosis", Category: "Miembro inferior", Subcategory: "Rodilla" },
+{ Name: "Coxartrosis", Category: "Miembro inferior", Subcategory: "Cadera" },
+{ Name: "Esguince de tobillo", Category: "Miembro inferior", Subcategory: "Tobillo" },
+{ Name: "Esguince de rodilla", Category: "Miembro inferior", Subcategory: "Rodilla" },
+{ Name: "Lesión de ligamento cruzado anterior", Category: "Miembro inferior", Subcategory: "Rodilla" },
+{ Name: "Lesión de ligamento cruzado posterior", Category: "Miembro inferior", Subcategory: "Rodilla" },
+{ Name: "Lesión de menisco", Category: "Miembro inferior", Subcategory: "Rodilla" },
+{ Name: "Condromalacia rotuliana", Category: "Miembro inferior", Subcategory: "Rodilla" },
+{ Name: "Síndrome femoropatelar", Category: "Miembro inferior", Subcategory: "Rodilla" },
+{ Name: "Fascitis plantar", Category: "Miembro inferior", Subcategory: "Pie" },
+{ Name: "Espolón calcáneo", Category: "Miembro inferior", Subcategory: "Pie" },
+{ Name: "Tendinopatía aquilea", Category: "Miembro inferior", Subcategory: "Tobillo" },
+{ Name: "Tendinitis rotuliana", Category: "Miembro inferior", Subcategory: "Rodilla" },
+{ Name: "Síndrome banda iliotibial", Category: "Miembro inferior", Subcategory: "Rodilla" },
+{ Name: "Pubalgia", Category: "Miembro inferior", Subcategory: "Cadera" },
+{ Name: "Periostitis tibial", Category: "Miembro inferior", Subcategory: "Pierna" },
+{ Name: "Pie plano", Category: "Miembro inferior", Subcategory: "Pie" },
+{ Name: "Pie cavo", Category: "Miembro inferior", Subcategory: "Pie" },
+{ Name: "Metatarsalgia", Category: "Miembro inferior", Subcategory: "Pie" },
+{ Name: "Hallux valgus", Category: "Miembro inferior", Subcategory: "Pie" },
+
+/* =========================
+💪 MIEMBRO SUPERIOR
+========================= */
+{ Name: "Tendinitis manguito rotador", Category: "Miembro superior", Subcategory: "Hombro" },
+{ Name: "Capsulitis adhesiva", Category: "Miembro superior", Subcategory: "Hombro" },
+{ Name: "Hombro congelado", Category: "Miembro superior", Subcategory: "Hombro" },
+{ Name: "Pinzamiento subacromial", Category: "Miembro superior", Subcategory: "Hombro" },
+{ Name: "Inestabilidad glenohumeral", Category: "Miembro superior", Subcategory: "Hombro" },
+{ Name: "Luxación de hombro", Category: "Miembro superior", Subcategory: "Hombro" },
+{ Name: "Epicondilitis lateral", Category: "Miembro superior", Subcategory: "Codo" },
+{ Name: "Epicondilitis medial", Category: "Miembro superior", Subcategory: "Codo" },
+{ Name: "Síndrome túnel carpiano", Category: "Miembro superior", Subcategory: "Muñeca" },
+{ Name: "Síndrome túnel cubital", Category: "Miembro superior", Subcategory: "Codo" },
+
+/* =========================
+🧠 NEUROLÓGICO
+========================= */
+{ Name: "Accidente cerebrovascular", Category: "Neurológico", Subcategory: "Central" },
+{ Name: "Hemiplejia", Category: "Neurológico", Subcategory: "Central" },
+{ Name: "Parálisis facial", Category: "Neurológico", Subcategory: "Periférico" },
+{ Name: "Lesión medular", Category: "Neurológico", Subcategory: "Central" },
+{ Name: "Neuropatía periférica", Category: "Neurológico", Subcategory: "Periférico" },
+{ Name: "Parkinson", Category: "Neurológico", Subcategory: "Degenerativo" },
+{ Name: "Esclerosis múltiple", Category: "Neurológico", Subcategory: "Degenerativo" },
+
+/* =========================
+🏥 POSTQUIRÚRGICO
+========================= */
+{ Name: "Postoperatorio LCA", Category: "Postquirúrgico", Subcategory: "Rodilla" },
+{ Name: "Postoperatorio menisco", Category: "Postquirúrgico", Subcategory: "Rodilla" },
+{ Name: "Postoperatorio prótesis rodilla", Category: "Postquirúrgico", Subcategory: "Rodilla" },
+{ Name: "Postoperatorio cadera", Category: "Postquirúrgico", Subcategory: "Cadera" },
+{ Name: "Postoperatorio columna", Category: "Postquirúrgico", Subcategory: "Columna" },
+{ Name: "Rigidez postquirúrgica", Category: "Postquirúrgico", Subcategory: "General" },
+
+/* =========================
+💉 ESTÉTICO
+========================= */
+{ Name: "Postoperatorio liposucción", Category: "Estético", Subcategory: "Corporal" },
+{ Name: "Postoperatorio abdominoplastia", Category: "Estético", Subcategory: "Abdomen" },
+{ Name: "Fibrosis postquirúrgica", Category: "Estético", Subcategory: "Tejido" },
+{ Name: "Edema postquirúrgico", Category: "Estético", Subcategory: "Linfático" },
+{ Name: "Adherencias postquirúrgicas", Category: "Estético", Subcategory: "Tejido" },
+
+/* =========================
+⚙️ GENERAL
+========================= */
+{ Name: "Dolor crónico", Category: "General", Subcategory: "Dolor" },
+{ Name: "Rigidez articular", Category: "General", Subcategory: "Articular" },
+{ Name: "Debilidad muscular", Category: "General", Subcategory: "Muscular" },
+{ Name: "Atrofia muscular", Category: "General", Subcategory: "Muscular" },
+{ Name: "Síndrome miofascial", Category: "General", Subcategory: "Muscular" },
+{ Name: "Puntos gatillo", Category: "General", Subcategory: "Muscular" },
+{ Name: "Alteración de la marcha", Category: "General", Subcategory: "Funcional" },
+{ Name: "Déficit propioceptivo", Category: "General", Subcategory: "Neuromuscular" }
+
+];
+
+
+// 🚀 INSERTAR EN FIREBASE
+async function insertarDiagnosticos() {
+    for (const d of diagnosticos) {
+        await db.collection("MedicalConditions").add({
+            Name: d.Name,
+            Category: d.Category,
+            Subcategory: d.Subcategory,
+            Status: 2
+        });
+    }
+    alert("Diagnósticos insertados correctamente 🚀");
+}
+
+
+// 🔍 AUTOCOMPLETE
+const input = document.getElementById("search");
+
+input.addEventListener("keyup", function() {
+    const val = this.value.toLowerCase();
+    const list = document.getElementById("autocomplete-list");
+    list.innerHTML = "";
+
+    if (!val) return;
+
+    const filtrados = diagnosticos.filter(d =>
+        d.Name.toLowerCase().includes(val)
+    );
+
+    filtrados.forEach(d => {
+        const div = document.createElement("div");
+        div.innerHTML = `<strong>${d.Name}</strong><br>
+                         <small>${d.Category} - ${d.Subcategory}</small>`;
+
+        div.addEventListener("click", function() {
+            input.value = d.Name;
+            list.innerHTML = "";
+        });
+
+        list.appendChild(div);
+    });
+});
+</script>
+
+</body>
+</html>
