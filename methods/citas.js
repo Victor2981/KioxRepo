@@ -750,6 +750,10 @@ function convertirEventoCalendario(idAppoitment, AppoitmentData) {
         case StatusAppointment.Pagado:
             ClassAppointment = "AppoitmentPayed";
             break;
+            
+        case StatusAppointment.Reagendar:
+            ClassAppointment = "AppoitmentReschedule";
+            break;
 
         case StatusAppointment.Finalizado:
             ClassAppointment = "AppoitmentFinished";
