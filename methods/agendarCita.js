@@ -46,7 +46,8 @@ $(document).ready(function(){
             var fecha = $(".txtFechaCita").val().substring(8,10) + "/" + $(".txtFechaCita").val().substring(5,7) + "/" + $(".txtFechaCita").val().substring(0,4);
             var horario = $(".itemHorario.selected").data("horario");
             var horarioFin = $(".itemHorarioFin.selected").data("horario");
-
+            horario = horario.padStart(5,"0");
+            horarioFin = horarioFin.padStart(5,"0");
             // // convertir horario a fecha
             // var [hora, minutos] = horario.split(":").map(Number);
             // var [horaFin, minutosFin] = horarioFin.split(":").map(Number);
