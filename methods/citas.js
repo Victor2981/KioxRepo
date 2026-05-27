@@ -1468,11 +1468,11 @@ function llenarTablaCitasPorConfirmar(){
     var lstDatos = {};
     db.collection(urlCitasGlobal).where("Status","==",1).where('AppointmentDateStart', '>=', FechaI).where('AppointmentDateStart', '<=', FechaF).orderBy("AppointmentDateStart", "desc").get().then((obj)=>{
         obj.docs.forEach(function(ap) {
-            var datos =  ap.data();
+            const datos =  ap.data();
             var evento = {[ap.id]:datos};
             Object.assign(lstDatos,evento);
-            var idAppointment = ap.id;   
-            var AppointmentData = parent.lstAppointmentsGlobal[idAppointment];
+            const idAppointment = ap.id;   
+            var AppointmentData = datos;
             var Buttons = [];            
             var lblActivo = $("<label class='switch'>");
             var tgActivo = $("<input type='checkbox' class='chkActivo'><span class='slider round'></span>");
@@ -1491,7 +1491,7 @@ function llenarTablaCitasPorConfirmar(){
 
             let btnEliminar = $("<a class='btnTablaGlobal material-icons btnIcon' title='Enviar mensaje'>message</a>");
             btnEliminar.on('click',()=>{
-                var AppointmentData = parent.lstAppointmentsGlobal[idAppointment];
+                //var AppointmentData = parent.lstAppointmentsGlobal[idAppointment];
                 enviarMensaje(AppointmentData);
             });
             Buttons.push(btnEliminar);
