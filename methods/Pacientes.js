@@ -164,7 +164,18 @@ const GuardarDatosPacientes = async function(ctrl,objGrupo, operation, idPatient
         QuitarMensaje();
         if (operation == 0){
             await insertDb(ctrl,urlPacientesGlobal,objGrupo)
-            resolve(await crearContacto(objGrupo.Name + " " + objGrupo.LastName + " " + objGrupo.SecondLastName, objGrupo.Phone, objGrupo.Email));
+            //resolve(await crearContacto(objGrupo.Name + " " + objGrupo.LastName + " " + objGrupo.SecondLastName, objGrupo.Phone, objGrupo.Email));
+                    
+            const accessToken = localStorage.getItem("google_access_token");
+            if (accessToken) {
+                    resolve(await enviarContacto(accessToken,objGrupo.Name + " " + objGrupo.LastName + " " + objGrupo.SecondLastName, objGrupo.Phone, objGrupo.Email));
+                return;
+            }
+            tokenClient.requestAccessToken({
+                prompt:
+                "select_account consent"
+            });
+          
             MostrarMensajePrincipal("El paciente se registró correctamente","success");
         } else {
             resolve(await updateDb(ctrl,urlPacientesGlobal, idPatient, objGrupo));
@@ -392,6 +403,7 @@ const CLIENT_ID = "735779644274-jmj6nc1e16s0jfmdksp3mc7h2463ar59.apps.googleuser
 let tokenClient = null;
 
 function inicializarGoogle() {
+
     tokenClient = google.accounts.oauth2.initTokenClient({
 
         client_id: CLIENT_ID,
@@ -405,13 +417,21 @@ function inicializarGoogle() {
                 return;
             }
 
-            // GUARDAR TOKEN
+            const accessToken =
+                response.access_token;
+
             localStorage.setItem(
                 "google_access_token",
-                response.access_token
+                accessToken
             );
 
-            console.log("TOKEN GUARDADO");
+            // AQUI YA GUARDAS CONTACTO
+            await enviarContacto(
+                accessToken,
+                "Victor",
+                "5540856630",
+                "correo@gmail.com"
+            );
         }
     });
 }
@@ -502,3 +522,126 @@ async function enviarContacto(
         }
     }
 }
+
+let tokenClient = null;
+function inicializarGoogle() {
+
+    tokenClient =
+    google.accounts.oauth2.initTokenClient({
+
+        client_id: CLIENT_ID,
+
+        scope:
+        "https://www.googleapis.com/auth/contacts",
+
+        callback: async (response) => {
+
+            // ERROR GOOGLE
+            if (response.error) {
+
+                console.error(response);
+                return;
+            }
+
+            console.log("TOKEN OK");
+
+            const accessToken =
+                response.access_token;
+
+            // GUARDAR TOKEN
+            localStorage.setItem(
+                "google_access_token",
+                accessToken
+            );
+
+            // ===============================
+            // DATOS DEL PACIENTE
+            // ===============================
+
+            const nombre =
+                $("#txtNombre").val();
+
+            const telefono =
+                $("#txtTelefono").val();
+
+            const email =
+                $("#txtCorreo").val();
+
+            // ===============================
+            // ENVIAR A FIREBASE
+            // ===============================
+
+            await enviarContacto(
+                accessToken,
+                nombre,
+                telefono,
+                email
+            );
+        },
+
+        error_callback: (error) => {
+
+            console.error(
+                "ERROR GOOGLE:",
+                error
+            );
+        }
+    });
+
+    console.log("GOOGLE INICIALIZADO");
+}
+
+
+// ===============================
+// ENVIAR CONTACTO
+// ===============================
+
+async function enviarContacto(
+    accessToken,
+    nombre,
+    telefono,
+    email
+) {
+
+    try {
+
+        console.log(
+            "ENVIANDO CONTACTO..."
+        );
+
+        const guardarContactoGoogle =
+            firebase
+            .functions()
+            .httpsCallable(
+                "guardarContactoGoogle"
+            );
+
+        const resultado =
+            await guardarContactoGoogle({
+
+            accessToken,
+            nombre,
+            telefono,
+            email
+        });
+
+        console.log(resultado.data);
+
+        // TOKEN INVALIDO
+        if (!resultado.data.ok) {
+
+            localStorage.removeItem(
+                "google_access_token"
+            );
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+        localStorage.removeItem(
+            "google_access_token"
+        );
+    }
+}
+
