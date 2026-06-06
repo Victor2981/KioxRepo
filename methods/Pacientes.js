@@ -400,51 +400,6 @@ function capitalizar(texto) {
 
 const CLIENT_ID = "735779644274-jmj6nc1e16s0jfmdksp3mc7h2463ar59.apps.googleusercontent.com";
 
-
-async function enviarContacto(
-    accessToken,
-    nombre,
-    telefono,
-    email
-) {
-
-    try {
-
-        const functions =
-        firebase.app().functions("us-central1");
-
-        const crearContactoGoogle =
-        functions.httpsCallable(
-        "guardarContactoGoogle"
-        );
-
-        const resultado = await crearContactoGoogle({
-
-            accessToken,
-            nombre,
-            telefono,
-            email
-        });
-
-        console.log(resultado.data);
-
-    } catch (error) {
-
-        console.error(error);
-
-        // TOKEN EXPIRADO
-        if (
-            error.message &&
-            error.message.includes("401")
-        ) {
-
-            localStorage.removeItem(
-                "google_access_token"
-            );
-        }
-    }
-}
-
 let tokenClient = null; 
 function inicializarGoogle() {
 
@@ -474,31 +429,7 @@ function inicializarGoogle() {
             localStorage.setItem(
                 "google_access_token",
                 accessToken
-            );
-
-            // ===============================
-            // DATOS DEL PACIENTE
-            // ===============================
-
-            const nombre =
-                $("#txtNombre").val();
-
-            const telefono =
-                $("#txtTelefono").val();
-
-            const email =
-                $("#txtCorreo").val();
-
-            // ===============================
-            // ENVIAR A FIREBASE
-            // ===============================
-
-            await enviarContacto(
-                accessToken,
-                nombre,
-                telefono,
-                email
-            );
+            );        
         },
 
         error_callback: (error) => {
