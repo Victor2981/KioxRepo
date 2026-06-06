@@ -4,6 +4,7 @@ var urlPacientesGlobal = "/Patients";
 var operationPatient = 0;
 let selPacienteGlobal = "";
 let selPacienteHistoricoGlobal = "";
+const filasPacientes = [];
 
 $(document).ready(function(){   
     
@@ -66,20 +67,35 @@ $(document).ready(function(){
             return false;
         }
     });
+   
 
-
-    $(".txtPacienteFiltro").keyup(function name() {
-        for (let index = 0; index < $(".trDatoGlobal").length; index++) {
-            const $tr = $(".trDatoGlobal")[index];
-            var texto = quitarAcentos($tr.textContent.toUpperCase());
-            var filtro = quitarAcentos($(".txtPacienteFiltro").val().toUpperCase().trim());
-            if (texto.indexOf(filtro) > -1) {
-                $tr.style.display = "";
-              } else {
-                $tr.style.display = "none";
-              }
-        }
+    $(".txtNombre").keyup(function () {
+        this.value = capitalizar(this.value);
     });
+
+    $(".txtPrimerApellido").keyup(function () {
+        this.value = capitalizar(this.value);
+    });
+
+    $(".txtSegundoApellido").keyup(function () {
+        this.value = capitalizar(this.value);
+    });
+
+    $(".txtPacienteFiltro").on("input", debounce(function () {
+
+        const filtro = quitarAcentos(
+            this.value.toUpperCase().trim()
+        );
+
+        for (const fila of filasPacientes) {
+
+            fila.style.display =
+                fila.dataset.search.includes(filtro)
+                    ? ""
+                    : "none";
+        }
+
+    }, 250));
 
     const urlQueryString = new URLSearchParams(window.location.search);
     const idPacienteQuery = urlQueryString.get('idPatient');    
@@ -88,6 +104,34 @@ $(document).ready(function(){
         populatePatientData(idPacienteQuery);
     }
 });
+
+ function prepararBusqueda() {
+
+        $(".trDatoGlobal").each(function () {
+
+            const textoBusqueda = quitarAcentos(
+                this.textContent.toUpperCase()
+            );
+
+            this.dataset.search = textoBusqueda;
+
+            filasPacientes.push(this);
+        });
+    }
+
+    function debounce(fn, delay) {
+
+        let timeout;
+
+        return function (...args) {
+
+            clearTimeout(timeout);
+
+            timeout = setTimeout(() => {
+                fn.apply(this, args);
+            }, delay);
+        };
+    }
 
 // async function populatePatientHistoricoData(IdPatient){
 //     operationPatient = 1;
@@ -119,7 +163,8 @@ const GuardarDatosPacientes = async function(ctrl,objGrupo, operation, idPatient
     return new Promise(resolve => {setTimeout(async function(){
         QuitarMensaje();
         if (operation == 0){
-            resolve(await insertDb(ctrl,urlPacientesGlobal,objGrupo));
+            await insertDb(ctrl,urlPacientesGlobal,objGrupo)
+            resolve(await crearContacto(objGrupo.Name + " " + objGrupo.LastName + " " + objGrupo.SecondLastName, objGrupo.Phone, objGrupo.Email));
             MostrarMensajePrincipal("El paciente se registró correctamente","success");
         } else {
             resolve(await updateDb(ctrl,urlPacientesGlobal, idPatient, objGrupo));
@@ -227,49 +272,233 @@ function llenarTablaPacientes(datosPatients){
     // });
     
     generarTabla($(".tblPacientes"),titulos,TitulosDatos,datosPatients,lstButtons);
+    prepararBusqueda();
     $(".dvLoader").hide();
 }
 
 
+async function pegarDatos() {
 
-// function generarTitulosTabla(obj,titulos){
-//     var tblTitulo = "<thead>";
-//     tblTitulo += "<tr>";
-//     titulos.forEach(titulo => {
-//         tblTitulo += "<th>";
-//         tblTitulo += titulo;
-//         tblTitulo += "</th>";
-//     });
-//     tblTitulo += "</tr>";
-//     tblTitulo += " </thead> ";
-//     obj.append(tblTitulo);
-// }
+    try {
 
-// function generarDatosTabla(obj,TitulosDatos,datos){
-//     var tblDato = "<tbody>";
-//     const lstPatients = JSON.parse(JSON.stringify(datos));
-//     if (Object.keys(lstPatients).length >0) {
-//         for (const ap in lstPatients) {
-//             var dato = lstPatients[ap];
-//             tblDato += "<tr>";
-//             TitulosDatos.forEach(titulo => {
-//                 tblDato += "<td>";
-//                 tblDato += dato[titulo];
-//                 tblDato += "</td>";
-//             });
-//             tblDato += "</tr>";
-//         }
-//     }
-//     // datos.forEach(elemnt => {
-//     //     var dato = elemnt[Object.keys(elemnt)[0]].datos;
-//     //     tblDato += "<tr>";
-//         // TitulosDatos.forEach(titulo => {
-//         //     tblDato += "<td>";
-//         //     tblDato += dato[titulo];
-//         //     tblDato += "</td>";
-//         // });
-//     //     tblDato += "</tr>";
-//     // });
-//     tblDato += "</tbody>";
-//     obj.append(tblDato);
-// }
+        let texto = await navigator.clipboard.readText();
+
+        // Limpiar saltos y espacios múltiples
+        texto = texto
+            .replace(/\r?\n/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+
+        // =========================
+        // EXTRAER TELÉFONO
+        // =========================
+
+        /*
+            Detecta teléfonos aunque tengan:
+            - espacios
+            - guiones
+            - paréntesis
+        */
+
+        let telefonoMatch = texto.match(/(\+?\d[\d\s\-()]{7,}\d)/);
+
+        let celular = "";
+
+        if (telefonoMatch) {
+
+            celular = telefonoMatch[0]
+                .replace(/\D/g, "");
+
+            // Remover teléfono del texto
+            texto = texto.replace(telefonoMatch[0], "").trim();
+        }
+
+        // =========================
+        // EXTRAER NOMBRES
+        // =========================
+
+        let partes = texto.split(" ");
+
+        let nombre = "";
+        let apellidoP = "";
+        let apellidoM = "";
+
+        if (partes.length == 1) {
+
+            nombre = partes[0];
+
+        } else if (partes.length == 2) {
+
+            nombre = partes[0];
+            apellidoP = partes[1];
+
+        } else if (partes.length == 3) {
+
+            nombre = partes[0];
+            apellidoP = partes[1];
+            apellidoM = partes[2];
+
+        } else if (partes.length >= 4) {
+
+            apellidoP = partes[partes.length - 2];
+            apellidoM = partes[partes.length - 1];
+
+            nombre = partes
+                .slice(0, partes.length - 2)
+                .join(" ");
+        }
+
+        // =========================
+        // FORMATEAR TEXTO
+        // =========================
+
+        nombre = capitalizar(nombre);
+        apellidoP = capitalizar(apellidoP);
+        apellidoM = capitalizar(apellidoM);
+
+        // =========================
+        // LLENAR INPUTS
+        // =========================
+
+        $(".txtNombre").val(nombre);
+        $(".txtPrimerApellido").val(apellidoP);
+        $(".txtSegundoApellido").val(apellidoM);
+        $(".txtCelular").val(celular);   
+
+    } catch (error) {
+
+        console.error(error);
+        alert("No se pudo leer el portapapeles");
+
+    }
+}
+
+function capitalizar(texto) {
+
+    return texto
+        .toLowerCase()
+        .trim()
+        .split(" ")
+        .filter(x => x)
+        .map(p =>
+            p.charAt(0).toUpperCase() +
+            p.slice(1)
+        )
+        .join(" ");
+}
+
+const CLIENT_ID = "735779644274-jmj6nc1e16s0jfmdksp3mc7h2463ar59.apps.googleusercontent.com";
+
+let tokenClient = null;
+
+function inicializarGoogle() {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+
+        client_id: CLIENT_ID,
+
+        scope: "https://www.googleapis.com/auth/contacts",
+
+        callback: async (response) => {
+
+            if (response.error) {
+                console.error(response);
+                return;
+            }
+
+            // GUARDAR TOKEN
+            localStorage.setItem(
+                "google_access_token",
+                response.access_token
+            );
+
+            console.log("TOKEN GUARDADO");
+        }
+    });
+}
+
+async function crearContacto(nombre, telefono, email) {
+
+    let accessToken =
+        localStorage.getItem("google_access_token");
+
+    console.log("TOKEN ACTUAL:", accessToken);
+
+    if (!accessToken || accessToken === "undefined") {
+
+        tokenClient.callback = async (response) => {
+
+            console.log(response);
+
+            accessToken = response.access_token;
+
+            localStorage.setItem(
+                "google_access_token",
+                accessToken
+            );
+
+            await enviarContacto(
+                accessToken,
+                nombre,
+                telefono,
+                email
+            );
+        };
+
+        tokenClient.requestAccessToken({
+            prompt: "consent"
+        });
+
+        return;
+    }
+
+    await enviarContacto(
+        accessToken,
+        nombre,
+        telefono,
+        email
+    );
+}
+
+async function enviarContacto(
+    accessToken,
+    nombre,
+    telefono,
+    email
+) {
+
+    try {
+
+        const functions =
+        firebase.app().functions("us-central1");
+
+        const crearContactoGoogle =
+        functions.httpsCallable(
+        "guardarContactoGoogle"
+        );
+
+        const resultado = await crearContactoGoogle({
+
+            accessToken,
+            nombre,
+            telefono,
+            email
+        });
+
+        console.log(resultado.data);
+
+    } catch (error) {
+
+        console.error(error);
+
+        // TOKEN EXPIRADO
+        if (
+            error.message &&
+            error.message.includes("401")
+        ) {
+
+            localStorage.removeItem(
+                "google_access_token"
+            );
+        }
+    }
+}

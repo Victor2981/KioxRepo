@@ -509,24 +509,17 @@ const SeleccionarDatosCitas = async function () {
         unsubscribeAppointments = null;
     }
 
-    let consultadb = db.collection(urlCitasGlobal)
-        .where("AppointmentDateStart", ">=", inicio)
-        .where("AppointmentDateStart", "<=", fin);
+    let consultadb;        
 
     // =========================
     // FILTRO PACIENTE
     // =========================
 
     if (selIdPacienteFiltro != "") {
-
-        consultadb = db.collection(urlCitasGlobal).where(
-            "IdPatient",
-            "==",
-            selIdPacienteFiltro
-        );
+        consultadb = db.collection(urlCitasGlobal).where("IdPatient","==",selIdPacienteFiltro);
     }
     else {
-
+        consultadb = db.collection(urlCitasGlobal).where("AppointmentDateStart", ">=", inicio).where("AppointmentDateStart", "<=", fin);
         // =========================
         // FILTRO FISIOTERAPEUTA
         // =========================
@@ -626,22 +619,24 @@ const SeleccionarDatosCitas = async function () {
                 else if (change.type === "modified") {
 
                     parent.lstAppointmentsGlobal[id] = datos;
-                    const fechaEvento = datos.AppointmentDateStart.toDate();
+                    if (selIdPacienteFiltro == "") {
+                         const fechaEvento = datos.AppointmentDateStart.toDate();
+                        const inicioVista = calendar.view.activeStart;
+                        const finVista = calendar.view.activeEnd;
 
-                    const inicioVista = calendar.view.activeStart;
-                    const finVista = calendar.view.activeEnd;
+                        if (fechaEvento < inicioVista || fechaEvento > finVista) {
 
-                    if (fechaEvento < inicioVista || fechaEvento > finVista) {
+                            if (mapaEventos[id]) {
+                                mapaEventos[id].remove();
+                                delete mapaEventos[id];
+                            }
 
-                        if (mapaEventos[id]) {
-                            mapaEventos[id].remove();
-                            delete mapaEventos[id];
+                            delete parent.lstAppointmentsGlobal[id];
+
+                            return;
                         }
-
-                        delete parent.lstAppointmentsGlobal[id];
-
-                        return;
                     }
+                   
 
                     const eventoExistente = mapaEventos[id];
 
@@ -789,6 +784,27 @@ function convertirEventoCalendario(idAppoitment, AppoitmentData) {
     };
 }
 
+
+// function construirTitulo(AppoitmentData) {
+
+//     var tituloCita = AppoitmentData.Title;
+
+//     var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);
+
+//     if (
+//         datosCuentaUsusario.Position ==
+//         parseInt(KioxPositions.Administrador)
+//     ) {
+
+//         tituloCita +=
+//             " (" +
+//             obtenerTresIniciales(AppoitmentData.EmployeeName) +
+//             ")";
+//     }
+
+//     return tituloCita;
+// }
+
 function construirTitulo(AppoitmentData) {
 
     var tituloCita = AppoitmentData.Title;
@@ -861,8 +877,10 @@ function actualizarEventoCalendario(id, datos) {
 
     const fechaEvento = datos.AppointmentDateStart.toDate();
 
-    if (fechaEvento < inicioVista || fechaEvento > finVista) {
-        return;
+    if (selIdPacienteFiltro == "") {
+        if (fechaEvento < inicioVista || fechaEvento > finVista) {
+            return;
+        }
     }
 
     // agregar nuevamente
@@ -1340,7 +1358,9 @@ function generarCalendario() {
         events.forEach(ev => {
 
             // validar rango visible
-            if (ev.start >= finVista || ev.end <= inicioVista) return;
+            if (selIdPacienteFiltro == "") {
+                if (ev.start >= finVista || ev.end <= inicioVista) return;
+            }
 
             // validar existencia
             const AppointmentData = parent.lstAppointmentsGlobal?.[ev.id];
@@ -1523,6 +1543,7 @@ async function obtenerHorariosDisponibles(idEmployee, fecha, idBranch) {
   const snapshot = await db.collection("Appointment")
     .where("AppointmentDateStart", ">=", inicioDia)
     .where("AppointmentDateStart", "<=", finDia)
+    .where("IdBranch", "==", idBranch)
     .get();
 
   const citasTotales = snapshot.docs.map(doc => {
@@ -1585,7 +1606,7 @@ async function obtenerHorariosDisponibles(idEmployee, fecha, idBranch) {
   }, []);
 }
 
-function generarHorarios(inicio = 9, fin = 21, intervalo = 60) {
+function generarHorarios(inicio = 8, fin = 21, intervalo = 60) {
   const horarios = [];
   for (let h = inicio; h < fin; h++) {
     horarios.push(`${h}:00`);

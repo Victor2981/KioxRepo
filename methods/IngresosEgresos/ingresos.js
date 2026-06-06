@@ -317,6 +317,7 @@ $(document).ready(function(){
                                 ...element,
                                 IdEarn: idIngreso,
                                 TakenNumbreSesions: 1,
+                                IdEmployeRegister: parent.idUsuarioSistema,
                                 IdPatient: idPaciente,
                                 Patient: Paciente,
                                 Date: new Date(),

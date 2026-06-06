@@ -1,0 +1,265 @@
+[debug] [2026-06-03T23:18:10.701Z] ----------------------------------------------------------------------
+[debug] [2026-06-03T23:18:10.703Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\victor\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init functions
+[debug] [2026-06-03T23:18:10.704Z] CLI Version:   15.19.1
+[debug] [2026-06-03T23:18:10.704Z] Platform:      win32
+[debug] [2026-06-03T23:18:10.704Z] Node Version:  v24.16.0
+[debug] [2026-06-03T23:18:10.704Z] Time:          Wed Jun 03 2026 17:18:10 GMT-0600 (hora estándar central)
+[debug] [2026-06-03T23:18:10.704Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-06-03T23:18:10.706Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\victor\OneDrive\Sitios\KioxRepo
+
+[debug] [2026-06-03T23:18:12.218Z] *** [apiv2] error from fetch(https://firebase-public.firebaseio.com/cli.json, {"headers":{},"method":"GET"}): FetchError: request to https://firebase-public.firebaseio.com/cli.json failed, reason: self-signed certificate in certificate chain
+[warn] !  Unable to fetch the CLI MOTD and remote config. This is not a fatal error, but may indicate an issue with your network connection. 
+[debug] [2026-06-03T23:18:12.219Z] Failed to fetch MOTD FirebaseError: Failed to make request to https://firebase-public.firebaseio.com/cli.json
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] 
+[debug] [2026-06-03T23:18:15.030Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-06-03T23:18:15.031Z] > authorizing via signed-in user (vhunava@gmail.com)
+[debug] [2026-06-03T23:18:15.031Z] Checked if tokens are valid: true, expires at: 1780532280454
+[debug] [2026-06-03T23:18:15.031Z] Checked if tokens are valid: true, expires at: 1780532280454
+[debug] [2026-06-03T23:18:15.032Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=100
+[debug] [2026-06-03T23:18:15.093Z] *** [apiv2] error from fetch(https://firebase.googleapis.com/v1beta1/projects?pageSize=100, {"headers":{},"method":"GET","signal":{"reason":""}}): FetchError: request to https://firebase.googleapis.com/v1beta1/projects?pageSize=100 failed, reason: self-signed certificate in certificate chain
+[debug] [2026-06-03T23:18:15.094Z] Failed to make request to https://firebase.googleapis.com/v1beta1/projects?pageSize=100
+[debug] [2026-06-03T23:18:15.095Z] FirebaseError: Failed to make request to https://firebase.googleapis.com/v1beta1/projects?pageSize=100
+    at RetryOperation._fn (C:\Users\victor\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:282:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[error] 
+[error] Error: Failed to list Firebase projects. See firebase-debug.log for more info.
+[debug] [2026-06-03T23:19:58.574Z] ----------------------------------------------------------------------
+[debug] [2026-06-03T23:19:58.577Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\victor\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init functions
+[debug] [2026-06-03T23:19:58.577Z] CLI Version:   15.19.1
+[debug] [2026-06-03T23:19:58.577Z] Platform:      win32
+[debug] [2026-06-03T23:19:58.577Z] Node Version:  v24.16.0
+[debug] [2026-06-03T23:19:58.577Z] Time:          Wed Jun 03 2026 17:19:58 GMT-0600 (hora estándar central)
+[debug] [2026-06-03T23:19:58.577Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-06-03T23:19:58.579Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\victor\OneDrive\Sitios\KioxRepo
+
+[debug] [2026-06-03T23:20:00.028Z] *** [apiv2] error from fetch(https://firebase-public.firebaseio.com/cli.json, {"headers":{},"method":"GET"}): FetchError: request to https://firebase-public.firebaseio.com/cli.json failed, reason: self-signed certificate in certificate chain
+[warn] !  Unable to fetch the CLI MOTD and remote config. This is not a fatal error, but may indicate an issue with your network connection. 
+[debug] [2026-06-03T23:20:00.028Z] Failed to fetch MOTD FirebaseError: Failed to make request to https://firebase-public.firebaseio.com/cli.json
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] 
+[debug] [2026-06-03T23:20:03.605Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-06-03T23:20:03.605Z] > authorizing via signed-in user (vhunava@gmail.com)
+[debug] [2026-06-03T23:20:03.606Z] Checked if tokens are valid: true, expires at: 1780532280454
+[debug] [2026-06-03T23:20:03.606Z] Checked if tokens are valid: true, expires at: 1780532280454
+[debug] [2026-06-03T23:20:03.606Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=100
+[debug] [2026-06-03T23:20:03.667Z] *** [apiv2] error from fetch(https://firebase.googleapis.com/v1beta1/projects?pageSize=100, {"headers":{},"method":"GET","signal":{"reason":""}}): FetchError: request to https://firebase.googleapis.com/v1beta1/projects?pageSize=100 failed, reason: self-signed certificate in certificate chain
+[debug] [2026-06-03T23:20:03.667Z] Failed to make request to https://firebase.googleapis.com/v1beta1/projects?pageSize=100
+[debug] [2026-06-03T23:20:03.668Z] FirebaseError: Failed to make request to https://firebase.googleapis.com/v1beta1/projects?pageSize=100
+    at RetryOperation._fn (C:\Users\victor\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:282:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[error] 
+[error] Error: Failed to list Firebase projects. See firebase-debug.log for more info.
+[debug] [2026-06-03T23:20:28.873Z] ----------------------------------------------------------------------
+[debug] [2026-06-03T23:20:28.876Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\victor\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init functions
+[debug] [2026-06-03T23:20:28.876Z] CLI Version:   15.19.1
+[debug] [2026-06-03T23:20:28.876Z] Platform:      win32
+[debug] [2026-06-03T23:20:28.876Z] Node Version:  v24.16.0
+[debug] [2026-06-03T23:20:28.876Z] Time:          Wed Jun 03 2026 17:20:28 GMT-0600 (hora estándar central)
+[debug] [2026-06-03T23:20:28.876Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-06-03T23:20:28.880Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\victor\OneDrive\Sitios\KioxRepo
+
+[debug] [2026-06-03T23:20:30.400Z] *** [apiv2] error from fetch(https://firebase-public.firebaseio.com/cli.json, {"headers":{},"method":"GET"}): FetchError: request to https://firebase-public.firebaseio.com/cli.json failed, reason: self-signed certificate in certificate chain
+[warn] !  Unable to fetch the CLI MOTD and remote config. This is not a fatal error, but may indicate an issue with your network connection. 
+[debug] [2026-06-03T23:20:30.400Z] Failed to fetch MOTD FirebaseError: Failed to make request to https://firebase-public.firebaseio.com/cli.json
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] 
+[debug] [2026-06-03T23:20:32.222Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-06-03T23:20:32.222Z] > authorizing via signed-in user (vhunava@gmail.com)
+[debug] [2026-06-03T23:20:32.222Z] Checked if tokens are valid: true, expires at: 1780532280454
+[debug] [2026-06-03T23:20:32.223Z] Checked if tokens are valid: true, expires at: 1780532280454
+[debug] [2026-06-03T23:20:32.223Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=100
+[debug] [2026-06-03T23:20:32.281Z] *** [apiv2] error from fetch(https://firebase.googleapis.com/v1beta1/projects?pageSize=100, {"headers":{},"method":"GET","signal":{"reason":""}}): FetchError: request to https://firebase.googleapis.com/v1beta1/projects?pageSize=100 failed, reason: self-signed certificate in certificate chain
+[debug] [2026-06-03T23:20:32.281Z] Failed to make request to https://firebase.googleapis.com/v1beta1/projects?pageSize=100
+[debug] [2026-06-03T23:20:32.282Z] FirebaseError: Failed to make request to https://firebase.googleapis.com/v1beta1/projects?pageSize=100
+    at RetryOperation._fn (C:\Users\victor\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:282:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[error] 
+[error] Error: Failed to list Firebase projects. See firebase-debug.log for more info.
+[debug] [2026-06-03T23:20:51.217Z] ----------------------------------------------------------------------
+[debug] [2026-06-03T23:20:51.220Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\victor\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init functions
+[debug] [2026-06-03T23:20:51.220Z] CLI Version:   15.19.1
+[debug] [2026-06-03T23:20:51.220Z] Platform:      win32
+[debug] [2026-06-03T23:20:51.220Z] Node Version:  v24.16.0
+[debug] [2026-06-03T23:20:51.221Z] Time:          Wed Jun 03 2026 17:20:51 GMT-0600 (hora estándar central)
+[debug] [2026-06-03T23:20:51.221Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-06-03T23:20:51.223Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\victor\OneDrive\Sitios\KioxRepo
+
+[debug] [2026-06-03T23:20:52.655Z] *** [apiv2] error from fetch(https://firebase-public.firebaseio.com/cli.json, {"headers":{},"method":"GET"}): FetchError: request to https://firebase-public.firebaseio.com/cli.json failed, reason: self-signed certificate in certificate chain
+[warn] !  Unable to fetch the CLI MOTD and remote config. This is not a fatal error, but may indicate an issue with your network connection. 
+[debug] [2026-06-03T23:20:52.656Z] Failed to fetch MOTD FirebaseError: Failed to make request to https://firebase-public.firebaseio.com/cli.json
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] 
+[debug] [2026-06-03T23:20:55.080Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-06-03T23:20:55.080Z] > authorizing via signed-in user (vhunava@gmail.com)
+[debug] [2026-06-03T23:20:55.081Z] Checked if tokens are valid: true, expires at: 1780532280454
+[debug] [2026-06-03T23:20:55.081Z] Checked if tokens are valid: true, expires at: 1780532280454
+[debug] [2026-06-03T23:20:55.081Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=100
+[debug] [2026-06-03T23:20:55.144Z] *** [apiv2] error from fetch(https://firebase.googleapis.com/v1beta1/projects?pageSize=100, {"headers":{},"method":"GET","signal":{"reason":""}}): FetchError: request to https://firebase.googleapis.com/v1beta1/projects?pageSize=100 failed, reason: self-signed certificate in certificate chain
+[debug] [2026-06-03T23:20:55.144Z] Failed to make request to https://firebase.googleapis.com/v1beta1/projects?pageSize=100
+[debug] [2026-06-03T23:20:55.145Z] FirebaseError: Failed to make request to https://firebase.googleapis.com/v1beta1/projects?pageSize=100
+    at RetryOperation._fn (C:\Users\victor\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:282:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[error] 
+[error] Error: Failed to list Firebase projects. See firebase-debug.log for more info.
+[debug] [2026-06-03T23:21:54.262Z] ----------------------------------------------------------------------
+[debug] [2026-06-03T23:21:54.264Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\victor\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js projects:list
+[debug] [2026-06-03T23:21:54.265Z] CLI Version:   15.19.1
+[debug] [2026-06-03T23:21:54.265Z] Platform:      win32
+[debug] [2026-06-03T23:21:54.265Z] Node Version:  v24.16.0
+[debug] [2026-06-03T23:21:54.265Z] Time:          Wed Jun 03 2026 17:21:54 GMT-0600 (hora estándar central)
+[debug] [2026-06-03T23:21:54.265Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-06-03T23:21:54.267Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2026-06-03T23:21:54.297Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-06-03T23:21:54.298Z] > authorizing via signed-in user (vhunava@gmail.com)
+[debug] [2026-06-03T23:21:54.302Z] Checked if tokens are valid: true, expires at: 1780532280454
+[debug] [2026-06-03T23:21:54.302Z] Checked if tokens are valid: true, expires at: 1780532280454
+[debug] [2026-06-03T23:21:54.303Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=1000
+[debug] [2026-06-03T23:21:54.391Z] *** [apiv2] error from fetch(https://firebase-public.firebaseio.com/cli.json, {"headers":{},"method":"GET"}): FetchError: request to https://firebase-public.firebaseio.com/cli.json failed, reason: self-signed certificate in certificate chain
+[warn] !  Unable to fetch the CLI MOTD and remote config. This is not a fatal error, but may indicate an issue with your network connection. 
+[debug] [2026-06-03T23:21:54.392Z] Failed to fetch MOTD FirebaseError: Failed to make request to https://firebase-public.firebaseio.com/cli.json
+[debug] [2026-06-03T23:21:54.759Z] *** [apiv2] error from fetch(https://firebase.googleapis.com/v1beta1/projects?pageSize=1000, {"headers":{},"method":"GET","signal":{"reason":""}}): FetchError: request to https://firebase.googleapis.com/v1beta1/projects?pageSize=1000 failed, reason: self-signed certificate in certificate chain
+[debug] [2026-06-03T23:21:54.759Z] Failed to make request to https://firebase.googleapis.com/v1beta1/projects?pageSize=1000
+[debug] [2026-06-03T23:21:54.760Z] FirebaseError: Failed to make request to https://firebase.googleapis.com/v1beta1/projects?pageSize=1000
+    at RetryOperation._fn (C:\Users\victor\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:282:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[error] 
+[error] Error: Failed to list Firebase projects. See firebase-debug.log for more info.
+[debug] [2026-06-03T23:24:44.504Z] ----------------------------------------------------------------------
+[debug] [2026-06-03T23:24:44.507Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\victor\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js projects:list
+[debug] [2026-06-03T23:24:44.507Z] CLI Version:   15.19.1
+[debug] [2026-06-03T23:24:44.507Z] Platform:      win32
+[debug] [2026-06-03T23:24:44.507Z] Node Version:  v24.16.0
+[debug] [2026-06-03T23:24:44.507Z] Time:          Wed Jun 03 2026 17:24:44 GMT-0600 (hora estándar central)
+[debug] [2026-06-03T23:24:44.507Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-06-03T23:24:44.514Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-06-03T23:24:44.514Z] > authorizing via signed-in user (vhunava@gmail.com)
+[debug] [2026-06-03T23:24:44.519Z] Checked if tokens are valid: true, expires at: 1780532280454
+[debug] [2026-06-03T23:24:44.519Z] Checked if tokens are valid: true, expires at: 1780532280454
+[debug] [2026-06-03T23:24:44.520Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=1000
+[debug] [2026-06-03T23:24:44.599Z] *** [apiv2] error from fetch(https://firebase.googleapis.com/v1beta1/projects?pageSize=1000, {"headers":{},"method":"GET","signal":{"reason":""}}): FetchError: request to https://firebase.googleapis.com/v1beta1/projects?pageSize=1000 failed, reason: self-signed certificate in certificate chain
+[debug] [2026-06-03T23:24:44.599Z] Failed to make request to https://firebase.googleapis.com/v1beta1/projects?pageSize=1000
+[debug] [2026-06-03T23:24:44.601Z] FirebaseError: Failed to make request to https://firebase.googleapis.com/v1beta1/projects?pageSize=1000
+    at RetryOperation._fn (C:\Users\victor\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:282:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[error] 
+[error] Error: Failed to list Firebase projects. See firebase-debug.log for more info.
+[debug] [2026-06-03T23:24:52.790Z] ----------------------------------------------------------------------
+[debug] [2026-06-03T23:24:52.793Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\victor\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init functions
+[debug] [2026-06-03T23:24:52.793Z] CLI Version:   15.19.1
+[debug] [2026-06-03T23:24:52.793Z] Platform:      win32
+[debug] [2026-06-03T23:24:52.793Z] Node Version:  v24.16.0
+[debug] [2026-06-03T23:24:52.793Z] Time:          Wed Jun 03 2026 17:24:52 GMT-0600 (hora estándar central)
+[debug] [2026-06-03T23:24:52.794Z] ----------------------------------------------------------------------
+[debug] 
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\victor\OneDrive\Sitios\KioxRepo
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] 
+[debug] [2026-06-03T23:24:57.967Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-06-03T23:24:57.967Z] > authorizing via signed-in user (vhunava@gmail.com)
+[debug] [2026-06-03T23:24:57.968Z] Checked if tokens are valid: true, expires at: 1780532280454
+[debug] [2026-06-03T23:24:57.968Z] Checked if tokens are valid: true, expires at: 1780532280454
+[debug] [2026-06-03T23:24:57.969Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=100
+[debug] [2026-06-03T23:24:58.048Z] *** [apiv2] error from fetch(https://firebase.googleapis.com/v1beta1/projects?pageSize=100, {"headers":{},"method":"GET","signal":{"reason":""}}): FetchError: request to https://firebase.googleapis.com/v1beta1/projects?pageSize=100 failed, reason: self-signed certificate in certificate chain
+[debug] [2026-06-03T23:24:58.048Z] Failed to make request to https://firebase.googleapis.com/v1beta1/projects?pageSize=100
+[debug] [2026-06-03T23:24:58.049Z] FirebaseError: Failed to make request to https://firebase.googleapis.com/v1beta1/projects?pageSize=100
+    at RetryOperation._fn (C:\Users\victor\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:282:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[error] 
+[error] Error: Failed to list Firebase projects. See firebase-debug.log for more info.
+[debug] [2026-06-03T23:26:45.131Z] ----------------------------------------------------------------------
+[debug] [2026-06-03T23:26:45.134Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\victor\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js projects:list
+[debug] [2026-06-03T23:26:45.135Z] CLI Version:   15.19.1
+[debug] [2026-06-03T23:26:45.135Z] Platform:      win32
+[debug] [2026-06-03T23:26:45.135Z] Node Version:  v24.16.0
+[debug] [2026-06-03T23:26:45.135Z] Time:          Wed Jun 03 2026 17:26:45 GMT-0600 (hora estándar central)
+[debug] [2026-06-03T23:26:45.135Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-06-03T23:26:45.142Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-06-03T23:26:45.143Z] > authorizing via signed-in user (vhunava@gmail.com)
+[debug] [2026-06-03T23:26:45.147Z] Checked if tokens are valid: true, expires at: 1780532280454
+[debug] [2026-06-03T23:26:45.147Z] Checked if tokens are valid: true, expires at: 1780532280454
+[debug] [2026-06-03T23:26:45.148Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=1000
+[debug] [2026-06-03T23:26:45.232Z] *** [apiv2] error from fetch(https://firebase.googleapis.com/v1beta1/projects?pageSize=1000, {"headers":{},"method":"GET","signal":{"reason":""}}): FetchError: request to https://firebase.googleapis.com/v1beta1/projects?pageSize=1000 failed, reason: self-signed certificate in certificate chain
+[debug] [2026-06-03T23:26:45.232Z] Failed to make request to https://firebase.googleapis.com/v1beta1/projects?pageSize=1000
+[debug] [2026-06-03T23:26:45.233Z] FirebaseError: Failed to make request to https://firebase.googleapis.com/v1beta1/projects?pageSize=1000
+    at RetryOperation._fn (C:\Users\victor\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:282:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[error] 
+[error] Error: Failed to list Firebase projects. See firebase-debug.log for more info.
