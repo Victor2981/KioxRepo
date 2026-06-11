@@ -163,19 +163,13 @@ const GuardarDatosPacientes = async function(ctrl,objGrupo, operation, idPatient
     return new Promise(resolve => {setTimeout(async function(){
         QuitarMensaje();
         if (operation == 0){
-            await insertDb(ctrl,urlPacientesGlobal,objGrupo)
-            //resolve(await crearContacto(objGrupo.Name + " " + objGrupo.LastName + " " + objGrupo.SecondLastName, objGrupo.Phone, objGrupo.Email));
-                    
-            const accessToken = localStorage.getItem("google_access_token");
-            if (accessToken) {
-                    resolve(await enviarContacto(accessToken,objGrupo.Name + " " + objGrupo.LastName + " " + objGrupo.SecondLastName, objGrupo.Phone, objGrupo.Email));
-                return;
+            if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Administrador)) {
+                await insertDb(ctrl,urlPacientesGlobal,objGrupo)
+                resolve(await crearContacto(objGrupo.Name + " " + objGrupo.LastName + " " + objGrupo.SecondLastName, objGrupo.Phone, objGrupo.Email));
             }
-            tokenClient.requestAccessToken({
-                prompt:
-                "select_account consent"
-            });
-          
+            else{
+                resolve(await insertDb(ctrl,urlPacientesGlobal,objGrupo));
+            }
             MostrarMensajePrincipal("El paciente se registró correctamente","success");
         } else {
             resolve(await updateDb(ctrl,urlPacientesGlobal, idPatient, objGrupo));
@@ -399,55 +393,139 @@ function capitalizar(texto) {
 }
 
 const CLIENT_ID = "735779644274-jmj6nc1e16s0jfmdksp3mc7h2463ar59.apps.googleusercontent.com";
+let esperandoGoogle = false;
 
 let tokenClient = null; 
+
+// =====================================
+// INICIALIZAR GOOGLE
+// =====================================
+
 function inicializarGoogle() {
 
     tokenClient =
-    google.accounts.oauth2.initTokenClient({
+        google.accounts.oauth2.initTokenClient({
 
-        client_id: CLIENT_ID,
+            client_id: CLIENT_ID,
 
-        scope:
-        "https://www.googleapis.com/auth/contacts",
+            scope:
+                "https://www.googleapis.com/auth/contacts",
 
-        callback: async (response) => {
-
-            // ERROR GOOGLE
-            if (response.error) {
-
-                console.error(response);
-                return;
-            }
-
-            console.log("TOKEN OK");
-
-            const accessToken =
-                response.access_token;
-
-            // GUARDAR TOKEN
-            localStorage.setItem(
-                "google_access_token",
-                accessToken
-            );        
-        },
-
-        error_callback: (error) => {
-
-            console.error(
-                "ERROR GOOGLE:",
-                error
-            );
-        }
-    });
-
-    console.log("GOOGLE INICIALIZADO");
+            callback: null
+        });
 }
 
+// =====================================
+// CREAR CONTACTO
+// =====================================
 
-// ===============================
-// ENVIAR CONTACTO
-// ===============================
+async function crearContacto(
+    nombre,
+    telefono,
+    email
+) {
+
+    // EVITAR DOBLE CLICK
+    if (esperandoGoogle) {
+        return;
+    }
+
+    esperandoGoogle = true;
+
+    try {
+
+        let accessToken =
+            localStorage.getItem(
+                "google_access_token"
+            );
+
+        // =====================================
+        // YA EXISTE TOKEN
+        // =====================================
+
+        if (accessToken) {
+
+            await enviarContacto(
+                accessToken,
+                nombre,
+                telefono,
+                email
+            );
+
+            esperandoGoogle = false;
+
+            return;
+        }
+
+        // =====================================
+        // PEDIR LOGIN GOOGLE
+        // =====================================
+
+        tokenClient.callback =
+            async (response) => {
+
+                try {
+
+                    console.log(response);
+
+                    if (response.error) {
+
+                        console.error(response);
+
+                        esperandoGoogle = false;
+
+                        return;
+                    }
+
+                    accessToken =
+                        response.access_token;
+
+                    // GUARDAR TOKEN
+                    localStorage.setItem(
+                        "google_access_token",
+                        accessToken
+                    );
+
+                    // =====================================
+                    // ENVIAR CONTACTO
+                    // =====================================
+
+                    await enviarContacto(
+                        accessToken,
+                        nombre,
+                        telefono,
+                        email
+                    );
+
+                } catch (error) {
+
+                    console.error(error);
+
+                } finally {
+
+                    esperandoGoogle = false;
+                }
+            };
+
+        // IMPORTANTE:
+        // SOLO aquí se pide popup
+
+        tokenClient.requestAccessToken({
+
+            prompt: "consent"
+        });
+
+    } catch (error) {
+
+        esperandoGoogle = false;
+
+        console.error(error);
+    }
+}
+
+// =====================================
+// ENVIAR A FIREBASE
+// =====================================
 
 async function enviarContacto(
     accessToken,
@@ -458,30 +536,30 @@ async function enviarContacto(
 
     try {
 
-        console.log(
-            "ENVIANDO CONTACTO..."
-        );
-
         const guardarContactoGoogle =
             firebase
-            .functions()
-            .httpsCallable(
-                "guardarContactoGoogle"
-            );
+                .functions()
+                .httpsCallable(
+                    "guardarContactoGoogle"
+                );
 
         const resultado =
             await guardarContactoGoogle({
 
-            accessToken,
-            nombre,
-            telefono,
-            email
-        });
+                accessToken,
+                nombre,
+                telefono,
+                email
+            });
 
         console.log(resultado.data);
 
-        // TOKEN INVALIDO
-        if (!resultado.data.ok) {
+        // TOKEN EXPIRADO
+
+        if (
+            resultado.data &&
+            resultado.data.ok === false
+        ) {
 
             localStorage.removeItem(
                 "google_access_token"
@@ -497,4 +575,3 @@ async function enviarContacto(
         );
     }
 }
-

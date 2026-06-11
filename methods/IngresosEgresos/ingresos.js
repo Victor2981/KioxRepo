@@ -359,7 +359,10 @@ $(document).ready(function(){
                         parent.idUsuarioSistema,
                         true
                     );
-        
+                    
+                    // var pacienteFinal = Paciente;
+                    // pacienteFinal.IdLastEmployeeAtendent = idPaciente;
+                    // GuardarDatosPacienteslientes($(".btnAcceptCheckout"),pacienteFinal,1,idPaciente);
                     MostrarMensajePrincipal("La cita se pagó correctamente", "success");
                     Redireccionar("../citas.html");
                 } else {
