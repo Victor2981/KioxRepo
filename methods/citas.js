@@ -59,8 +59,12 @@ $(document).ready(function(){
                     idPatientSelected = idPatient;
                   //inp.value = idPatient;
                   //closeAllLists();                  
+                  var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);
                   TitleAppointment = dato.Name + " " + dato.LastName + " " + dato.SecondLastName;
                   $(".txtEmpleadoGeneral").val(dato.Name + " " + dato.LastName + " " + dato.SecondLastName);
+                    if (datosCuentaUsusario.Position == KioxPositions.Administrador) {
+                        $(".lUltimoAtendiente").text(parent.lstEmployeesGlobal[dato.IdLastEmployeeAtendent] ? "Último fisioterapeuta: " + parent.lstEmployeesGlobal[dato.IdLastEmployeeAtendent].Name + " " + parent.lstEmployeesGlobal[dato.IdLastEmployeeAtendent].LastName + " " + parent.lstEmployeesGlobal[dato.IdLastEmployeeAtendent].SecondLastName : "No hay información");
+                    }
                   $(".pTelefono").text(dato.Phone);
                   $(".pCorreo").text(dato.Email);              
                   $(".dvDatosCita").show();
@@ -755,6 +759,16 @@ function convertirEventoCalendario(idAppoitment, AppoitmentData) {
             break;
     }
 
+    var cadenaBloqueo = ""
+    var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);
+    if (datosCuentaUsusario.Position == KioxPositions.Administrador) {
+        if (AppoitmentData.IdPatient != "" && parent.lstPatientsGlobal[AppoitmentData.IdPatient].IdLastEmployeeAtendent != undefined){
+            if (AppoitmentData.IdEmployee == parent.lstPatientsGlobal[AppoitmentData.IdPatient].IdLastEmployeeAtendent) {
+                cadenaBloqueo = "*";
+            }    
+        }
+    }
+
     if (new Date() >= AppoitmentData.AppointmentDateStart.toDate()) {
         Editable = false;
     }
@@ -773,7 +787,7 @@ function convertirEventoCalendario(idAppoitment, AppoitmentData) {
 
     return {
         id: idAppoitment,
-        title: construirTitulo(AppoitmentData),
+        title: cadenaBloqueo + construirTitulo(AppoitmentData),
         start: AppoitmentData.AppointmentDateStart.toDate(),
         end: AppoitmentData.AppointmentDateEnd.toDate(),
         editable: Editable,

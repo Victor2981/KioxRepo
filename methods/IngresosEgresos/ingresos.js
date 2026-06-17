@@ -292,6 +292,8 @@ $(document).ready(function(){
         
                     const ingresoRef = db.collection("Earnings").doc(operationId);
                     const existingIngreso = await transaction.get(ingresoRef);
+                    const citaRef = db.collection(urlCitasGlobal).doc(selIdAppointmen);    
+                    const citaSnapshot = await transaction.get(citaRef);
         
                     if (existingIngreso.exists) {
                         throw new Error("Este cobro ya fue procesado");
@@ -343,26 +345,22 @@ $(document).ready(function(){
                     }
         
                     if (idCita !== "null") {
-        
-                        const citaRef = db.collection(urlCitasGlobal).doc(selIdAppointmen);
-        
+                                            
+                        const pacienteRef = db.collection(urlPacientesGlobal).doc(idPaciente);
+                        citaData = citaSnapshot.data();
                         transaction.update(citaRef, {
                             Status: StatusAppointment.Pagado
                         });
+
+                        transaction.update(pacienteRef, {
+                            IdLastEmployeeAtendent: citaData.IdEmployee
+                        });
+                        
                     }
                 });
         
                 if (idIngreso && idCita !== "null") {
-                    await UpdateAvailabilityEmployee(
-                        $btn,
-                        selIdAppointmen,
-                        parent.idUsuarioSistema,
-                        true
-                    );
-                    
-                    // var pacienteFinal = Paciente;
-                    // pacienteFinal.IdLastEmployeeAtendent = idPaciente;
-                    // GuardarDatosPacienteslientes($(".btnAcceptCheckout"),pacienteFinal,1,idPaciente);
+                    await UpdateAvailabilityEmployee($btn,selIdAppointmen,parent.idUsuarioSistema,true);                    
                     MostrarMensajePrincipal("La cita se pagó correctamente", "success");
                     Redireccionar("../citas.html");
                 } else {
