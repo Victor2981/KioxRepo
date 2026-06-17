@@ -163,6 +163,7 @@ const GuardarDatosPacientes = async function(ctrl,objGrupo, operation, idPatient
     return new Promise(resolve => {setTimeout(async function(){
         QuitarMensaje();
         if (operation == 0){
+            var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);
             if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Administrador)) {
                 await insertDb(ctrl,urlPacientesGlobal,objGrupo)
                 resolve(await crearContacto(objGrupo.Name + " " + objGrupo.LastName + " " + objGrupo.SecondLastName, objGrupo.Phone, objGrupo.Email));
