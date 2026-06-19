@@ -1179,6 +1179,7 @@ function generarCalendario() {
     },
     eventClick: function(info) {
         $(".msjCitaPendiente").hide();
+        $(".lUltimoAtendiente").text("");
         if (datosCuentaUsusario.Position !=  parseInt(KioxPositions.Recepcion) && datosCuentaUsusario.Position !=  parseInt(KioxPositions.Practicantes)) {
             clearFields();
             operacionCitas = 1;
@@ -1263,6 +1264,7 @@ function generarCalendario() {
                         $(".pEmpleadoGeneral").text(patient.NameComplete);
                         $(".pTelefono").text(patient.Phone);
                         $(".pCorreo").text(patient.Email);       
+                        $(".lUltimoAtendiente").text(parent.lstEmployeesGlobal[patient.IdLastEmployeeAtendent] ? "Último fisioterapeuta: " + parent.lstEmployeesGlobal[patient.IdLastEmployeeAtendent].Name + " " + parent.lstEmployeesGlobal[patient.IdLastEmployeeAtendent].LastName + " " + parent.lstEmployeesGlobal[patient.IdLastEmployeeAtendent].SecondLastName : "No hay información");
                     }
                     $('.txtFechaCita').val(DateI.getFullYear().toString().padStart(4, "0")  + "-" + (DateI.getMonth() + 1).toString().padStart(2, "0")  + "-" + DateI.getDate().toString().padStart(2, "0"));
                     $('.txtHoraInicioCita').val(DateI.getHours().toString().padStart(2, "0") + ":" + DateI.getMinutes().toString().padStart(2, "0"));
