@@ -23,6 +23,7 @@ $(document).ready(function(){
 });
 
 async function populatePatientsAppointments(idPatient){
+    parent.lstAppointmentsHistoryGlobal = {};
     await db.collection(urlCitasGlobal).where("IdPatient","==",idPatient).orderBy("AppointmentDateStart", "desc").get().then((obj)=>{
         obj.docs.forEach(function(appointment) {
             var datos =  appointment.data();

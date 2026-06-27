@@ -121,7 +121,7 @@ $(document).ready(function(){
                         parent.lstAppointmentsGlobal = {};
 
                         // cambiar vista
-                        calendar.changeView('list');
+                        calendar.changeView('listPatient');
 
                         // esperar un frame para que FullCalendar termine
                         requestAnimationFrame(async () => {
@@ -1083,27 +1083,20 @@ function generarCalendario() {
     if (selIdPacienteFiltro != "") {
         vistainicial = "list";
           vistas = {
-            list: {
-                visibleRange: function () {
-                    const hoy = new Date();
-
-                    const inicio = new Date(hoy);
-                    inicio.setDate(hoy.getDate() - 28); // 4 semanas atrás
-
-                    const fin = new Date(hoy);
-                    fin.setDate(hoy.getDate() + 28); // 4 semanas adelante
-
-                    return {
-                        start: inicio,
-                        end: fin
-                    };
-                },
-                buttonText: 'Agenda'
+            listPatient: {
+                type: 'list',
+                duration: { years: 1 },
+                buttonText: 'Historial'
             }
         }
     }
     else{
         vistas = {
+            listPatient: {
+                type: 'list',
+                duration: { years: 10 },
+                buttonText: 'Historial'
+            },
             dayGrid: {
                 titleFormat: { year: '2-digit', month: '2-digit'}
             },
@@ -1492,6 +1485,7 @@ function clearFields(){
     $(".ddlCategoria").val('');
     $(".ddlSucursal").val('');
     $(".txtNotaCita").val('');  
+    $(".lUltimoAtendiente").text('');
 }
 
 function llenarTablaCitasPorConfirmar(){
