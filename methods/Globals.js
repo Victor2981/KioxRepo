@@ -26,6 +26,7 @@ const KioxPositions = {
 	Fisioterapeuta: 2,
     Recepcion: 3,
 	Practicantes: 4,
+    ResponsableDeCitas: 6
 }
 
 function addScript(src) {

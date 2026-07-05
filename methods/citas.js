@@ -62,7 +62,7 @@ $(document).ready(function(){
                   var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);
                   TitleAppointment = dato.Name + " " + dato.LastName + " " + dato.SecondLastName;
                   $(".txtEmpleadoGeneral").val(dato.Name + " " + dato.LastName + " " + dato.SecondLastName);
-                    if (datosCuentaUsusario.Position == KioxPositions.Administrador) {
+                    if (datosCuentaUsusario.Position == KioxPositions.Administrador || datosCuentaUsusario.Position == KioxPositions.ResponsableDeCitas) {
                         $(".lUltimoAtendiente").text(parent.lstEmployeesGlobal[dato.IdLastEmployeeAtendent] ? "Último fisioterapeuta: " + parent.lstEmployeesGlobal[dato.IdLastEmployeeAtendent].Name + " " + parent.lstEmployeesGlobal[dato.IdLastEmployeeAtendent].LastName + " " + parent.lstEmployeesGlobal[dato.IdLastEmployeeAtendent].SecondLastName : "No hay información");
                     }
                   $(".pTelefono").text(dato.Phone);
@@ -400,7 +400,7 @@ $(document).ready(function(){
                 if (Object.values(parent.lstEmployeesGlobal).filter(x => x.uId != idEmpleado).length > 0) {
                     var datosEmpleados;
                     var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);
-                    if (datosCuentaUsusario.Position == KioxPositions.Administrador) {
+                    if (datosCuentaUsusario.Position == KioxPositions.Administrador || datosCuentaUsusario.Position == KioxPositions.ResponsableDeCitas) {
                         datosEmpleados = Object.values(parent.lstEmployeesGlobal).filter(x => x.uId == idEmpleado)[0];
                     }   
                     else{
@@ -540,7 +540,7 @@ const SeleccionarDatosCitas = async function () {
             );
         }
 
-        else if (datosCuentaUsusario.Position == parseInt(KioxPositions.Administrador)) {
+        else if (datosCuentaUsusario.Position == parseInt(KioxPositions.Administrador) || datosCuentaUsusario.Position == parseInt(KioxPositions.ResponsableDeCitas)) {
             if ($(".ddlFisioterapeutaFiltro").val() != "" && $(".ddlFisioterapeutaFiltro").val() != null) {
                 consultadb = consultadb.where("IdEmployee","==",$(".ddlFisioterapeutaFiltro").val()
                 );
@@ -761,7 +761,7 @@ function convertirEventoCalendario(idAppoitment, AppoitmentData) {
 
     var cadenaBloqueo = ""
     var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);
-    if (datosCuentaUsusario.Position == KioxPositions.Administrador) {
+    if (datosCuentaUsusario.Position == KioxPositions.Administrador || datosCuentaUsusario.Position == KioxPositions.ResponsableDeCitas) {
         if (AppoitmentData.IdPatient != "" && parent.lstPatientsGlobal[AppoitmentData.IdPatient].IdLastEmployeeAtendent != undefined){
             if (AppoitmentData.IdEmployee == parent.lstPatientsGlobal[AppoitmentData.IdPatient].IdLastEmployeeAtendent) {
                 cadenaBloqueo = "*";
@@ -825,10 +825,7 @@ function construirTitulo(AppoitmentData) {
 
     var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);
 
-    if (
-        datosCuentaUsusario.Position ==
-        parseInt(KioxPositions.Administrador)
-    ) {
+    if (datosCuentaUsusario.Position == parseInt(KioxPositions.Administrador) || datosCuentaUsusario.Position == parseInt(KioxPositions.ResponsableDeCitas)) {
 
         var datosPaquete = Object.values(parent.lstPacksGlobal).filter(
             item =>
@@ -994,7 +991,7 @@ function llenarEventos(){
             //,
             var tituloCita = AppoitmentData.Title;
             var datosCuentaUsusario = JSON.parse(sessionStorage.sesionUsuario);
-            if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Administrador)) {
+            if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Administrador) || datosCuentaUsusario.Position ==  parseInt(KioxPositions.ResponsableDeCitas)) {
                 tituloCita = AppoitmentData.Title;
                 //  parent.lstPacksGlobal
                 //  parent.lstPatientsGlobal[idPatientQuery]
@@ -1043,7 +1040,7 @@ function generarCalendario() {
         $(".ddlSucursalFiltro").val(datosCuentaUsusario.IdBranch);
         $(".rowSucursal").hide();
     }   
-    if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Administrador)) {                
+    if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Administrador) || datosCuentaUsusario.Position ==  parseInt(KioxPositions.ResponsableDeCitas)) {                
         $(".ddlSucursalFiltro").val("");
         $(".rowSucursal").show();
     }   
@@ -1234,8 +1231,13 @@ function generarCalendario() {
                     $(".btnAcceptAppointment").show();
                 }
                 else{
-                    $(".btnAcceptAppointment").hide();
-                    if (pasoMasDeHoraYMedia(DateI)) {                        
+                    // if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.ResponsableDeCitas)) {
+                    //     $(".btnAcceptAppointment").show();    
+                    // }
+                    // else{
+                    //     $(".btnAcceptAppointment").hide();
+                    // }
+                    if (pasoMasDeHoraYMedia(DateI) || datosCuentaUsusario.Position ==  parseInt(KioxPositions.ResponsableDeCitas)) {                        
                         $(".btnStartAppointment").hide();    
                     }                    
                     $(".btnCancelAppointment").hide();

@@ -19,7 +19,7 @@
         rel="stylesheet">
     
     <!-- Custom styles for this template-->
-    <link href="../css/sb-admin-2.css?kvs=7.9.11" rel="stylesheet">    
+    <link href="../css/sb-admin-2.css?kvs=7.9.12" rel="stylesheet">    
     <link href="../vendor/alert.scss" rel="stylesheet">
     <link href="../vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
     <link href="https://code.jquery.com/jquery-3.7.0.min.js">
@@ -47,7 +47,7 @@
                 <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
                     <img src="img/logoHorizontalBlanco.svg" style="height: 35pt;">
                 </a>
-                <p style="text-align: center;">kvs=7.9.11</p>                
+                <p style="text-align: center;">kvs=7.9.12</p>                
                 <!-- Divider -->
                 <hr class="sidebar-divider my-0">
     
@@ -301,11 +301,11 @@
    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-database.js"></script>
    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-auth.js"></script>
    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-analytics.js"></script>
-   <script src="methods/conexiones.js?kvs=7.9.11"></script>
-   <script src="methods/Globals.js?kvs=7.9.11"></script>
-   <script src="methods/utilidades.js?kvs=7.9.11"></script>
-   <script src="methods/dbManager.js?kvs=7.9.11"></script>
-   <script src="methods/loging.js?kvs=7.9.11"></script>
+   <script src="methods/conexiones.js?kvs=7.9.12"></script>
+   <script src="methods/Globals.js?kvs=7.9.12"></script>
+   <script src="methods/utilidades.js?kvs=7.9.12"></script>
+   <script src="methods/dbManager.js?kvs=7.9.12"></script>
+   <script src="methods/loging.js?kvs=7.9.12"></script>
 
   <script>
    $(document).ready(function(){
@@ -315,7 +315,7 @@
     if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Fisioterapeuta)) {
         $(".dvMenuAdministracion").empty();
     }
-    if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Recepcion) || datosCuentaUsusario.Position ==  parseInt(KioxPositions.Practicantes)) {
+    if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Recepcion) || datosCuentaUsusario.Position ==  parseInt(KioxPositions.Practicantes) || datosCuentaUsusario.Position ==  parseInt(KioxPositions.ResponsableDeCitas)) {
         $(".dvMenuAdmin").remove();
     }
     $(".btnClearCache").click(function(){
