@@ -1227,8 +1227,11 @@ function generarCalendario() {
                         break;
                 }
             
-                if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Administrador)) {
+                if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Administrador) || datosCuentaUsusario.Position ==  parseInt(KioxPositions.ResponsableDeCitas)) {
                     $(".btnAcceptAppointment").show();
+                    if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.ResponsableDeCitas)) {                        
+                        $(".btnStartAppointment").hide();    
+                    }                    
                 }
                 else{
                     // if (datosCuentaUsusario.Position ==  parseInt(KioxPositions.ResponsableDeCitas)) {
@@ -1237,9 +1240,6 @@ function generarCalendario() {
                     // else{
                     //     $(".btnAcceptAppointment").hide();
                     // }
-                    if (pasoMasDeHoraYMedia(DateI) || datosCuentaUsusario.Position ==  parseInt(KioxPositions.ResponsableDeCitas)) {                        
-                        $(".btnStartAppointment").hide();    
-                    }                    
                     $(".btnCancelAppointment").hide();
                 }
 
@@ -1254,7 +1254,7 @@ function generarCalendario() {
                 // $(".btnCancelAppointment").show();
                 // $(".btnAcceptAppointment").show();
                 idPatientSelected = datos.IdPatient;
-                if (info.event._def.ui.startEditable && new Date() < DateI || datosCuentaUsusario.Position ==  parseInt(KioxPositions.Administrador)) {
+                if (info.event._def.ui.startEditable && new Date() < DateI || (datosCuentaUsusario.Position ==  parseInt(KioxPositions.Administrador || datosCuentaUsusario.Position ==  parseInt(KioxPositions.ResponsableDeCitas)))) {
                     if (patient != undefined) {
                         $(".pEmpleadoGeneral").text(patient.NameComplete);
                         $(".pTelefono").text(patient.Phone);
