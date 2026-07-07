@@ -69,15 +69,15 @@ $(document).ready(function(){
     });
    
 
-    $(".txtNombre").keyup(function () {
+    $(".txtNombre").blur(function () {
         this.value = capitalizar(this.value);
     });
 
-    $(".txtPrimerApellido").keyup(function () {
+    $(".txtPrimerApellido").blur(function () {
         this.value = capitalizar(this.value);
     });
 
-    $(".txtSegundoApellido").keyup(function () {
+    $(".txtSegundoApellido").blur(function () {
         this.value = capitalizar(this.value);
     });
 
