@@ -809,7 +809,13 @@ function llenarTablaIngresosDetalle(datosIngresos){
             else{
                 datos.IsPayed = "No"    
             }   
-            var nomEmpleado = parent.lstEmployeesGlobal[datos.IdEmployeRegister].Name + " " + parent.lstEmployeesGlobal[datos.IdEmployeRegister].LastName + " " + parent.lstEmployeesGlobal[datos.IdEmployeRegister].SecondLastName
+            var nomEmpleado = "";
+            if(parent.lstEmployeesGlobal[datos.IdEmployeRegister] == undefined){
+                nomEmpleado = "Sin registro";
+            }
+            else{
+                nomEmpleado = parent.lstEmployeesGlobal[datos.IdEmployeRegister].Name + " " + parent.lstEmployeesGlobal[datos.IdEmployeRegister].LastName + " " + parent.lstEmployeesGlobal[datos.IdEmployeRegister].SecondLastName
+            }
             datos.NameComplete = datos.Patient.Name + " " + datos.Patient.LastName + " " + datos.Patient.SecondLastName + "(" + obtenerTresIniciales(nomEmpleado) + ")";
             datos.PaymentTypeText = TipoPagoTexto(datos.PaymentType);
 

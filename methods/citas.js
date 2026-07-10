@@ -473,7 +473,7 @@ function enviarMensaje(element) {
         //cita = "mañana 10 pm"
         lstParametrosMensaje.push(saludo);
         lstParametrosMensaje.push(cita);
-        var mensaje = saludo.replace(" ","%20") + " " + cita.replace(" ","%20");
+        var mensaje = saludo.replace(" ","%20") + " " + cita.replace(" ","%20") + "¿Confirmas tu cita?";
         var url = "";
         if (celular.length>10) {
             url = "https://wa.me/" + celular + "?text="+mensaje;
