@@ -16,15 +16,19 @@ jobs:
 
     steps:
 
+      # Descargar el código de GitHub
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
+      # Sincronizar archivos con el hosting principal
       - name: 📤 FTP Deploy Principal
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
+
+          # Tiempo máximo de conexión
           timeout: 120000
 
 
@@ -37,15 +41,24 @@ jobs:
 
     steps:
 
+      # Descargar el código de GitHub
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
+      # Sincronizar archivos con Hostinger
       - name: 📤 FTP Deploy Hostinger
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER_BACKUP }}
           username: ${{ secrets.FTP_USERNAME_BACKUP }}
           password: ${{ secrets.FTP_PASSWORD_BACKUP }}
+
+          # Conexión FTP
           protocol: ftp
           port: 21
+
+          # Carpeta pública de Hostinger
+          server-dir: public_html/
+
+          # Tiempo máximo de conexión
           timeout: 120000
