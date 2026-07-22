@@ -10,9 +10,6 @@ on:
 
 jobs:
 
-  # ==========================================
-  # HOSTING PRINCIPAL
-  # ==========================================
   ftp-deploy-principal:
     name: 🚀 Deploy to FTP server principal
     runs-on: ubuntu-latest
@@ -29,9 +26,6 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
 
 
-  # ==========================================
-  # HOSTING DE RESPALDO
-  # ==========================================
   ftp-deploy-respaldo:
     name: 🚀 Deploy to FTP server respaldo
     runs-on: ubuntu-latest
@@ -46,3 +40,6 @@ jobs:
           server: ${{ secrets.FTP_SERVER_BACKUP }}
           username: ${{ secrets.FTP_USERNAME_BACKUP }}
           password: ${{ secrets.FTP_PASSWORD_BACKUP }}
+          protocol: ftps
+          port: 21
+          timeout: 120000
