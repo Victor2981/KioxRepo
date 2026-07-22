@@ -10,11 +10,15 @@ on:
 
 jobs:
 
+  # ==========================================
+  # HOSTING PRINCIPAL
+  # ==========================================
   ftp-deploy-principal:
     name: 🚀 Deploy to FTP server principal
     runs-on: ubuntu-latest
 
     steps:
+
       - name: 📥 Checkout code
         uses: actions/checkout@v3
 
@@ -26,20 +30,25 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
 
 
+  # ==========================================
+  # HOSTING DE RESPALDO - HOSTINGER
+  # ==========================================
   ftp-deploy-respaldo:
-    name: 🚀 Deploy to FTP server respaldo
+    name: 🚀 Deploy to Hostinger respaldo
     runs-on: ubuntu-latest
 
     steps:
+
       - name: 📥 Checkout code
         uses: actions/checkout@v3
 
-      - name: 📤 FTP Deploy Respaldo
+      - name: 📤 FTP Deploy Hostinger
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER_BACKUP }}
           username: ${{ secrets.FTP_USERNAME_BACKUP }}
           password: ${{ secrets.FTP_PASSWORD_BACKUP }}
-          protocol: ftps
+          protocol: ftp
           port: 21
+          server-dir: public_html/
           timeout: 120000
