@@ -459,7 +459,7 @@ function enviarMensaje(element) {
         else{
             cita += "el " + new Date().toLocaleString().substring(0, 16);
         }            
-
+        cita += " en la sucursal " + parent.lstSucursalesGlobal[element.IdBranch].Name;
         var horaActual = new Date().getHours();
         if (horaActual > 4 && horaActual < 12) {
             saludo = "Buenos días " + nombrePaciente;
